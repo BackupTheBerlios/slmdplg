@@ -1,0 +1,15 @@
+BOOL x, y;
+		CONST BOOL z = FALSE;
+	CONST BOOL w = TRUE;
+CONST INT h = 0;
+CONST INT s = 709;
+
+INT a,b ,  c   
+
+
+BEGIN
+
+cantidad  +   23
+cantidad   MOD   123 
+
+END

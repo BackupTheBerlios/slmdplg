@@ -1,0 +1,16 @@
+
+/*declaración de variables*/
+
+CONST INT x = 8;
+BOOL y, z;
+INT w, s
+
+/*sección de instrucciones*/
+
+BEGIN
+y = x == 8;
+w = x - 3;
+z = x >= 5;
+y = y && z;
+s = (-x+-w)
+END
