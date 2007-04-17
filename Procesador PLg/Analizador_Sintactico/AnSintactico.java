@@ -1,14 +1,12 @@
 package Analizador_Sintactico;
 
-import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
 import tSimbolos.TablaSimbolos;
 import tSimbolos.TokenVar;
 import Analizador_Lexico.AnLexico;
 import Analizador_Lexico.Token;
+import Analizador_Sintactico.Traductor.Traductor;
 
 public class AnSintactico 
 {
@@ -27,10 +25,10 @@ public class AnSintactico
 	 *  Se incrementa al introducir una nueva variable.*/
 	private int dirección;
 	
-	/** Variable global que se encarga de ir almacenando el código según se va 
-	 * pasando por las diversas reglas de la gramática. */
-	private StringBuffer codigo;
-
+	/** Traductor que se encarga de convertir las instrucciones en codigo fuente
+	 * que se van analizando a codigo objeto. */
+	private Traductor traductor; 
+	
 	/** Constructor de la clase. Inicializa los diversos atributos a partir
 	 *  del fichero que se le pasa como parámetro y comienza el análisis
 	 *  sintáctico con la llamada al metodo prog(). 
@@ -39,6 +37,7 @@ public class AnSintactico
 	{
 		anLex = new AnLexico(fichero);
 		ts = new TablaSimbolos();
+		traductor = new Traductor();
 		tActual = anLex.analizador();
 		dirección = 0;
 		progr();
@@ -49,37 +48,21 @@ public class AnSintactico
 	 * 		Prog -> Decs BEGIN Ins END*/
 	private void progr()
 	{
-		codigo = new StringBuffer("");
 		Decs();
 		reconoce("BEGIN");
 		boolean error = Ins();
 		reconoce("END");
-		codigo.append("end;");
+		traductor.emiteInstruccion("end");
 		if (error)
 		{
 			System.out.println("Hay errores sintácticos en el código. No se ha podido completar la compilación.");
 		}
 		else
 		{
-			guardarCodigo("codigo.txt");
+			traductor.guardar("codigo.txt");
 			System.out.println("Compilación completada con éxito.");
 		}
 			
-	}
-	
-	/** Método que se utiliza para guardar el código en el fichero 
-	 * cuya ruta se pasa como parámetro.
-	 * @param ruta La ruta del archivo en el que quiere guardarse el código en lenguaje objeto.*/
-	private void guardarCodigo(String ruta)
-	{
-		try
-		{
-			File archivo = new File(ruta);
-			FileWriter archivo2 = new FileWriter(archivo);
-			archivo2.write(codigo.toString());
-			archivo2.close();
-		}
-		catch (IOException excepcion){}
 	}
 
 	/** Método que comprueba si el tipo del token actual es igual al que se le pasa como parámetro.
@@ -150,12 +133,12 @@ public class AnSintactico
 				valor = "1";
 			if (compatibles(tipo, tActual.getTipo()) && !ts.constainsId(nomconst))
 			{
-				ts.addCte(nomconst, valor, tipo);
+				ts.addCte(nomconst, new Integer(valor), tipo);
 				reconoce(tActual.getTipo());
 			}
 			else
 			{
-				ts.addCte(nomconst, valor, "ERROR");
+				ts.addCte(nomconst, new Integer(valor), "ERROR");
 				reconoce(tActual.getTipo());
 			}
 		}
@@ -237,7 +220,7 @@ public class AnSintactico
 		String tipo1 = Exp();
 		if (ts.constainsId(id) && !(ts.getToken(id).getClase()== tSimbolos.Token.CONSTANTE))
 		{
-			codigo.append("desapila-dir(" + ts.getToken(id).getDireccion() + ");\n");
+			traductor.emiteInstruccion("desapila-dir", ts.getToken(id).getDireccion());
 			return (tipo1.equals("ERROR") || !compatibles (tipo1, ts.getToken(id).getTipo()));
 		}
 		else
@@ -271,13 +254,13 @@ public class AnSintactico
 			else
 				tipo22 = "BOOL";
 			if (lexema.equals("<"))
-				codigo.append("menor;\n");
+				traductor.emiteInstruccion("menor");
 			else if (lexema.equals(">"))
-				codigo.append("mayor;\n");
+				traductor.emiteInstruccion("mayor");
 				else if (lexema.equals("<="))
-					codigo.append("menoroigual;\n");
+					traductor.emiteInstruccion("menoroigual");
 					else if (lexema.equals(">="))
-						codigo.append("mayoroigual;\n");
+						traductor.emiteInstruccion("mayoroigual");
 			tipo2 = RExp(tipo22);
 			return tipo2;
 		}
@@ -311,9 +294,9 @@ public class AnSintactico
 			else
 				tipo22 = "BOOL";
 			if (lexema.equals("!="))
-				codigo.append("distintos;\n");
+				traductor.emiteInstruccion("distintos");
 			else if (lexema.equals("=="))
-				codigo.append("iguales;\n");
+				traductor.emiteInstruccion("iguales");
 			tipo2 = RExp1(tipo22);
 			return tipo2;
 		}
@@ -348,11 +331,11 @@ public class AnSintactico
 			else
 				tipo22 = tipo1;
 			if (lexema.equals("+"))
-				codigo.append("suma;\n");
+				traductor.emiteInstruccion("suma");
 			else if (lexema.equals("-"))
-				codigo.append("resta;\n");
+				traductor.emiteInstruccion("resta");
 				else if (lexema.equals("||"))
-					codigo.append("or;\n");
+					traductor.emiteInstruccion("or");
 			tipo2 = RExp2(tipo22);
 			return tipo2;
 		}
@@ -400,13 +383,13 @@ public class AnSintactico
 			else
 				tipo22 = tipo1;
 			if (lexema.equals("*"))
-				codigo.append("multiplica;\n");
+				traductor.emiteInstruccion("multiplica");
 			else if (lexema.equals("/"))
-				codigo.append("divide;\n");
+				traductor.emiteInstruccion("divide");
 				else if (lexema.equals("MOD"))
-				codigo.append("modulo;\n");
+				traductor.emiteInstruccion("modulo");
 					else if (lexema.equals("&&"))
-						codigo.append("and;\n");
+						traductor.emiteInstruccion("and");
 			tipo2 = RExp3(tipo22);
 			return tipo2;
 		}
@@ -438,12 +421,12 @@ public class AnSintactico
 			String tipo = Fact();
 			if (tipoOp.equals("BOOL"))
 			{
-				codigo.append("negacion;\n");
+				traductor.emiteInstruccion("negacion");
 			}
 			else 
 				if (tipoOp.equals("NUM"))
 				{
-					codigo.append("opuesto;\n");  //El valor opuesto de un numero p.e. 2 opuesto de -2
+					traductor.emiteInstruccion("opuesto");  //El valor opuesto de un numero p.e. 2 opuesto de -2
 				}	
 			if (!compatibles(tipoOp, tipo))
 				return "ERROR";
@@ -489,18 +472,18 @@ public class AnSintactico
 		String tipo;
 		if (tActual.getTipo().equals("BOOL")) // El valor de Fact es TRUE o FALSE.
 		{
-			String bool;
+			int bool;
 			if (tActual.getLexema().equals("TRUE"))
-				bool = "1";
+				bool = 1;
 			else
-				bool = "0";
-			codigo.append("apila(" + bool + ");\n");
+				bool = 0;
+			traductor.emiteInstruccion("apila", bool);
 			reconoce("BOOL");
 			tipo = "BOOL";
 		}
 		else if (tActual.getTipo().equals("NUM")) //El valor de Fact es un número. 
 		{
-			codigo.append("apila(" + tActual.getLexema() + ");\n");
+			traductor.emiteInstruccion("apila", Integer.parseInt(tActual.getLexema()));
 			reconoce("NUM");
 			tipo = "NUM";
 		}
@@ -513,17 +496,17 @@ public class AnSintactico
 			{
 				if (ts.getToken(id) instanceof TokenVar) // id representa una variable.
 				{
-					codigo.append("apila-dir(" + ts.getToken(id).getDireccion() + ");\n");
+					traductor.emiteInstruccion("apila-dir", ts.getToken(id).getDireccion());
 				}
 				else  //id representa una constante.
 				{
 					if (ts.getToken(id).getTipo().equals("BOOL"))
 						if (ts.getToken(id).getValor().equals("TRUE"))
-							codigo.append("apila(1);\n");
+							traductor.emiteInstruccion("apila", 1);
 						else
-							codigo.append("apila(0);\n");
+							traductor.emiteInstruccion("apila", 0);
 					else
-						codigo.append("apila(" + ts.getToken(id).getValor() + ");\n");
+						traductor.emiteInstruccion("apila", ts.getToken(id).getValor());
 				}
 				tipo = ts.getToken(id).getTipo();
 				reconoce("ID");

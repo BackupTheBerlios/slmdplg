@@ -27,7 +27,7 @@ public class Token {
 	/**
 	 * Almacena un objeto con el valor de token.
 	 */
-	protected Object valor;
+	protected Integer valor;
 	
 	/**
 	 * Entero que representa los tokens de clase constante.
@@ -132,14 +132,14 @@ public class Token {
 	/**
 	 * @return Returns the valor.
 	 */
-	public Object getValor() {
+	public Integer getValor() {
 		return valor;
 	}
 
 	/**
 	 * @param valor The valor to set.
 	 */
-	public void setValor(Object valor) {
+	public void setValor(Integer valor) {
 		this.valor = valor;
 	}
 		

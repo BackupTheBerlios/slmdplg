@@ -66,7 +66,7 @@ public class TablaSimbolos {
 	 * @return Devuelve el token asociado a ese identificador previamente
 	 * en la tabla de simbolos, si no habia ninguno devuelve null.
 	 */
-    public Token addCte(String id, Object valor, String tipo){
+    public Token addCte(String id, Integer valor, String tipo){
     	if (id == null) return null;
     	else return tabla.put(id, new TokenCte(valor, tipo));
 	}

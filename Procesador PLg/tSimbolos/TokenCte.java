@@ -16,7 +16,7 @@ public class TokenCte extends Token {
 	 * @param valor Objeto con el valor que ha de almacenar el token
 	 * @param tipo Almacena el tipo de datos que contendra el token
 	 */
-	public TokenCte(Object valor, String tipo) {
+	public TokenCte(Integer valor, String tipo) {
 		this.valor = valor;
 		this.tipo = tipo;
 		this.clase = CONSTANTE;
