@@ -48,11 +48,12 @@ public class AnSintactico
 	 * 		Prog -> Decs BEGIN Ins END*/
 	private void progr()
 	{
-		Decs();
+		boolean errorD = Decs();
 		reconoce("BEGIN");
-		boolean error = Ins();
+		boolean errorI = Ins();
 		reconoce("END");
 		traductor.emiteInstruccion("end");
+		boolean error = errorD || errorI;
 		if (error)
 		{
 			System.out.println("Hay errores sintácticos en el código. No se ha podido completar la compilación.");
@@ -94,30 +95,34 @@ public class AnSintactico
 
 	/** Método para análisis de la expresión:
 	 * 		Decs -> Dec RDecs  */
-	private void Decs()
+	private boolean Decs()
 	{
-		Dec();
-		RDecs();
+		boolean error1 = Dec();
+		boolean error2 = RDecs();
+		return (error1 || error2);
 	}
 
 	/** Método para análisis de la expresión:
 	 * 		RDecs -> ; Dec RDecs | null      //NOTA : null se refiere a lambda en la gramática.
 	 * */  
-	private void RDecs()
+	private boolean RDecs()
 	{
 		if (!tActual.getTipo().equals("BEGIN"))
 		{
 			reconoce("PYC");
-			Dec();
-			RDecs();
+			boolean error1 = Dec();
+			boolean error2 = RDecs();
+			return (error1 || error2);
 		}
+		return false;
 	}
 
 	/** Método para análisis de las expresiones:
 	 * 		Dec -> CONST Tipo ID = Val
 	 * 		Dec -> Tipo ID */
-	private void Dec()
+	private boolean Dec()
 	{
+		boolean error = false;
 		if (tActual.getTipo().equals("CONST"))
 		{
 			reconoce("CONST");
@@ -129,58 +134,75 @@ public class AnSintactico
 			String valor = tActual.getLexema();
 			if (valor.equals("FALSE"))
 				valor = "0";
-			else if (valor.equals("TRUE"))
-				valor = "1";
+			else 
+				if (valor.equals("TRUE"))
+					valor = "1";
 			if (compatibles(tipo, tActual.getTipo()) && !ts.constainsId(nomconst))
 			{
 				ts.addCte(nomconst, new Integer(valor), tipo);
 				reconoce(tActual.getTipo());
+				error = false;
 			}
 			else
 			{
-				ts.addCte(nomconst, new Integer(valor), "ERROR");
+				ts.addCte(nomconst, new Integer(0), "ERROR");
 				reconoce(tActual.getTipo());
+				error = true;
 			}
-		}
+	}
 		else
 		{
 			String tipo = tActual.getLexema();
 			reconoce("TIPO");
-			Ids(tipo);
+			error = Ids(tipo);
 		}
+		return error;
 	}
 	
 	/** Método para análisis de la expresión:
 	 * 		Ids -> ID RIds  */
-	private void Ids(String tipo)
+	private boolean Ids(String tipo)
 	{
+		boolean error1;
 		String id = tActual.getLexema();
 		reconoce("ID");
 		if (!ts.constainsId(id))
+		{
 			ts.addVar(id, dirección++, tipo);
+			error1 = false;
+		}
 		else
+		{
 			ts.addVar(id, dirección++, "ERROR");
-		
-		RIds(tipo);
+			error1 = true;
+		}
+		boolean error2 = RIds(tipo);
+		return (error1 || error2);
 	}
 
 	/** Método para análisis de la expresión:
 	 * 		RIds -> , ID RIds | null         //NOTA : null se refiere a lambda en la gramática.
 	 * @param tipo El tipo de las variables que se están declarando.*/
-	private void RIds(String tipo)
+	private boolean RIds(String tipo)
 	{
+		
 		if (!tActual.getTipo().equals("PYC") && !tActual.getTipo().equals("BEGIN"))
 		{
+			boolean error1 = false;
 			reconoce("COMA");
 			String id = tActual.getLexema();
 			reconoce("ID");
 			if (!ts.constainsId(id))
 				ts.addVar(id, dirección++, tipo);
 			else
+			{
 				ts.addVar(id, dirección++, "ERROR");
-			
-			RIds(tipo);
+				error1 = true;
+			}
+			boolean error2 = RIds(tipo);
+			return (error1 || error2);
 		}
+		return false;
 	}
 
 	/** Método para análisis de la expresión:

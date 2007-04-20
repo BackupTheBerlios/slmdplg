@@ -1,6 +1,7 @@
 BOOL x, y;
 CONST BOOL z = FALSE;
 CONST INT t = 0;
+CONST BOOL rr = k;
 INT q, r
 
 BEGIN
