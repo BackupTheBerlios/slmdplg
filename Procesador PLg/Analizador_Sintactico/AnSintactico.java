@@ -94,7 +94,8 @@ public class AnSintactico
 	}
 
 	/** Método para análisis de la expresión:
-	 * 		Decs -> Dec RDecs  */
+	 * 		Decs -> Dec RDecs  
+	 * @return Indica si ha habido un error duranta la función.*/
 	private boolean Decs()
 	{
 		boolean error1 = Dec();
@@ -104,7 +105,7 @@ public class AnSintactico
 
 	/** Método para análisis de la expresión:
 	 * 		RDecs -> ; Dec RDecs | null      //NOTA : null se refiere a lambda en la gramática.
-	 * */  
+	 * @return Indica si ha habido un error duranta la función.*/  
 	private boolean RDecs()
 	{
 		if (!tActual.getTipo().equals("BEGIN"))
@@ -119,7 +120,8 @@ public class AnSintactico
 
 	/** Método para análisis de las expresiones:
 	 * 		Dec -> CONST Tipo ID = Val
-	 * 		Dec -> Tipo ID */
+	 * 		Dec -> Tipo ID   
+	 * @return Indica si ha habido un error duranta la función.*/
 	private boolean Dec()
 	{
 		boolean error = false;
@@ -160,7 +162,8 @@ public class AnSintactico
 	}
 	
 	/** Método para análisis de la expresión:
-	 * 		Ids -> ID RIds  */
+	 * 		Ids -> ID RIds    
+	 * @return Indica si ha habido un error duranta la función.*/
 	private boolean Ids(String tipo)
 	{
 		boolean error1;
@@ -182,7 +185,8 @@ public class AnSintactico
 
 	/** Método para análisis de la expresión:
 	 * 		RIds -> , ID RIds | null         //NOTA : null se refiere a lambda en la gramática.
-	 * @param tipo El tipo de las variables que se están declarando.*/
+	 * @param tipo El tipo de las variables que se están declarando.  
+	 * @return Indica si ha habido un error duranta la función.*/
 	private boolean RIds(String tipo)
 	{
 		
