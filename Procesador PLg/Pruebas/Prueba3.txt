@@ -1,13 +1,5 @@
-BOOL x, t, u, v;
-INT y, z, a, b, c
+INT x, y, z, u, w, r;
+BOOL res
 BEGIN
-a = 2;
-b = 23;
-c = 12;
-y = 122;
-z = y * a - b / -c;
-x = TRUE;
-t = FALSE;
-u = TRUE;
-v = x || (y != -8) && (u || x || (z <= b) && (y * 3 <= 5))
+res = (x==y) && (y==z) || (z==u) && (w==r)
 END

@@ -270,13 +270,12 @@ public class AnSintactico
 	{
 		if (tActual.getLexema().equals("||"))
 		{
-			reconoce("OPMUL");
+			reconoce("OPSUM");
 			
 			int irv = etiqueta + 1;
 			traductor.emiteInstruccion("copia");
 			traductor.emiteInstrucciónParcheable("ir-v");
 			traductor.emiteInstruccion("desapila");
-			traductor.parchea(irv, etiqueta);
 			etiqueta += 3;
 			
 			String tipo2 = ExpAnd();
@@ -285,7 +284,8 @@ public class AnSintactico
 				tipo22 = "ERROR";
 			else
 				tipo22 = "BOOL";
-			
+
+			traductor.parchea(irv, etiqueta);
 			tipo2 = RExpOr(tipo22);
 			return tipo2;
 		}
@@ -295,13 +295,7 @@ public class AnSintactico
 	private String ExpAnd()
 	{
 		String tipo1 = Exp();
-		int irf = etiqueta;
-		etiqueta++;
-		traductor.emiteInstrucciónParcheable("ir-f");
 		String tipo2 = RExpAnd(tipo1);
-		traductor.emiteInstruccion("ir-a", etiqueta+2);
-		traductor.emiteInstruccion("apila", 0);
-		etiqueta += 2;
 		return tipo2;
 	}
 	
@@ -309,20 +303,26 @@ public class AnSintactico
 	{
 		if (tActual.getLexema().equals("&&"))
 		{
-			reconoce("OPSUM");
+			reconoce("OPMUL");
+
+			int irf = etiqueta;
+			traductor.emiteInstrucciónParcheable("ir-f");
+			etiqueta++;
+			
 			String tipo2 = Exp();
+			
 			String tipo22;
 			if (!tipo1.equals("BOOL") || !tipo2.equals("BOOL"))
 				tipo22 = "ERROR";
 			else
 				tipo22 = "BOOL";
-			int irf = etiqueta;
-			etiqueta++;
-			traductor.emiteInstrucciónParcheable("ir-f");
-			tipo2 = RExpAnd(tipo1);
+			
+			traductor.parchea(irf, etiqueta+1);
 			traductor.emiteInstruccion("ir-a", etiqueta+2);
 			traductor.emiteInstruccion("apila", 0);
 			etiqueta += 2;
+			
+			tipo2 = RExpAnd(tipo1);
 			return tipo2;
 		}
 		return tipo1;
@@ -422,7 +422,7 @@ public class AnSintactico
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
 	private String RExp2(String tipo1) 
 	{
-		if (tActual.getTipo().equals("OPSUM"))
+		if (tActual.getTipo().equals("OPSUM") && !tActual.getLexema().equals("||"))
 		{
 			String tipoOp = tipoOpSum();
 			String lexema = tActual.getLexema();
@@ -475,7 +475,7 @@ public class AnSintactico
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
 	private String RExp3(String tipo1) 
 	{
-		if (tActual.getTipo().equals("OPMUL"))
+		if (tActual.getTipo().equals("OPMUL") && !tActual.getLexema().equals("&&"))
 		{
 			String tipoOp = tipoOpMul();
 			String lexema = tActual.getLexema();
@@ -626,7 +626,7 @@ public class AnSintactico
 		else if (tActual.getTipo().equals("PAA")) //El valor de Fact viene dado por una espresión parentizada.
 		{
 			reconoce("PAA");
-			tipo = Exp();
+			tipo = ExpOr();
 			reconoce("PAC");
 		}
 		else
