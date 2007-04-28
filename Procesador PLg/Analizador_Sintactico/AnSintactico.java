@@ -262,13 +262,7 @@ public class AnSintactico
 	private String ExpOr() 
 	{
 		String tipo1 = ExpAnd();
-		int irv = etiqueta + 1;
-		traductor.emiteInstruccion("copia");
-		traductor.emiteInstrucciónParcheable("ir-v");
-		traductor.emiteInstruccion("desapila");
-		etiqueta += 3;
 		String tipo2 = RExpOr(tipo1);
-		traductor.parchea(irv, etiqueta);
 		return tipo2;
 	}
 	
@@ -277,19 +271,22 @@ public class AnSintactico
 		if (tActual.getLexema().equals("||"))
 		{
 			reconoce("OPMUL");
+			
+			int irv = etiqueta + 1;
+			traductor.emiteInstruccion("copia");
+			traductor.emiteInstrucciónParcheable("ir-v");
+			traductor.emiteInstruccion("desapila");
+			traductor.parchea(irv, etiqueta);
+			etiqueta += 3;
+			
 			String tipo2 = ExpAnd();
 			String tipo22;
 			if (!tipo1.equals("BOOL") || !tipo2.equals("BOOL"))
 				tipo22 = "ERROR";
 			else
 				tipo22 = "BOOL";
-			int irv = etiqueta + 1;
-			traductor.emiteInstruccion("copia");
-			traductor.emiteInstrucciónParcheable("ir-v");
-			traductor.emiteInstruccion("desapila");
-			etiqueta += 3;
+			
 			tipo2 = RExpOr(tipo22);
-			traductor.parchea(irv, etiqueta);
 			return tipo2;
 		}
 		return tipo1;
@@ -365,6 +362,7 @@ public class AnSintactico
 					traductor.emiteInstruccion("menoroigual");
 					else if (lexema.equals(">="))
 						traductor.emiteInstruccion("mayoroigual");
+			etiqueta++;
 			tipo2 = RExp(tipo22);
 			return tipo2;
 		}
@@ -401,6 +399,7 @@ public class AnSintactico
 				traductor.emiteInstruccion("distintos");
 			else if (lexema.equals("=="))
 				traductor.emiteInstruccion("iguales");
+			etiqueta++;
 			tipo2 = RExp1(tipo22);
 			return tipo2;
 		}
@@ -440,6 +439,7 @@ public class AnSintactico
 				traductor.emiteInstruccion("resta");
 				else if (lexema.equals("||"))
 					traductor.emiteInstruccion("or");
+			etiqueta++;
 			tipo2 = RExp2(tipo22);
 			return tipo2;
 		}
@@ -494,6 +494,7 @@ public class AnSintactico
 				traductor.emiteInstruccion("modulo");
 					else if (lexema.equals("&&"))
 						traductor.emiteInstruccion("and");
+			etiqueta++;
 			tipo2 = RExp3(tipo22);
 			return tipo2;
 		}
@@ -526,12 +527,14 @@ public class AnSintactico
 			if (tipoOp.equals("BOOL"))
 			{
 				traductor.emiteInstruccion("negacion");
+				etiqueta++;
 			}
 			else 
 				if (tipoOp.equals("NUM"))
 				{
 					traductor.emiteInstruccion("opuesto");  //El valor opuesto de un numero p.e. 2 opuesto de -2
-				}	
+					etiqueta++;
+				}
 			if (!compatibles(tipoOp, tipo))
 				return "ERROR";
 			else
@@ -582,12 +585,14 @@ public class AnSintactico
 			else
 				bool = 0;
 			traductor.emiteInstruccion("apila", bool);
+			etiqueta++;
 			reconoce("BOOL");
 			tipo = "BOOL";
 		}
 		else if (tActual.getTipo().equals("NUM")) //El valor de Fact es un número. 
 		{
 			traductor.emiteInstruccion("apila", Integer.parseInt(tActual.getLexema()));
+			etiqueta++;
 			reconoce("NUM");
 			tipo = "NUM";
 		}
@@ -601,6 +606,7 @@ public class AnSintactico
 				if (ts.getToken(id) instanceof TokenVar) // id representa una variable.
 				{
 					traductor.emiteInstruccion("apila-dir", ts.getToken(id).getDireccion());
+					etiqueta++;
 				}
 				else  //id representa una constante.
 				{
@@ -611,6 +617,7 @@ public class AnSintactico
 							traductor.emiteInstruccion("apila", 0);
 					else
 						traductor.emiteInstruccion("apila", ts.getToken(id).getValor());
+					etiqueta++;
 				}
 				tipo = ts.getToken(id).getTipo();
 				reconoce("ID");
