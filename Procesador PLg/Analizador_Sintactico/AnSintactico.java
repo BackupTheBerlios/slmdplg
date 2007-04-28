@@ -25,6 +25,11 @@ public class AnSintactico
 	 *  Se incrementa al introducir una nueva variable.*/
 	private int dirección;
 	
+	/**
+	 * Indica la etiqueta actual, que se va actualizando según sea necesario (atributo remoto).
+	 */
+	private int etiqueta;
+	
 	/** Traductor que se encarga de convertir las instrucciones en codigo fuente
 	 * que se van analizando a codigo objeto. */
 	private Traductor traductor; 
@@ -40,6 +45,7 @@ public class AnSintactico
 		traductor = new Traductor();
 		tActual = anLex.analizador();
 		dirección = 0;
+		etiqueta = 0;
 		progr();
 	} 
 
@@ -243,7 +249,7 @@ public class AnSintactico
 		String id = tActual.getLexema();
 		reconoce("ID");
 		reconoce("IGUAL");
-		String tipo1 = Exp();
+		String tipo1 = ExpOr();
 		if (ts.constainsId(id) && !(ts.getToken(id).getClase()== tSimbolos.Token.CONSTANTE))
 		{
 			traductor.emiteInstruccion("desapila-dir", ts.getToken(id).getDireccion());
@@ -251,6 +257,78 @@ public class AnSintactico
 		}
 		else
 			return true;
+	}
+
+	private String ExpOr() 
+	{
+		String tipo1 = ExpAnd();
+		int irv = etiqueta + 1;
+		traductor.emiteInstruccion("copia");
+		traductor.emiteInstrucciónParcheable("ir-v");
+		traductor.emiteInstruccion("desapila");
+		etiqueta += 3;
+		String tipo2 = RExpOr(tipo1);
+		traductor.parchea(irv, etiqueta);
+		return tipo2;
+	}
+	
+	private String RExpOr(String tipo1)
+	{
+		if (tActual.getLexema().equals("||"))
+		{
+			reconoce("OPMUL");
+			String tipo2 = ExpAnd();
+			String tipo22;
+			if (!tipo1.equals("BOOL") || !tipo2.equals("BOOL"))
+				tipo22 = "ERROR";
+			else
+				tipo22 = "BOOL";
+			int irv = etiqueta + 1;
+			traductor.emiteInstruccion("copia");
+			traductor.emiteInstrucciónParcheable("ir-v");
+			traductor.emiteInstruccion("desapila");
+			etiqueta += 3;
+			tipo2 = RExpOr(tipo22);
+			traductor.parchea(irv, etiqueta);
+			return tipo2;
+		}
+		return tipo1;
+	}
+	
+	private String ExpAnd()
+	{
+		String tipo1 = Exp();
+		int irf = etiqueta;
+		etiqueta++;
+		traductor.emiteInstrucciónParcheable("ir-f");
+		String tipo2 = RExpAnd(tipo1);
+		traductor.emiteInstruccion("ir-a", etiqueta+2);
+		traductor.emiteInstruccion("apila", 0);
+		etiqueta += 2;
+		return tipo2;
+	}
+	
+	private String RExpAnd(String tipo1)
+	{
+		if (tActual.getLexema().equals("&&"))
+		{
+			reconoce("OPSUM");
+			String tipo2 = Exp();
+			String tipo22;
+			if (!tipo1.equals("BOOL") || !tipo2.equals("BOOL"))
+				tipo22 = "ERROR";
+			else
+				tipo22 = "BOOL";
+			int irf = etiqueta;
+			etiqueta++;
+			traductor.emiteInstrucciónParcheable("ir-f");
+			tipo2 = RExpAnd(tipo1);
+			traductor.emiteInstruccion("ir-a", etiqueta+2);
+			traductor.emiteInstruccion("apila", 0);
+			etiqueta += 2;
+			return tipo2;
+		}
+		return tipo1;
 	}
 
 	/** Método para análisis de la expresión
