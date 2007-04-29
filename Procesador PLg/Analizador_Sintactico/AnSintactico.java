@@ -59,6 +59,7 @@ public class AnSintactico
 		boolean errorI = Ins();
 		reconoce("END");
 		traductor.emiteInstruccion("end");
+		etiqueta++;
 		boolean error = errorD || errorI;
 		if (error)
 		{
@@ -253,6 +254,7 @@ public class AnSintactico
 		if (ts.constainsId(id) && !(ts.getToken(id).getClase()== tSimbolos.Token.CONSTANTE))
 		{
 			traductor.emiteInstruccion("desapila-dir", ts.getToken(id).getDireccion());
+			etiqueta++;
 			return (tipo1.equals("ERROR") || !compatibles (tipo1, ts.getToken(id).getTipo()));
 		}
 		else

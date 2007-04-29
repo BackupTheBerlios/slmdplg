@@ -1,5 +1,5 @@
 INT x, y, z, u, w, r;
 BOOL res
 BEGIN
-res = (x==y) && (y==z) || (z==u) && (w==r)
+res = (x==y || z != w) && (r <= u || (z > x && y < r))
 END
