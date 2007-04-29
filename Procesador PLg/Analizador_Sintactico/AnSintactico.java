@@ -259,6 +259,11 @@ public class AnSintactico
 			return true;
 	}
 
+	/**
+	 * Método para análisis de la expresión
+	 * 		ExpOr -> ExpAnd RExpOr
+	 * @return El tipo de la expresión
+	 */
 	private String ExpOr() 
 	{
 		String tipo1 = ExpAnd();
@@ -266,6 +271,11 @@ public class AnSintactico
 		return tipo2;
 	}
 	
+	/**
+	 * Método para análisis de la expresión
+	 * 		RExpOr -> || ExpAnd RExpOr | null    //NOTA : null se refiere a lambda en la gramática.
+	 * @return El tipo de la expresión
+	 */
 	private String RExpOr(String tipo1)
 	{
 		if (tActual.getLexema().equals("||"))
@@ -292,6 +302,11 @@ public class AnSintactico
 		return tipo1;
 	}
 	
+	/**
+	 * Método para análisis de la expresión
+	 * 		ExpAnd -> Exp RExpAnd
+	 * @return El tipo de la expresión
+	 */
 	private String ExpAnd()
 	{
 		String tipo1 = Exp();
@@ -299,6 +314,11 @@ public class AnSintactico
 		return tipo2;
 	}
 	
+	/**
+	 * Método para análisis de la expresión
+	 * 		RExpAnd -> && Exp RExpAnd | null    //NOTA : null se refiere a lambda en la gramática.
+	 * @return El tipo de la expresión
+	 */
 	private String RExpAnd(String tipo1)
 	{
 		if (tActual.getLexema().equals("&&"))
@@ -322,7 +342,7 @@ public class AnSintactico
 			traductor.emiteInstruccion("apila", 0);
 			etiqueta += 2;
 			
-			tipo2 = RExpAnd(tipo1);
+			tipo2 = RExpAnd(tipo22);
 			return tipo2;
 		}
 		return tipo1;
@@ -422,7 +442,7 @@ public class AnSintactico
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
 	private String RExp2(String tipo1) 
 	{
-		if (tActual.getTipo().equals("OPSUM") && !tActual.getLexema().equals("||"))
+		if (tActual.getTipo().equals("OPSUM") && !tActual.getLexema().equals("||")) //Ahora el || se hace con cortocircuito.
 		{
 			String tipoOp = tipoOpSum();
 			String lexema = tActual.getLexema();
@@ -437,8 +457,8 @@ public class AnSintactico
 				traductor.emiteInstruccion("suma");
 			else if (lexema.equals("-"))
 				traductor.emiteInstruccion("resta");
-				else if (lexema.equals("||"))
-					traductor.emiteInstruccion("or");
+				/*else if (lexema.equals("||"))
+					traductor.emiteInstruccion("or");*/
 			etiqueta++;
 			tipo2 = RExp2(tipo22);
 			return tipo2;
@@ -475,7 +495,7 @@ public class AnSintactico
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
 	private String RExp3(String tipo1) 
 	{
-		if (tActual.getTipo().equals("OPMUL") && !tActual.getLexema().equals("&&"))
+		if (tActual.getTipo().equals("OPMUL") && !tActual.getLexema().equals("&&")) //Ahora el && se hace con cortocircuito
 		{
 			String tipoOp = tipoOpMul();
 			String lexema = tActual.getLexema();
@@ -492,8 +512,8 @@ public class AnSintactico
 				traductor.emiteInstruccion("divide");
 				else if (lexema.equals("MOD"))
 				traductor.emiteInstruccion("modulo");
-					else if (lexema.equals("&&"))
-						traductor.emiteInstruccion("and");
+					/*else if (lexema.equals("&&"))
+						traductor.emiteInstruccion("and");*/
 			etiqueta++;
 			tipo2 = RExp3(tipo22);
 			return tipo2;
