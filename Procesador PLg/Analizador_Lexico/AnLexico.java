@@ -178,6 +178,14 @@ public class AnLexico {
 					
 				}	
 				break;
+				case '.':
+				{
+					estado=1;
+					token.setLinea(linea);
+					token.setLexema(".");
+					token.setTipo("PUNTO");
+				}
+				break;
 				case ',':
 				{
 					estado=1;
@@ -240,7 +248,38 @@ public class AnLexico {
 					token.setLexema(")");
 					token.setTipo("PAC");
 					token.setLinea(linea);
-				}	
+				}
+				case '[':
+				{
+					estado=1;
+					token.setLinea(linea);
+					token.setLexema("[");
+					token.setTipo("CORA");
+				}
+				break;
+				case ']':
+				{
+					estado=1;
+					token.setLinea(linea);
+					token.setLexema("[");
+					token.setTipo("CORC");
+				}
+				break;
+				case ':':
+				{
+					estado=1;
+					token.setLinea(linea);
+					token.setLexema(":");
+					token.setTipo("PP");
+				}
+				break;
+				case '^':
+				{
+					estado=1;
+					token.setLinea(linea);
+					token.setLexema("^");
+					token.setTipo("PUNTERO");
+				}
 				break;
 				case '>':
 				{
@@ -395,6 +434,36 @@ public class AnLexico {
 					token.setLinea(linea);
 				}
 				break;
+				case 'W':
+				{
+					transita();
+					estado=43;
+					token.setLinea(linea);
+				}break;
+				case 'A':
+				{
+					transita();
+					estado=48;
+					token.setLinea(linea);
+				}break;
+				case 'O':
+				{
+					transita();
+					estado=53;
+					token.setLinea(linea);
+				}break;
+				case 'R':
+				{
+					transita();
+					estado=54;
+					token.setLinea(linea);
+				}break;
+				case 'P':
+				{
+					transita();
+					estado=56;
+					token.setLinea(linea);
+				}break;
 				default:
 					errorLex();
 				break;
@@ -582,7 +651,24 @@ public class AnLexico {
 					transita();
 				}
 				else
-					errorLex();
+				if (buf=='L')
+				{
+					estado=40;
+					transita();
+				}
+				else 
+				if (buf=='I')
+				{
+					estado=23;
+					transita();
+				}
+				else 
+				if (buf=='W')
+				{
+					estado=43;
+					transita();
+				}
+				else errorLex();
 			}
 			break;
 			case 16:
@@ -672,7 +758,13 @@ public class AnLexico {
 					transita();
 				}
 				else
-					errorLex();
+				
+					if (buf=='F')
+					{
+						estado=36;
+						transita();
+					}
+				 else errorLex();
 			}
 			break;
 			case 24:
@@ -700,7 +792,13 @@ public class AnLexico {
 					transita();
 				}
 				else
-					errorLex();
+				if (buf=='H')
+				{
+					estado=37;
+					transita();
+				}
+				else errorLex(); 
+					
 			}
 			break;
 			case 27:
@@ -740,7 +838,12 @@ public class AnLexico {
 					transita();
 				}
 				else
-					errorLex();
+				if (buf=='R')
+				{
+					estado=54;
+					transita();
+				}
+				else	errorLex();
 			}
 			break;
 			case 31:
@@ -803,6 +906,214 @@ public class AnLexico {
 				}
 			}
 			break;
+			case 36:
+			{
+				token.setLinea(linea);
+				token.setLexema(lexema);
+				token.setTipo(lexema);
+				return(token);
+			}
+			case 37:
+			{
+				if (buf=='E')
+				{
+					estado=38;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 38:
+			{
+				if (buf=='N')
+				{
+					estado=39;
+					transita();
+				}
+				else errorLex();
+			} 
+			break;
+			case 39:
+			{
+				token.setLexema(lexema);
+				token.setLinea(linea);
+				token.setTipo("THEN");
+				return(token);
+			}
+			case 40:
+			{
+				if (buf=='S')
+				{
+					estado=41;
+					transita();
+				}
+				else errorLex();
+			} 
+			break;
+			case 41:
+			{
+				if (buf=='E')
+				{
+					estado=42;
+					transita();
+				}
+				else errorLex();
+			} 
+			break;
+			case 42:
+			{
+				token.setLexema(lexema);
+				token.setLinea(linea);
+				token.setTipo(lexema);
+				return(token);
+			} 
+			case 43:
+			{
+				if (buf=='H')
+				{
+					estado=44;
+					transita();
+				}
+				else errorLex();
+			} 
+			break;
+			case 44:
+			{
+				if (buf=='I')
+				{
+					estado=45;
+					transita();
+				}
+				else errorLex();
+			} 
+			break;
+			case 45:
+			{
+				if (buf=='L')
+				{
+					estado=46;
+					transita();
+				}
+				else errorLex();
+			} 
+			break;
+			case 46:
+			{
+				if (buf=='E')
+				{
+					estado=47;
+					transita();
+				}
+				else errorLex();
+			} 
+			break;
+			case 47:
+			{
+				token.setLexema(lexema);
+				token.setLinea(linea);
+				token.setTipo(lexema);
+				return(token);
+			}
+			case 48:
+			{
+				if (buf=='R')
+				{
+					estado=49;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 49:
+			{
+				if (buf=='R')
+				{
+					estado=50;
+					transita();
+				}
+				else errorLex();
+			}
+			break;
+			case 50:
+			{
+				if (buf=='A')
+				{
+					estado=51;
+					transita();
+				}
+				else errorLex();
+			}
+			break;
+			case 51:
+			{
+				if (buf=='Y')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}
+			break;
+			case 52:
+			{
+				token.setLexema(lexema);
+				token.setLinea(linea);
+				token.setTipo(lexema);
+				return(token);
+			}
+			case 53:
+			{
+				if (buf=='F')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}
+			break;
+			case 54:
+			{
+				if (buf=='E')
+				{
+					estado=55;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 55:
+			{
+				if (buf=='G')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 56:
+			{
+				if (buf=='R')
+				{
+					estado=57;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 57:
+			{
+				if (buf=='O')
+				{
+					estado=58;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 58:
+			{
+				if (buf=='C')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
 			default:
 				errorLex();
 			}//de estado
@@ -822,10 +1133,10 @@ public class AnLexico {
 				
 		
 		Token tActual=new Token();
-		FileReader ficheroFuente = new FileReader("Prueba22.txt");
+		FileReader ficheroFuente = new FileReader("Pruebanueva.txt");
 			            try{
 			            //Apertura del fichero fuente
-						ficheroFuente = new FileReader("Prueba2.txt");
+						ficheroFuente = new FileReader("Pruebanueva.txt");
 			            }catch(FileNotFoundException e) {
 			    			System.out.println("Error en el analizador léxico \n");
 			    			e.printStackTrace();
