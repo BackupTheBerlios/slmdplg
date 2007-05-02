@@ -510,8 +510,16 @@ public class AnSintactico
 				tipo22 = tipo1;
 			if (lexema.equals("*"))
 				traductor.emiteInstruccion("multiplica");
-			else if (lexema.equals("/"))
-				traductor.emiteInstruccion("divide");
+			else if (lexema.equals("/")) {
+				//Añadido para controlar las excepciones debidas a divisiones por cero.
+				traductor.emiteInstruccion("copia");
+				traductor.emiteInstruccion("apila", 0);
+				traductor.emiteInstruccion("iguales");
+				traductor.emiteInstruccion("ir-f",etiqueta+6); //No es necesario aprchear, se conoce la direccion ya.
+				traductor.emiteInstruccion("Stop");
+				etiqueta=etiqueta+5;
+				traductor.emiteInstruccion("divide"); //La última suma en etiqueta se hace fuera del else
+				}
 				else if (lexema.equals("MOD"))
 				traductor.emiteInstruccion("modulo");
 					/*else if (lexema.equals("&&"))
