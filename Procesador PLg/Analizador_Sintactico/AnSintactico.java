@@ -256,6 +256,14 @@ public class AnSintactico
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
 	private boolean IComp() 
 	{
+		reconoce("BEGIN");
+		boolean err = IsOpc();
+		reconoce("END");
+		return err;
+	}
+
+	private boolean IsOpc() 
+	{
 		if (!tActual.getLexema().equals("END"))
 			return Ins();
 		else
