@@ -286,7 +286,7 @@ public class AnSintactico
 			return (tipo1.equals("ERROR") || !compatibles (tipo1, ts.getToken(id).getTipo()));
 		}
 		else
-			return true;
+			return IAsig();
 	}
 
 	/**
@@ -690,5 +690,91 @@ public class AnSintactico
 		else
 			tipo = "ERROR";
 		return tipo;
+	}
+	
+	/**
+	 * Método para el análisis de la expresión
+	 * 		IIf -> IF Exp THEN Ins(0) else Ins(1)
+	 * @return Boolean que indica si se ha producido un error en la expresión
+	 */
+	private boolean IIf(){
+		boolean error1,error2;
+		
+		reconoce("IF");
+		
+		String tipo1 = Exp();
+		int etiquetaI0 = etiqueta; //!\ Duda Álex: ¿La etiqueta es la actual o la siguiente que se va a insertar?
+		//Esta instrucción será parcheada posteriormente.
+		traductor.emiteInstruccion("ir_f",999);
+		etiqueta++;
+		//Si la expresión es de tipo booleano, procedemos a comprobar el if
+		if (tipo1 == "BOOL"){
+			//Generamos el código de I(0)
+			error1 = Ins();
+			int etiquetaI1 = etiqueta;
+			//De nuevo, esta instrucción será parcheada posteriormente.
+			traductor.emiteInstruccion("ir_a",999);
+			etiqueta++;
+			//Aquí ya conocemos la dirección para parchear el "ir_f" (else)
+			traductor.parchea(etiquetaI0,etiqueta);
+			//Generamos el código de I(1)
+			error2 = Ins();
+			//Aquí ya conocemos la dirección para parchear el "ir_a" (fin de if)
+			traductor.parchea(etiquetaI1,etiqueta);
+		} else {
+			return true;
+		}
+		return (error1 || error2);
+	}
+	
+	/**
+	 * Método para el análisis de la expresión
+	 * 		IWhile -> WHILE Exp DO Ins
+	 * @return Boolean que indica si se ha producido un error en la expresión
+	 */
+	private boolean IWhile(){
+		boolean errorIns;
+		
+		reconoce("WHILE");
+		int etiquetaExp = etiqueta;
+		String tipo1 = Exp();
+		int etiquetaIns = etiqueta;
+		//Esta instrucción será parcheada posteriormente
+		traductor.emiteInstruccion("ir_f",999);
+		etiqueta++;
+		if (tipo1 == "BOOL"){
+			errorIns = Ins();
+			//Esta instrucción será parcheada posteriormente
+			traductor.emiteInstruccion("ir_a",etiquetaExp);
+			etiqueta++;
+			//Ahora ya conocemos el destino del primer "ir_f"
+			traductor.parchea(etiquetaIns,etiqueta);
+		} else {
+			return true;
+		}
+		return errorIns;
+	}
+	
+	/**
+	 * Método para el análisis de la expresión
+	 * 		IRepeat -> REPEAT Ins UNTIL Exp
+	 * @return Boolean que indica si se ha producido un error en la expresión
+	 */
+	private boolean IRepeat(){
+		
+		reconoce("REPEAT"); //!\ Álex: creo que no está en el anLexico.
+		
+		int etiquetaIns = etiqueta;
+		boolean errorIns = Ins();
+		reconoce("UNTIL"); //!\ Álex: de nuevo creo que no está en el anLéxico.
+		String tipo1 = Exp();
+		if (tipo1 == "BOOL"){
+			traductor.emiteInstruccion("ir_f",etiquetaIns);
+			etiqueta++;
+		} else {
+			return true;
+		}
+		
+		return errorIns;
 	}
 }
