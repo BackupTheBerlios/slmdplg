@@ -249,6 +249,7 @@ public class AnLexico {
 					token.setTipo("PAC");
 					token.setLinea(linea);
 				}
+				break;
 				case '[':
 				{
 					estado=1;
