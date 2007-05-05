@@ -2,4 +2,4 @@ INT x, y, z, u, w, r;
 BOOL res
 BEGIN
 res = (x==y || z != w) && (r <= u || (z > x && y < r))
-END
+END 7

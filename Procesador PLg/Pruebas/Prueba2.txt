@@ -13,4 +13,4 @@ w = x - 3;
 z = x >= 5;
 y = y && z;
 s = (-x+-w)
-END
+END 7

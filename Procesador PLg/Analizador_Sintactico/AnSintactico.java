@@ -80,10 +80,10 @@ public class AnSintactico
 	private void reconoce(String tipo)
 	{
 		if (tActual.getTipo().equals(tipo))
-			if (!tActual.getTipo().equals("END"))
+	//		if (!tActual.getTipo().equals("END"))
 				tActual = anLex.analizador();
-			else
-				tActual = null;
+	/*		else
+				tActual = null;*/
 		else
 		{
 			System.out.println("Error (línea " + tActual.getLinea() + "): " + "Token \"" + tActual.getLexema() + "\" inesperado: Se esperaba un token de tipo \"" + tipo + "\".");
