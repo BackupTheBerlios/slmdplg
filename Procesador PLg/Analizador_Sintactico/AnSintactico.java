@@ -241,11 +241,31 @@ public class AnSintactico
 		}
 		return false;
 	}
-
 	/** Método para análisis de la expresión
-	 * 		I -> ID = Exp 
+	 * 		I -> IAsig | IComp
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
 	private boolean I() 
+	{
+		if (tActual.getLexema().equals("BEGIN"))
+			return IComp();
+		else
+			return IAsig();
+	}
+	/** Método para análisis de la expresión
+	 * 		IComp -> BEGIN IsOpc END
+	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
+	private boolean IComp() 
+	{
+		if (!tActual.getLexema().equals("END"))
+			return Ins();
+		else
+			return false;
+	}
+
+	/** Método para análisis de la expresión
+	 * 		IAsig -> ID = Exp 
+	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
+	private boolean IAsig() 
 	{
 		String id = tActual.getLexema();
 		reconoce("ID");
