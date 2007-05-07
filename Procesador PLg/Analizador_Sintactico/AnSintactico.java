@@ -3,7 +3,6 @@ package Analizador_Sintactico;
 import java.io.FileReader;
 
 import tSimbolos.TablaSimbolos;
-import tSimbolos.TokenVar;
 import Analizador_Lexico.AnLexico;
 import Analizador_Lexico.Token;
 import Analizador_Sintactico.Traductor.Traductor;
@@ -275,18 +274,12 @@ public class AnSintactico
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
 	private boolean IAsig() 
 	{
-		String id = tActual.getLexema();
-		reconoce("ID");
+		String tipo = Desc();
 		reconoce("IGUAL");
 		String tipo1 = ExpOr();
-		if (ts.constainsId(id) && !(ts.getToken(id).getClase()== tSimbolos.Token.CONSTANTE))
-		{
-			traductor.emiteInstruccion("desapila-dir", ts.getToken(id).getDireccion());
-			etiqueta++;
-			return (tipo1.equals("ERROR") || !compatibles (tipo1, ts.getToken(id).getTipo()));
-		}
-		else
-			return IAsig();
+		traductor.emiteInstruccion("desapila-ind");
+		etiqueta++;
+		return (tipo1.equals("ERROR") || !compatibles (tipo1, tipo));
 	}
 
 	/**
@@ -656,7 +649,10 @@ public class AnSintactico
 		}
 		else if (tActual.getTipo().equals("ID")) // El valor de Fact viene determinado por una variable o constante.
 		{
-			String id = tActual.getLexema();
+			tipo = Desc();
+			traductor.emiteInstruccion("apila-ind");
+			etiqueta++;
+			/*String id = tActual.getLexema();
 			if (!ts.constainsId(id))
 				tipo = "ERROR";
 			else
@@ -679,7 +675,7 @@ public class AnSintactico
 				}
 				tipo = ts.getToken(id).getTipo();
 				reconoce("ID");
-			}
+			}*/
 		}
 		else if (tActual.getTipo().equals("PAA")) //El valor de Fact viene dado por una espresión parentizada.
 		{
@@ -776,5 +772,51 @@ public class AnSintactico
 		}
 		
 		return errorIns;
+	}
+	
+	/**
+	 * Método para el análisis de la expresión 
+	 * 		Desc -> ID RDesc
+	 * @return Boolean que indica se se ha producido un error en la expresión
+	 * */ 
+	private String Desc()
+	{
+		String id = tActual.getLexema();
+		String tipo = "";
+		if (!ts.constainsId(id))
+			tipo = "ERROR";
+		else
+		{
+			traductor.emiteInstruccion("apila", ts.getToken(id).getDireccion());
+			etiqueta++;
+			reconoce("ID");
+			tipo = RDesc(ts.getToken(id).getTipo());
+		}
+		return tipo;
+	}
+
+	private String RDesc(String tipo) 
+	{
+		String tiporet = tipo;
+		if (tActual.getTipo().equals("PUNTERO")) //Es un puntero.
+		{
+			String id = tActual.getLexema();
+			tSimbolos.Token tk = ts.getToken(id);
+			reconoce("PUNTERO");
+			if (tk == null || !tk.getTipo().equals("PUNTERO")) //No se si es puntero o pointer.
+				return "ERROR";
+			else
+			{
+				traductor.emiteInstruccion("apila-ind");
+				etiqueta++;
+				tiporet = RDesc(tipo); 
+			}
+		}
+		else 
+			if (tActual.getTipo().equals("PUNTO")) //Es el campo de un registro.
+			{
+				reconoce(".");
+			}
+		return tiporet;
 	}
 }
