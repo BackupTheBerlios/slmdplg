@@ -1,0 +1,14 @@
+BOOL x;
+INT valor, final;
+CONST BOOL cierto = TRUE;
+CONST INT cero = 0
+
+BEGIN
+	valor = 12 - 2;
+	final = 0;
+	WHILE (valor >= 0) THEN
+		BEGIN
+			final = final + 1;
+			valor = valor - 1
+		END
+END 7

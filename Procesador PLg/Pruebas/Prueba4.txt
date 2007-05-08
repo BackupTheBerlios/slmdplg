@@ -1,0 +1,19 @@
+BOOL x;
+INT r;
+CONST BOOL falso = FALSE;
+CONST INT dos = 2
+
+BEGIN
+	r = 3 + dos;
+	x = (r == 5);
+	IF (x == TRUE) THEN
+		BEGIN
+			x = (r == 5);
+			r = 10
+		END;
+	ELSE
+		BEGIN
+			r = 5;
+			x = falso
+		END
+END 7
