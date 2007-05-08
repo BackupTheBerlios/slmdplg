@@ -230,7 +230,7 @@ public class AnSintactico
 	 * 		RIns -> ; I RIns | null            //NOTA : null se refiere a lambda en la gramática.*/
 	private boolean RIns() 
 	{
-		if (!tActual.getTipo().equals("END"))
+		if (!tActual.getTipo().equals("END") && !tActual.getTipo().equals("ELSE"))
 		{
 			boolean err1, err2;
 			reconoce("PYC");
@@ -241,13 +241,19 @@ public class AnSintactico
 		return false;
 	}
 	/** Método para análisis de la expresión
-	 * 		I -> IAsig | IComp
+	 * 		I -> IAsig | IComp | IIf | IWhile
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
 	private boolean I() 
 	{
 		if (tActual.getLexema().equals("BEGIN"))
 			return IComp();
-		else
+		else if (tActual.getLexema().equals("IF"))
+			return IIf();
+		else if (tActual.getLexema().equals("WHILE"))
+			return IWhile();
+		else if (tActual.getLexema().equals("ELSE"))
+			return false;
+		else 
 			return IAsig();
 	}
 	/** Método para análisis de la expresión
@@ -699,24 +705,26 @@ public class AnSintactico
 		reconoce("IF");
 		
 		String tipo1 = Exp();
-		int etiquetaI0 = etiqueta; //!\ Duda Álex: ¿La etiqueta es la actual o la siguiente que se va a insertar?
+		int etiquetaI0 = etiqueta;
 		//Esta instrucción será parcheada posteriormente.
-		traductor.emiteInstruccion("ir_f",999);
+		traductor.emiteInstrucciónParcheable("ir_f");
 		etiqueta++;
 		//Si la expresión es de tipo booleano, procedemos a comprobar el if
 		if (tipo1 == "BOOL"){
+			reconoce("THEN");
 			//Generamos el código de I(0)
 			error1 = Ins();
 			int etiquetaI1 = etiqueta;
 			//De nuevo, esta instrucción será parcheada posteriormente.
-			traductor.emiteInstruccion("ir_a",999);
+			traductor.emiteInstrucciónParcheable("ir_a");
 			etiqueta++;
+			reconoce("ELSE");
 			//Aquí ya conocemos la dirección para parchear el "ir_f" (else)
-			traductor.parchea(etiquetaI0,etiqueta);
+			traductor.parchea(etiquetaI0,etiqueta+1);
 			//Generamos el código de I(1)
 			error2 = Ins();
 			//Aquí ya conocemos la dirección para parchear el "ir_a" (fin de if)
-			traductor.parchea(etiquetaI1,etiqueta);
+			traductor.parchea(etiquetaI1,etiqueta+1);
 		} else {
 			return true;
 		}
@@ -732,19 +740,21 @@ public class AnSintactico
 		boolean errorIns;
 		
 		reconoce("WHILE");
+		
 		int etiquetaExp = etiqueta;
 		String tipo1 = Exp();
 		int etiquetaIns = etiqueta;
 		//Esta instrucción será parcheada posteriormente
-		traductor.emiteInstruccion("ir_f",999);
+		traductor.emiteInstrucciónParcheable("ir_f");
 		etiqueta++;
 		if (tipo1 == "BOOL"){
+			reconoce("THEN"); //!\ Álex: Estoy teniendo problemas para reconocer el DO, ¿léxico?
 			errorIns = Ins();
 			//Esta instrucción será parcheada posteriormente
-			traductor.emiteInstruccion("ir_a",etiquetaExp);
+			traductor.emiteInstruccion("ir_a",etiquetaExp+1);
 			etiqueta++;
 			//Ahora ya conocemos el destino del primer "ir_f"
-			traductor.parchea(etiquetaIns,etiqueta);
+			traductor.parchea(etiquetaIns,etiqueta+1);
 		} else {
 			return true;
 		}
