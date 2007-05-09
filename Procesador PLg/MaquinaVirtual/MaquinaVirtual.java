@@ -208,6 +208,19 @@ public class MaquinaVirtual
 		else if (funcion.equals("desapila-dir")) {
 			ejecutaDesapilaDir(datos);
 		}
+		else if (funcion.equals("copia")) {
+			ejecutaCopia();
+		}
+		else if (funcion.equals("ir_a")){
+			ejecutaIrA(datos);
+		}
+		
+		else if (funcion.equals("ir_v")){
+			ejecutaIrV(datos);			
+		}
+		else if (funcion.equals("ir_f")){
+			ejecutaIrF(datos);
+		}
 		else {
 			estadoMaquina=2; //Pasa a error
 			System.out.println("Máquina pasa a estado error");
@@ -542,6 +555,57 @@ public class MaquinaVirtual
 			pila.push(resul);		
 		}
 	}
+	
+	/**
+	 * Método que ejecuta la instrucción Copia: Replica el último operando de la pila.
+	 * pila[cima+1] = pila[cima];
+	 * @throws Exception
+	 */
+	private void ejecutaCopia() throws Exception {
+		if (pila.size()<1) 
+			throw new Exception("Error: Copia. La pila no contiene operandos suficientes.");
+		else {
+			Number oper1= pila.pop();			
+			pila.push(oper1);		
+			pila.push(oper1);
+		}
+	}
+	
+	
+	/**
+	 * Método que ejecuta la instrucción IR_A: Deja el contador de programa en el punto
+	 * anterior a la dirección pasada por parámetro, puesto que nuestra MaquinaP
+	 * siempre avanza el contador de programa al terminar la ejecucion.
+	 * PC = param - 1;
+	 * @throws Exception
+	 */
+	private void ejecutaIrA(Number param) throws Exception {
+		program_counter = param.intValue();
+	}
+	
+	
+	/**
+	 * Método que ejecuta la instrucción IR_V: Deja el contador de programa en el punto
+	 * anterior a la dirección pasada por parámetro, siempre que en la cima de la pila 
+	 * esté el valor 1,puesto que nuestra MaquinaP siempre avanza el contador de 
+	 * programa al terminar la ejecucion, en caso contrario no modifica el contador de programa.
+	 * @throws Exception 
+	 */
+	private void ejecutaIrV(Number param) throws Exception {
+		if (pila.pop().intValue() == 1)program_counter = param.intValue();
+	}		
+	
+	
+	/**
+	 * Método que ejecuta la instrucción IR_F: Deja el contador de programa en el punto
+	 * anterior a la dirección pasada por parámetro, siempre que en la cima de la pila 
+	 * esté el valor 0,puesto que nuestra MaquinaP siempre avanza el contador de 
+	 * programa al terminar la ejecucion, en caso contrario no modifica el contador de programa.
+	 * @throws Exception 
+	 */
+	private void ejecutaIrF(Number param) throws Exception {
+		if (pila.pop().intValue() == 0)program_counter = param.intValue();
+	}		
 
 	/**
 	 * Método que lee una línea del fichero y la convierte a un String.
