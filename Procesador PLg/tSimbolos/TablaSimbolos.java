@@ -6,6 +6,8 @@ package tSimbolos;
 
 import java.util.Hashtable;
 
+import tSimbolos.Tipo.Tipo;
+
 /**
  * Clase que representa la tabla de simbolos, cuenta con los métodos
  * necesarios para realizar las modificaciones necesarias, está implementada
@@ -51,7 +53,7 @@ public class TablaSimbolos {
 	 * @return Devuelve el token asociado a ese identificador previamente
 	 * en la tabla de simbolos, si no habia ninguno devuelve null.
 	 */
-    public Token addVar(String id, int dir, String tipo){
+    public Token addVar(String id, int dir, Tipo tipo){
     	if (id == null) return null;
     	else return tabla.put(id, new TokenVar(dir, tipo));
 	}
@@ -66,7 +68,7 @@ public class TablaSimbolos {
 	 * @return Devuelve el token asociado a ese identificador previamente
 	 * en la tabla de simbolos, si no habia ninguno devuelve null.
 	 */
-    public Token addCte(String id, Integer valor, String tipo){
+    public Token addCte(String id, Integer valor, Tipo tipo){
     	if (id == null) return null;
     	else return tabla.put(id, new TokenCte(valor, tipo));
 	}
@@ -88,7 +90,7 @@ public class TablaSimbolos {
      * proporcionado.
      * @param id Identificador para el que se buscara su token relacionado.
      * @return Token relacionado con el identificador id, en caso que no
-     * exiwsta ninguna entrada para esté en la tabla null.
+     * exista ninguna entrada para esté en la tabla null.
      */
     public Token getToken(String id){
     	if (id == null) return null;

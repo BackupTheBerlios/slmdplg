@@ -3,6 +3,11 @@ package Analizador_Sintactico;
 import java.io.FileReader;
 
 import tSimbolos.TablaSimbolos;
+import tSimbolos.Tipo.Bool;
+import tSimbolos.Tipo.Error;
+import tSimbolos.Tipo.Int;
+import tSimbolos.Tipo.Tipo;
+import tSimbolos.Tipo.TipoAux;
 import Analizador_Lexico.AnLexico;
 import Analizador_Lexico.Token;
 import Analizador_Sintactico.Traductor.Traductor;
@@ -94,9 +99,11 @@ public class AnSintactico
 	 * @param tipo1 El primero de los tipos que se quiere comprobar.
 	 * @param tipo2 El segundo de los tipos que se quiere comprobar.
 	 * @return Devuelve un booleano que informa si son compatibles o no.*/
-	private boolean compatibles (String tipo1, String tipo2)
+	private boolean compatibles (Tipo tipo1, Tipo tipo2)
 	{
-		return ((tipo1.equals(tipo2)) || (tipo1.equals("INT") && tipo2.equals("NUM")) || (tipo2.equals("INT") && tipo1.equals("NUM")));
+		return ((tipo1.getLexema().equals(tipo2.getLexema())) || 
+				(tipo1.getLexema().equals("INT") && tipo2.getLexema().equals("NUM")) || 
+				(tipo2.getLexema().equals("INT") && tipo1.getLexema().equals("NUM")));
 	}
 
 	/** Método para análisis de la expresión:
@@ -134,7 +141,12 @@ public class AnSintactico
 		if (tActual.getTipo().equals("CONST"))
 		{
 			reconoce("CONST");
-			String tipo = tActual.getLexema();
+			String tipoaux = tActual.getLexema();
+			Tipo tipo = null;
+			if (tipoaux.equals("INT"))
+				tipo = new Int();
+			if (tipoaux.equals("BOOL"))
+				tipo = new Bool();
 			reconoce("TIPO");
 			String nomconst = tActual.getLexema();
 			reconoce("ID");
@@ -145,7 +157,7 @@ public class AnSintactico
 			else 
 				if (valor.equals("TRUE"))
 					valor = "1";
-			if (compatibles(tipo, tActual.getTipo()) && !ts.constainsId(nomconst))
+			if (compatibles(tipo, new TipoAux(tActual.getTipo())) && !ts.constainsId(nomconst))
 			{
 				ts.addCte(nomconst, new Integer(valor), tipo);
 				reconoce(tActual.getTipo());
@@ -153,14 +165,19 @@ public class AnSintactico
 			}
 			else
 			{
-				ts.addCte(nomconst, new Integer(0), "ERROR");
+				ts.addCte(nomconst, new Integer(0), new Error());
 				reconoce(tActual.getTipo());
 				error = true;
 			}
 	}
 		else
 		{
-			String tipo = tActual.getLexema();
+			String tipoaux = tActual.getLexema();
+			Tipo tipo = null;
+			if (tipoaux.equals("INT"))
+				tipo = new Int();
+			if (tipoaux.equals("BOOL"))
+				tipo = new Bool();
 			reconoce("TIPO");
 			error = Ids(tipo);
 		}
@@ -170,7 +187,7 @@ public class AnSintactico
 	/** Método para análisis de la expresión:
 	 * 		Ids -> ID RIds    
 	 * @return Indica si ha habido un error duranta la función.*/
-	private boolean Ids(String tipo)
+	private boolean Ids(Tipo tipo)
 	{
 		boolean error1;
 		String id = tActual.getLexema();
@@ -182,7 +199,7 @@ public class AnSintactico
 		}
 		else
 		{
-			ts.addVar(id, dirección++, "ERROR");
+			ts.addVar(id, dirección++, new Error());
 			error1 = true;
 		}
 		boolean error2 = RIds(tipo);
@@ -193,7 +210,7 @@ public class AnSintactico
 	 * 		RIds -> , ID RIds | null         //NOTA : null se refiere a lambda en la gramática.
 	 * @param tipo El tipo de las variables que se están declarando.  
 	 * @return Indica si ha habido un error duranta la función.*/
-	private boolean RIds(String tipo)
+	private boolean RIds(Tipo tipo)
 	{
 		
 		if (!tActual.getTipo().equals("PYC") && !tActual.getTipo().equals("BEGIN"))
@@ -206,7 +223,7 @@ public class AnSintactico
 				ts.addVar(id, dirección++, tipo);
 			else
 			{
-				ts.addVar(id, dirección++, "ERROR");
+				ts.addVar(id, dirección++, new Error());
 				error1 = true;
 			}
 			boolean error2 = RIds(tipo);
@@ -280,12 +297,12 @@ public class AnSintactico
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
 	private boolean IAsig() 
 	{
-		String tipo = Desc();
+		Tipo tipo = Desc();
 		reconoce("IGUAL");
-		String tipo1 = ExpOr();
+		Tipo tipo1 = ExpOr();
 		traductor.emiteInstruccion("desapila-ind");
 		etiqueta++;
-		return (tipo1.equals("ERROR") || !compatibles (tipo1, tipo));
+		return (tipo1.getLexema().equals("ERROR") || !compatibles (tipo1, tipo));
 	}
 
 	/**
@@ -293,10 +310,10 @@ public class AnSintactico
 	 * 		ExpOr -> ExpAnd RExpOr
 	 * @return El tipo de la expresión
 	 */
-	private String ExpOr() 
+	private Tipo ExpOr() 
 	{
-		String tipo1 = ExpAnd();
-		String tipo2 = RExpOr(tipo1);
+		Tipo tipo1 = ExpAnd();
+		Tipo tipo2 = RExpOr(tipo1);
 		return tipo2;
 	}
 	
@@ -305,7 +322,7 @@ public class AnSintactico
 	 * 		RExpOr -> || ExpAnd RExpOr | null    //NOTA : null se refiere a lambda en la gramática.
 	 * @return El tipo de la expresión
 	 */
-	private String RExpOr(String tipo1)
+	private Tipo RExpOr(Tipo tipo1)
 	{
 		if (tActual.getLexema().equals("||"))
 		{
@@ -317,12 +334,12 @@ public class AnSintactico
 			traductor.emiteInstruccion("desapila");
 			etiqueta += 3;
 			
-			String tipo2 = ExpAnd();
-			String tipo22;
-			if (!tipo1.equals("BOOL") || !tipo2.equals("BOOL"))
-				tipo22 = "ERROR";
+			Tipo tipo2 = ExpAnd();
+			Tipo tipo22;
+			if (!tipo1.getLexema().equals("BOOL") || !tipo2.getLexema().equals("BOOL"))
+				tipo22 = new Error();
 			else
-				tipo22 = "BOOL";
+				tipo22 = new Bool();
 
 			traductor.parchea(irv, etiqueta);
 			tipo2 = RExpOr(tipo22);
@@ -336,10 +353,10 @@ public class AnSintactico
 	 * 		ExpAnd -> Exp RExpAnd
 	 * @return El tipo de la expresión
 	 */
-	private String ExpAnd()
+	private Tipo ExpAnd()
 	{
-		String tipo1 = Exp();
-		String tipo2 = RExpAnd(tipo1);
+		Tipo tipo1 = Exp();
+		Tipo tipo2 = RExpAnd(tipo1);
 		return tipo2;
 	}
 	
@@ -348,7 +365,7 @@ public class AnSintactico
 	 * 		RExpAnd -> && Exp RExpAnd | null    //NOTA : null se refiere a lambda en la gramática.
 	 * @return El tipo de la expresión
 	 */
-	private String RExpAnd(String tipo1)
+	private Tipo RExpAnd(Tipo tipo1)
 	{
 		if (tActual.getLexema().equals("&&"))
 		{
@@ -358,13 +375,13 @@ public class AnSintactico
 			traductor.emiteInstrucciónParcheable("ir-f");
 			etiqueta++;
 			
-			String tipo2 = Exp();
+			Tipo tipo2 = Exp();
 			
-			String tipo22;
-			if (!tipo1.equals("BOOL") || !tipo2.equals("BOOL"))
-				tipo22 = "ERROR";
+			Tipo tipo22;
+			if (!tipo1.getLexema().equals("BOOL") || !tipo2.getLexema().equals("BOOL"))
+				tipo22 = new Error();
 			else
-				tipo22 = "BOOL";
+				tipo22 = new Bool();
 			
 			traductor.parchea(irf, etiqueta+1);
 			traductor.emiteInstruccion("ir-a", etiqueta+2);
@@ -380,10 +397,10 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		Exp -> Exp1 RExp 
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String Exp() 
+	private Tipo Exp() 
 	{
-		String tipo1 = Exp1();
-		String tipo2 = RExp(tipo1);
+		Tipo tipo1 = Exp1();
+		Tipo tipo2 = RExp(tipo1);
 		return tipo2;
 	}
 
@@ -391,18 +408,18 @@ public class AnSintactico
 	 * 		RExp -> OpOrd Exp1 RExp | null       //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String RExp(String tipo1) 
+	private Tipo RExp(Tipo tipo1) 
 	{
 		if (tActual.getTipo().equals("OPORD"))
 		{
 			String lexema = tActual.getLexema();
 			reconoce("OPORD");
-			String tipo2 = Exp1();
-			String tipo22;
-			if (!compatibles(tipo1,"INT") || !compatibles(tipo2,"INT"))
-				tipo22 = "ERROR";
+			Tipo tipo2 = Exp1();
+			Tipo tipo22;
+			if (!compatibles(tipo1,new Int()) || !compatibles(tipo2,new Int()))
+				tipo22 = new Error();
 			else
-				tipo22 = "BOOL";
+				tipo22 = new Bool();
 			if (lexema.equals("<"))
 				traductor.emiteInstruccion("menor");
 			else if (lexema.equals(">"))
@@ -421,10 +438,10 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		Exp1 -> Exp2 RExp1 
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String Exp1()
+	private Tipo Exp1()
 	{
-		String tipo1 = Exp2();
-		String tipo2 = RExp1(tipo1);
+		Tipo tipo1 = Exp2();
+		Tipo tipo2 = RExp1(tipo1);
 		return tipo2;
 	}
 
@@ -432,18 +449,18 @@ public class AnSintactico
 	 * 		RExp1 -> OpEq Exp2 RExp1 | null             //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String RExp1(String tipo1) 
+	private Tipo RExp1(Tipo tipo1) 
 	{
 		if (tActual.getTipo().equals("OPEQ"))
 		{
 			String lexema = tActual.getLexema();
 			reconoce("OPEQ");
-			String tipo2 = Exp2();
-			String tipo22;
+			Tipo tipo2 = Exp2();
+			Tipo tipo22;
 			if (!compatibles(tipo1, tipo2))
-				tipo22 = "ERROR";
+				tipo22 = new Error();
 			else
-				tipo22 = "BOOL";
+				tipo22 = new Bool();
 			if (lexema.equals("!="))
 				traductor.emiteInstruccion("distintos");
 			else if (lexema.equals("=="))
@@ -458,10 +475,10 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		Exp2 -> Exp3 RExp2
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String Exp2()
+	private Tipo Exp2()
 	{
-		String tipo1 = Exp3();
-		String tipo2 = RExp2(tipo1);
+		Tipo tipo1 = Exp3();
+		Tipo tipo2 = RExp2(tipo1);
 		return tipo2;
 	}
 
@@ -469,17 +486,17 @@ public class AnSintactico
 	 * 		RExp2 -> OpSum Exp3 RExp2 | null                //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String RExp2(String tipo1) 
+	private Tipo RExp2(Tipo tipo1) 
 	{
 		if (tActual.getTipo().equals("OPSUM") && !tActual.getLexema().equals("||")) //Ahora el || se hace con cortocircuito.
 		{
-			String tipoOp = tipoOpSum();
+			Tipo tipoOp = tipoOpSum();
 			String lexema = tActual.getLexema();
 			reconoce("OPSUM");
-			String tipo2 = Exp3();
-			String tipo22;
+			Tipo tipo2 = Exp3();
+			Tipo tipo22;
 			if (!compatibles(tipo1, tipo2) || !compatibles(tipo1, tipoOp))
-				tipo22 = "ERROR";
+				tipo22 = new Error();
 			else
 				tipo22 = tipo1;
 			if (lexema.equals("+"))
@@ -497,24 +514,24 @@ public class AnSintactico
 
 	/** Método que se encarga de comprobar el tipo de un operador de la clase OpSum. 
 	 * @return INT, en caso de que sea + o -, BOOL, en caso de que sea || o ERROR en otro caso.*/
-	private String tipoOpSum()
+	private Tipo tipoOpSum()
 	{
 		if (tActual.getLexema().equals("+") || tActual.getLexema().equals("-"))
-			return "INT";
+			return new Int();
 		else
 			if (tActual.getLexema().equals("||"))
-				return "BOOL";
+				return new Bool();
 			else
-				return "ERROR";
+				return new Error();
 	}
 
 	/** Método para análisis de la expresión
 	 * 		Exp3 -> Exp4 RExp3 
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String Exp3()
+	private Tipo Exp3()
 	{
-		String tipo1 = Exp4();
-		String tipo2 = RExp3(tipo1);
+		Tipo tipo1 = Exp4();
+		Tipo tipo2 = RExp3(tipo1);
 		return tipo2;
 	}
 	
@@ -522,17 +539,17 @@ public class AnSintactico
 	 * 		RExp3 -> OpMul Exp4 RExp3 | null             //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String RExp3(String tipo1) 
+	private Tipo RExp3(Tipo tipo1) 
 	{
 		if (tActual.getTipo().equals("OPMUL") && !tActual.getLexema().equals("&&")) //Ahora el && se hace con cortocircuito
 		{
-			String tipoOp = tipoOpMul();
+			Tipo tipoOp = tipoOpMul();
 			String lexema = tActual.getLexema();
 			reconoce("OPMUL");
-			String tipo2 = Exp4();
-			String tipo22;
+			Tipo tipo2 = Exp4();
+			Tipo tipo22 = null;
 			if (!compatibles(tipo1,tipo2) || !compatibles(tipo1, tipoOp))
-				tipo22 = "ERROR";
+				tipo22 = new Error();
 			else
 				tipo22 = tipo1;
 			if (lexema.equals("*"))
@@ -560,67 +577,67 @@ public class AnSintactico
 
 	/** Método que se encarga de comprobar el tipo de un operador de la clase OpMul. 
 	 * @return INT, en caso de que sea * o /, BOOL, en caso de que sea && o ERROR en otro caso.*/
-	private String tipoOpMul()
+	private Tipo tipoOpMul()
 	{
 		if (tActual.getLexema().equals("*") || tActual.getLexema().equals("/") || tActual.getLexema().equals("MOD"))
-			return "INT";
+			return new Int();
 		else
 			if (tActual.getLexema().equals("&&"))
-				return "BOOL";
+				return new Bool();
 			else
-				return "ERROR";
+				return new Error();
 	}
 
 	/** Método para análisis de la expresión
 	 * 		Exp4 -> OpUn Fact | Fact 
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String Exp4()
+	private Tipo Exp4()
 	{
 		if (tActual.getTipo().equals("OPSUM") || tActual.getTipo().equals("OPNEG")) //Existe operador unario
 		{
-			String tipoOp = tipoOpUn();
-			String tipo = Fact();
-			if (tipoOp.equals("BOOL"))
+			Tipo tipoOp = tipoOpUn();
+			Tipo tipo = Fact();
+			if (tipoOp.getLexema().equals(new Bool()))
 			{
 				traductor.emiteInstruccion("negacion");
 				etiqueta++;
 			}
 			else 
-				if (tipoOp.equals("NUM"))
+				if (tipoOp.getLexema().equals(new Int()))
 				{
 					traductor.emiteInstruccion("opuesto");  //El valor opuesto de un numero p.e. 2 opuesto de -2
 					etiqueta++;
 				}
 			if (!compatibles(tipoOp, tipo))
-				return "ERROR";
+				return new Error();
 			else
 				return tipo;
 		}
 		else //No existe operador unario.
 		{
-			String tipo = Fact();
+			Tipo tipo = Fact();
 			return tipo;
 		}
 	}
 	
 	/** Método que se encarga de comprobar el tipo de un operador de la clase OpUn. 
 	 * @return INT, en caso de que sea -, BOOL, en caso de que sea ! o ERROR en otro caso.*/
-	private String tipoOpUn()
+	private Tipo tipoOpUn()
 	{
 		if (tActual.getLexema().equals("-"))
 		{	
 			reconoce("OPSUM");
-			return "NUM";           
+			return new Int();           
 		}
 		else
 			if (tActual.getLexema().equals("!"))
 			{
 				reconoce("OPNEG");
-				return "BOOL";
+				return new Bool();
 			}
 			else
-				return "ERROR";     
+				return new Error();     
 	}
 
 	/** Método para análisis de la expresión
@@ -631,9 +648,9 @@ public class AnSintactico
 	 * 		Fact -> ( Exp )        (Si llega esto vuelve a llamar a Exp)
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private String Fact()
+	private Tipo Fact()
 	{
-		String tipo;
+		Tipo tipo;
 		if (tActual.getTipo().equals("BOOL")) // El valor de Fact es TRUE o FALSE.
 		{
 			int bool;
@@ -644,14 +661,14 @@ public class AnSintactico
 			traductor.emiteInstruccion("apila", bool);
 			etiqueta++;
 			reconoce("BOOL");
-			tipo = "BOOL";
+			tipo = new Bool();
 		}
 		else if (tActual.getTipo().equals("NUM")) //El valor de Fact es un número. 
 		{
 			traductor.emiteInstruccion("apila", Integer.parseInt(tActual.getLexema()));
 			etiqueta++;
 			reconoce("NUM");
-			tipo = "NUM";
+			tipo = new Int();
 		}
 		else if (tActual.getTipo().equals("ID")) // El valor de Fact viene determinado por una variable o constante.
 		{
@@ -660,7 +677,7 @@ public class AnSintactico
 			etiqueta++;
 			/*String id = tActual.getLexema();
 			if (!ts.constainsId(id))
-				tipo = "ERROR";
+				tipo = new Error();
 			else
 			{
 				if (ts.getToken(id) instanceof TokenVar) // id representa una variable.
@@ -670,7 +687,7 @@ public class AnSintactico
 				}
 				else  //id representa una constante.
 				{
-					if (ts.getToken(id).getTipo().equals("BOOL"))
+					if (ts.getToken(id).getTipo().equals(new Bool()))
 						if (ts.getToken(id).getValor().equals("TRUE"))
 							traductor.emiteInstruccion("apila", 1);
 						else
@@ -690,7 +707,7 @@ public class AnSintactico
 			reconoce("PAC");
 		}
 		else
-			tipo = "ERROR";
+			tipo = new Error();
 		return tipo;
 	}
 	
@@ -704,13 +721,13 @@ public class AnSintactico
 		
 		reconoce("IF");
 		
-		String tipo1 = Exp();
+		Tipo tipo1 = Exp();
 		int etiquetaI0 = etiqueta;
 		//Esta instrucción será parcheada posteriormente.
 		traductor.emiteInstrucciónParcheable("ir_f");
 		etiqueta++;
 		//Si la expresión es de tipo booleano, procedemos a comprobar el if
-		if (tipo1 == "BOOL"){
+		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("THEN");
 			//Generamos el código de I(0)
 			error1 = Ins();
@@ -742,12 +759,12 @@ public class AnSintactico
 		reconoce("WHILE");
 		
 		int etiquetaExp = etiqueta;
-		String tipo1 = Exp();
+		Tipo tipo1 = Exp();
 		int etiquetaIns = etiqueta;
 		//Esta instrucción será parcheada posteriormente
 		traductor.emiteInstrucciónParcheable("ir_f");
 		etiqueta++;
-		if (tipo1 == "BOOL"){
+		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("THEN"); //!\ Álex: Estoy teniendo problemas para reconocer el DO, ¿léxico?
 			errorIns = Ins();
 			//Esta instrucción será parcheada posteriormente
@@ -773,8 +790,9 @@ public class AnSintactico
 		int etiquetaIns = etiqueta;
 		boolean errorIns = Ins();
 		reconoce("UNTIL"); //!\ Álex: de nuevo creo que no está en el anLéxico.
-		String tipo1 = Exp();
-		if (tipo1 == "BOOL"){
+		Tipo tipo1 = Exp();
+		if (tipo1.getLexema().equals("BOOL"))
+		{
 			traductor.emiteInstruccion("ir_f",etiquetaIns);
 			etiqueta++;
 		} else {
@@ -789,12 +807,12 @@ public class AnSintactico
 	 * 		Desc -> ID RDesc
 	 * @return Boolean que indica se se ha producido un error en la expresión
 	 * */ 
-	private String Desc()
+	private Tipo Desc()
 	{
 		String id = tActual.getLexema();
-		String tipo = "";
+		Tipo tipo = null;
 		if (!ts.constainsId(id))
-			tipo = "ERROR";
+			tipo = new Error();
 		else
 		{
 			traductor.emiteInstruccion("apila", ts.getToken(id).getDireccion());
@@ -805,16 +823,16 @@ public class AnSintactico
 		return tipo;
 	}
 
-	private String RDesc(String tipo) 
+	private Tipo RDesc(Tipo tipo) 
 	{
-		String tiporet = tipo;
+		Tipo tiporet = tipo;
 		if (tActual.getTipo().equals("PUNTERO")) //Es un puntero.
 		{
 			String id = tActual.getLexema();
 			tSimbolos.Token tk = ts.getToken(id);
 			reconoce("PUNTERO");
 			if (tk == null || !tk.getTipo().equals("PUNTERO")) //No se si es puntero o pointer.
-				return "ERROR";
+				return new Error();
 			else
 			{
 				traductor.emiteInstruccion("apila-ind");
@@ -829,7 +847,7 @@ public class AnSintactico
 				String id = tActual.getLexema();
 				reconoce("ID");
 				/*if (!tipo.equals("REGISTRO")) //No se si es puntero o pointer.
-					return "ERROR";
+					return new Error();
 				else*/
 				{
 					int desplazamiento = 1;//tipo.buscar(id);
@@ -842,7 +860,7 @@ public class AnSintactico
 						//tiporet = RDesc(tipocampo);
 					} 
 					else 
-						return "ERROR";
+						return new Error();
 				}
 			}
 		return tiporet;

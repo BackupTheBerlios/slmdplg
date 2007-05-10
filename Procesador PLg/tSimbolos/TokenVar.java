@@ -3,6 +3,8 @@
  */
 package tSimbolos;
 
+import tSimbolos.Tipo.Tipo;
+
 /**
  * Clase que hereda de la clase Token, es la implementacion especifica para los
  * tokens de variables.
@@ -17,7 +19,7 @@ public class TokenVar extends Token {
 	 * @param direccion Direccion en la que se encuentra el token.
 	 * @param tipo Tipo de datos que contiene el token.
 	 */
-	public TokenVar(int direccion, String tipo) {
+	public TokenVar(int direccion, Tipo tipo) {
 		this.tipo = tipo;
 		this.direccion = direccion;
 		this.clase = VARIABLE;
@@ -33,20 +35,6 @@ public class TokenVar extends Token {
 		this.clase = VARIABLE;
 	}
 	
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object arg0) {
-		if (arg0 instanceof TokenVar){
-			if (this.direccion == ((TokenVar)arg0).direccion &&
-					this.tipo.equals(((TokenVar)arg0).getValor()) &&
-					this.clase == ((TokenVar)arg0).clase ) return true;
-			else return false;
-		}
-		else return false;
-	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */

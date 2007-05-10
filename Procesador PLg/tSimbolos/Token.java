@@ -3,6 +3,9 @@
  */
 package tSimbolos;
 
+import tSimbolos.Tipo.Error;
+import tSimbolos.Tipo.Tipo;
+
 /**
  * Clase que representa los tokens, contiene la direccion, el tipo
  * de token, el tipo de datos que contiene y si es constante o variable.    
@@ -17,7 +20,7 @@ public class Token {
 	/**
 	 * Tipo de datos que contiene el token.
 	 */
-    protected String tipo;
+    protected Tipo tipo;
     
     /**
      * Indica si se trata de un token de tipo constante o variable.
@@ -45,7 +48,7 @@ public class Token {
 	 */
 	public Token(){
 		clase = CONSTANTE;
-		tipo = "ERROR";
+		tipo = new Error();
 	    direccion = -1;	    	    
 	    valor = new Integer(-1);
 	}
@@ -118,14 +121,14 @@ public class Token {
 	/**
 	 * @return Returns the tipo.
 	 */
-	public String getTipo() {
+	public Tipo getTipo() {
 		return tipo;
 	}
 
 	/**
 	 * @param tipo The tipo to set.
 	 */
-	public void setTipo(String tipo) {
+	public void setTipo(Tipo tipo) {
 		this.tipo = tipo;
 	}
 

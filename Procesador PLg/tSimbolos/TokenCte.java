@@ -3,6 +3,8 @@
  */
 package tSimbolos;
 
+import tSimbolos.Tipo.Tipo;
+
 /**
  * Clase que hereda de la clase Token, es la implementacion especifica para
  * los tokens de constantes.
@@ -16,7 +18,7 @@ public class TokenCte extends Token {
 	 * @param valor Objeto con el valor que ha de almacenar el token
 	 * @param tipo Almacena el tipo de datos que contendra el token
 	 */
-	public TokenCte(Integer valor, String tipo) {
+	public TokenCte(Integer valor, Tipo tipo) {
 		this.valor = valor;
 		this.tipo = tipo;
 		this.clase = CONSTANTE;
@@ -32,19 +34,6 @@ public class TokenCte extends Token {
 		this.clase = tkn.clase;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object arg0) {
-		if (arg0 instanceof TokenCte){
-			if (this.valor.equals(((TokenCte)arg0).getValor()) &&
-					this.tipo.equals(((TokenCte)arg0).getValor()) &&
-					this.clase == ((TokenCte)arg0).clase ) return true;
-			else return false;
-		}
-		else return false;
-	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
