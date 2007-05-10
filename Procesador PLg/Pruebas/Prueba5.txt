@@ -4,7 +4,7 @@ CONST BOOL cierto = TRUE;
 CONST INT cero = 0
 
 BEGIN
-	valor = 12 - 2;
+	valor.campo = 12 - 2;
 	final = 0;
 	WHILE (valor >= 0) THEN
 		BEGIN

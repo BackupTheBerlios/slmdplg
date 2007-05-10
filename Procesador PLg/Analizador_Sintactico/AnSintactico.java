@@ -819,13 +819,31 @@ public class AnSintactico
 			{
 				traductor.emiteInstruccion("apila-ind");
 				etiqueta++;
-				tiporet = RDesc(tipo); 
+				tiporet = RDesc(tk.getTipo()/*.getTipoApuntado()*/); 
 			}
 		}
 		else 
 			if (tActual.getTipo().equals("PUNTO")) //Es el campo de un registro.
 			{
-				reconoce(".");
+				reconoce("PUNTO");
+				String id = tActual.getLexema();
+				reconoce("ID");
+				/*if (!tipo.equals("REGISTRO")) //No se si es puntero o pointer.
+					return "ERROR";
+				else*/
+				{
+					int desplazamiento = 1;//tipo.buscar(id);
+					//Tipo tipocampo = tipo.getTipo(desplazamiento);
+					if (desplazamiento >= 0)
+					{
+						traductor.emiteInstruccion("apila",desplazamiento);
+						traductor.emiteInstruccion("suma");
+						etiqueta += 2;
+						//tiporet = RDesc(tipocampo);
+					} 
+					else 
+						return "ERROR";
+				}
 			}
 		return tiporet;
 	}

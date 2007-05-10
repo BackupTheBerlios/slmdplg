@@ -8,7 +8,7 @@ INT w, s
 /*sección de instrucciones*/
 
 BEGIN
-y^ = x == 8;
+y = x == 8;
 w = w + 1;
 w = x - 3;
 z = x >= 5;
