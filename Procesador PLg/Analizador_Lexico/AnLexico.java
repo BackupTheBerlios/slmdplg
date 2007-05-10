@@ -465,6 +465,18 @@ public class AnLexico {
 					estado=56;
 					token.setLinea(linea);
 				}break;
+				case 'U':
+				{
+					transita();
+					estado=62;
+					token.setLinea(linea);
+				}break;
+				case 'D':
+				{
+					transita();
+					estado=66;
+					token.setLinea(linea);
+				}break;
 				default:
 					errorLex();
 				break;
@@ -1086,7 +1098,13 @@ public class AnLexico {
 					estado=52;
 					transita();
 				}
-				else errorLex();
+				else if (buf=='P')
+				{
+					estado=59;
+					transita();
+				}else
+					errorLex();
+				
 			}break;
 			case 56:
 			{
@@ -1109,6 +1127,78 @@ public class AnLexico {
 			case 58:
 			{
 				if (buf=='C')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 59:
+			{
+				if (buf=='E')
+				{
+					estado=60;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 60:
+			{
+				if (buf=='A')
+				{
+					estado=61;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 61:
+			{
+				if (buf=='T')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 62:
+			{
+				if (buf=='N')
+				{
+					estado=63;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 63:
+			{
+				if (buf=='T')
+				{
+					estado=64;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 64:
+			{
+				if (buf=='I')
+				{
+					estado=65;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 65:
+			{
+				if (buf=='L')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 66:
+			{
+				if (buf=='O')
 				{
 					estado=52;
 					transita();
