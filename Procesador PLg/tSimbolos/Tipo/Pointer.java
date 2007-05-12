@@ -1,11 +1,13 @@
 package tSimbolos.Tipo;
 
-public class Pointer implements Tipo 
+public class Pointer extends TipoAux implements Tipo
 {
 	private Tipo apuntado;
 
-	public Pointer(Tipo apuntado)
+	public Pointer(String lex, Tipo apuntado)
 	{
+		super(lex);
+		nombre = "POINTER";
 		this.apuntado = apuntado;
 	}
 	
@@ -19,9 +21,19 @@ public class Pointer implements Tipo
 		return 1;
 	}
 
-	
 	public Tipo getTipoApuntado()
 	{
 		return apuntado;
+	}
+	
+	//Se comprueba que sea un puntero, y además recursivamente que apunten al mismo tipo.
+	public boolean equals(Tipo t) {
+		boolean iguales1 = nombre.equals(t.getNombre());
+		//boolean iguales1 = t.getNombre().equals("POINTER");
+		if (iguales1 == true) {
+			boolean iguales2 = apuntado.equals(((Pointer)t).getTipoApuntado());
+			return iguales2;
+		}
+		return false;
 	}
 }

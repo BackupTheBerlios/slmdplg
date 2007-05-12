@@ -1,6 +1,12 @@
 package tSimbolos.Tipo;
 
-public class Error implements Tipo {
+public class Error extends TipoAux implements Tipo {
+
+	public Error(String lex) {
+		super(lex);
+		this.nombre = "ERROR";
+		// TODO Auto-generated constructor stub
+	}
 
 	public String getLexema() 
 	{
@@ -11,5 +17,11 @@ public class Error implements Tipo {
 	{
 		return Integer.MAX_VALUE; //Devuelve un valor que no se utilizará.
 	}
+
+	public String getNombre() {
+		return null;
+	}
+	
+	//Hereda el equals por defecto de TipoAux (no hace falta redefinirlo)
 
 }
