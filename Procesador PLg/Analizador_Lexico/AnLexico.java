@@ -810,6 +810,12 @@ public class AnLexico {
 					estado=37;
 					transita();
 				}
+				else
+					if (buf=='Y')
+					{
+						estado=67;
+						transita();
+					}
 				else errorLex(); 
 					
 			}
@@ -1093,9 +1099,9 @@ public class AnLexico {
 			}break;
 			case 55:
 			{
-				if (buf=='G')
+				if (buf=='C')
 				{
-					estado=52;
+					estado=69;
 					transita();
 				}
 				else if (buf=='P')
@@ -1111,6 +1117,12 @@ public class AnLexico {
 				if (buf=='R')
 				{
 					estado=57;
+					transita();
+				}
+				else
+				if (buf=='O')
+				{
+					estado=72;
 					transita();
 				}
 				else errorLex();
@@ -1199,6 +1211,96 @@ public class AnLexico {
 			case 66:
 			{
 				if (buf=='O')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 67:
+			{
+				if (buf=='P')
+				{
+					estado=68;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 68:
+			{
+				if (buf=='E')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 69:
+			{
+				if (buf=='O')
+				{
+					estado=70;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 70:
+			{
+				if (buf=='R')
+				{
+					estado=71;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 71:
+			{
+				if (buf=='D')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 72:
+			{
+				if (buf=='I')
+				{
+					estado=73;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 73:
+			{
+				if (buf=='N')
+				{
+					estado=74;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 74:
+			{
+				if (buf=='T')
+				{
+					estado=75;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 75:
+			{
+				if (buf=='E')
+				{
+					estado=76;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 76:
+			{
+				if (buf=='R')
 				{
 					estado=52;
 					transita();
