@@ -6,8 +6,9 @@ import tSimbolos.TablaSimbolos;
 import tSimbolos.Tipo.Bool;
 import tSimbolos.Tipo.Error;
 import tSimbolos.Tipo.Int;
-import tSimbolos.Tipo.Tipo;
+import tSimbolos.TokenTipo;
 import tSimbolos.Tipo.TipoAux;
+import tSimbolos.Tipo.Pointer;
 import Analizador_Lexico.AnLexico;
 import Analizador_Lexico.Token;
 import Analizador_Sintactico.Traductor.Traductor;
@@ -58,6 +59,15 @@ public class AnSintactico
 	 * 		Prog -> Decs BEGIN Ins END*/
 	private void progr()
 	{
+		//Añadida sección tipos (opcional, no tiene por qué aparecer en todos los programas, en los más sencillos
+		//se utilizarán únicamente tipos simples).
+		boolean errorT = false; //Por defecto no hay fallos en tipos
+		if (tActual.getTipo().equals("TYPE")) {
+			reconoce("TYPE");
+			//errorT = Tips();
+			reconoce("FTYPE");
+		}	
+		
 		boolean errorD = Decs();
 		reconoce("BEGIN");
 		boolean errorI = Ins();
@@ -100,7 +110,7 @@ public class AnSintactico
 	 * @param tipo2 El segundo de los tipos que se quiere comprobar.
 	 * @return Devuelve un booleano que informa si son compatibles o no.*/
 	private boolean compatibles (Tipo tipo1, Tipo tipo2)
-	{
+	{	
 		return ((tipo1.getLexema().equals(tipo2.getLexema())) || 
 				(tipo1.getLexema().equals("INT") && tipo2.getLexema().equals("NUM")) || 
 				(tipo2.getLexema().equals("INT") && tipo1.getLexema().equals("NUM")));
@@ -264,6 +274,9 @@ public class AnSintactico
 	{
 		if (tActual.getLexema().equals("BEGIN"))
 			return IComp();
+		//Para operación de punteros NEW(<id>)
+		//else if (tActual.getLexema().equalsIgnoreCase("IF"))
+		//	return INewID();
 		else if (tActual.getLexema().equals("IF"))
 			return IIf();
 		else if (tActual.getLexema().equals("WHILE"))
@@ -559,7 +572,7 @@ public class AnSintactico
 				traductor.emiteInstruccion("copia");
 				traductor.emiteInstruccion("apila", 0);
 				traductor.emiteInstruccion("iguales");
-				traductor.emiteInstruccion("ir-f",etiqueta+6); //No es necesario aprchear, se conoce la direccion ya.
+				traductor.emiteInstruccion("ir-f",etiqueta+6); //No es necesario parchear, se conoce la direccion ya.
 				traductor.emiteInstruccion("Stop");
 				etiqueta=etiqueta+5;
 				traductor.emiteInstruccion("divide"); //La última suma en etiqueta se hace fuera del else
@@ -865,4 +878,99 @@ public class AnSintactico
 			}
 		return tiporet;
 	}
+	
+	/**
+	 * Método para el análisis de la expresión
+	 * 		Tips -> decTipo RTips
+	 * @return Boolean que indica si se ha producido un error en la expresión
+	 */
+	private boolean Tips() {
+		boolean err1 = decTipo();
+		boolean err2 = RTips();
+		return (err1 || err2);
+	}
+	
+	/**
+	 * Método para el análisis de la expresión
+	 * 		RTips -> decTipo | null             //NOTA : null se refiere a lambda en la gramática.
+	 * @return Boolean que indica si se ha producido un error en la expresión
+	 */	
+	private boolean RTips() {
+		boolean err1 = false;
+		//...............
+		return err1;
+	}
+	
+	/**
+	 * Método para el análisis de la expresión
+	 * 		decTipo -> id : tipo;             
+	 * @return Boolean que indica si se ha producido un error en la expresión
+	 */	
+	private boolean decTipo() {
+		String nombreTipo = tActual.getLexema();
+		reconoce("ID");
+		//Reconoce ":"
+		reconoce("PP");
+		//String valorTipo = tActual.getLexema();
+		TipoAux tipoRetorno = tipo();
+		boolean err1 = (tipoRetorno ==null);
+		ts.addTipo(nombreTipo,null,tipoRetorno);
+		reconoce("PYC");
+		return err1;
+	}
+	
+	/**
+	 * Método para el análisis de las expresiones:
+	 * tipo -> id | BOOL | INT | ^tipo | tipo
+	 * @return
+	 */
+	private TipoAux tipo() {
+		boolean err1;
+		//Creo que debería reconocer algo distinto de TIPO, pero así es como está hecho en las 
+		//declaraciones de variables (seguramente porque haya que hacer cambios en tipos).
+		if (tActual.getTipo().equals("BOOL")) {
+			reconoce("TIPO");
+			TipoAux tipoBooleano = new Bool("BOOL"); //Creo que el lexema es BOOL
+			return tipoBooleano;
+		}
+		else if (tActual.getTipo().equals("INT") || tActual.getTipo().equals("NUM")) {
+			reconoce("TIPO");
+			TipoAux tipoInt = new Int("INT"); //Creo que el lexema es INT
+			return tipoInt;
+		}
+		else if (tActual.getTipo().equals("PUNTERO")) { //O "POINTER", comprobar.
+			reconoce("PUNTERO");
+			//Crea nodoPointer
+			TipoAux apuntado= tipo();
+			TipoAux puntero = new Pointer("POINTER",apuntado);
+			return puntero;
+		}
+		else if (tActual.getTipo().equals("REGISTRO")) {
+			reconoce("RECORD");
+			TipoAux registro = tipo();
+			//Tratar el tipo Regsitro de forma adecuada
+			//Seguramente no debería devolverse ese primer registro, no sé.
+			return registro;
+		}
+		else if (tActual.getTipo().equals("ID")) {
+			//De momento en esta versión se reconocen en orden los tipos, de modo que no se 
+			//permite en el lado derecho utilizar un tipo que no haya sido declarado anteriormente.
+			String nombreid = tActual.getLexema();
+			//if (!ts.constainsId(nombreid))
+			//	err1 = true;
+			tSimbolos.Token tok = ts.getToken(nombreid);
+			if ((tok==null) || !(tok instanceof TokenTipo) ) {
+				err1=true;
+				return null; //Forma de propagar el error, meramente cuestión de implementación (Java solo permite devolver un valor).
+			}
+			else {
+				err1=false;
+				return ((TokenTipo)tok).getTipoExpresionTipos();
+			}
+		}
+		else return null; //Error.
+		
+		//El ; lo reconoce fuera del Tipo, aquí no se incluye.
+	}
+	
 }
