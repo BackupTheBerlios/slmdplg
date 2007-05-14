@@ -6,6 +6,7 @@ import tSimbolos.TablaSimbolos;
 import tSimbolos.Tipo.Bool;
 import tSimbolos.Tipo.Error;
 import tSimbolos.Tipo.Int;
+import tSimbolos.Tipo.Tipo;
 import tSimbolos.TokenTipo;
 import tSimbolos.Tipo.TipoAux;
 import tSimbolos.Tipo.Pointer;
@@ -64,7 +65,7 @@ public class AnSintactico
 		boolean errorT = false; //Por defecto no hay fallos en tipos
 		if (tActual.getTipo().equals("TYPE")) {
 			reconoce("TYPE");
-			//errorT = Tips();
+			errorT = Tips();
 			reconoce("FTYPE");
 		}	
 		
@@ -896,9 +897,14 @@ public class AnSintactico
 	 * @return Boolean que indica si se ha producido un error en la expresión
 	 */	
 	private boolean RTips() {
-		boolean err1 = false;
-		//...............
-		return err1;
+		if (!tActual.getTipo().equals("FTYPE"))
+			{
+				reconoce("PYC");
+				boolean error1 = decTipo();
+				boolean error2 = RTips();
+				return (error1 || error2);
+			}
+		return false;
 	}
 	
 	/**
@@ -909,13 +915,15 @@ public class AnSintactico
 	private boolean decTipo() {
 		String nombreTipo = tActual.getLexema();
 		reconoce("ID");
-		//Reconoce ":"
 		reconoce("PP");
-		//String valorTipo = tActual.getLexema();
 		TipoAux tipoRetorno = tipo();
 		boolean err1 = (tipoRetorno ==null);
-		ts.addTipo(nombreTipo,null,tipoRetorno);
-		reconoce("PYC");
+		/*if (ts==null) {
+			int j;
+			j = 5;
+		}*/
+		ts.addTipo(nombreTipo,tipoRetorno);
+		//reconoce("PYC");
 		return err1;
 	}
 	
@@ -928,14 +936,14 @@ public class AnSintactico
 		boolean err1;
 		//Creo que debería reconocer algo distinto de TIPO, pero así es como está hecho en las 
 		//declaraciones de variables (seguramente porque haya que hacer cambios en tipos).
-		if (tActual.getTipo().equals("BOOL")) {
+		if (tActual.getLexema().equals("BOOL")) {
 			reconoce("TIPO");
-			TipoAux tipoBooleano = new Bool("BOOL"); //Creo que el lexema es BOOL
+			TipoAux tipoBooleano = new Bool(/*"BOOL"*/); //Creo que el lexema es BOOL
 			return tipoBooleano;
 		}
-		else if (tActual.getTipo().equals("INT") || tActual.getTipo().equals("NUM")) {
+		else if (tActual.getLexema().equals("INT") || tActual.getTipo().equals("NUM")) {
 			reconoce("TIPO");
-			TipoAux tipoInt = new Int("INT"); //Creo que el lexema es INT
+			TipoAux tipoInt = new Int(/*"INT"*/); //Creo que el lexema es INT
 			return tipoInt;
 		}
 		else if (tActual.getTipo().equals("PUNTERO")) { //O "POINTER", comprobar.
@@ -956,8 +964,6 @@ public class AnSintactico
 			//De momento en esta versión se reconocen en orden los tipos, de modo que no se 
 			//permite en el lado derecho utilizar un tipo que no haya sido declarado anteriormente.
 			String nombreid = tActual.getLexema();
-			//if (!ts.constainsId(nombreid))
-			//	err1 = true;
 			tSimbolos.Token tok = ts.getToken(nombreid);
 			if ((tok==null) || !(tok instanceof TokenTipo) ) {
 				err1=true;
@@ -965,6 +971,7 @@ public class AnSintactico
 			}
 			else {
 				err1=false;
+				reconoce("ID"); //Es un TIPO, pero en el léxico "sólo" se ha podido reconocer como ID.
 				return ((TokenTipo)tok).getTipoExpresionTipos();
 			}
 		}

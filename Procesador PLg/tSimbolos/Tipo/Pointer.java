@@ -2,9 +2,9 @@ package tSimbolos.Tipo;
 
 public class Pointer extends TipoAux implements Tipo
 {
-	private Tipo apuntado;
+	private TipoAux apuntado;
 
-	public Pointer(String lex, Tipo apuntado)
+	public Pointer(String lex, TipoAux apuntado)
 	{
 		super(lex);
 		nombre = "POINTER";
@@ -21,7 +21,7 @@ public class Pointer extends TipoAux implements Tipo
 		return 1;
 	}
 
-	public Tipo getTipoApuntado()
+	public TipoAux getTipoApuntado()
 	{
 		return apuntado;
 	}

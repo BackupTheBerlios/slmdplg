@@ -2,8 +2,8 @@ package tSimbolos.Tipo;
 
 public class Int extends TipoAux implements Tipo {
 	
-	public Int(String lex) {
-		super(lex);
+	public Int(/*String lex*/) {
+		super("INT");
 		this.nombre = "INT";
 	}
 

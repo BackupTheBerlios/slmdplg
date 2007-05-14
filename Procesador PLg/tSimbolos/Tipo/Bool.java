@@ -2,8 +2,8 @@ package tSimbolos.Tipo;
 
 public class Bool extends TipoAux implements Tipo {
 	
-	public Bool(String lex) {
-		super(lex);
+	public Bool(/*String lex*/) {
+		super("BOOL");
 		this.nombre = "BOOL";
 	}
 

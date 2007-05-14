@@ -1,6 +1,6 @@
 package tSimbolos.Tipo;
 
-public class TipoAux {
+public class TipoAux implements Tipo{
 
 	protected String lexema;
 	

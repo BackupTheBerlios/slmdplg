@@ -41,6 +41,11 @@ public class Token {
      * Entero que representa los tokens de clase variable.
      */
 	public static final int VARIABLE = 1;
+	
+    /**
+     * Entero que representa los tokens de clase tipo.
+     */
+	public static final int TIPO = 2;
 
 	/**
 	 * Constructor por defecto, crea un token de clase constante,
@@ -48,7 +53,7 @@ public class Token {
 	 */
 	public Token(){
 		clase = CONSTANTE;
-		tipo = new Error();
+		tipo = new Error(/*""*/);
 	    direccion = -1;	    	    
 	    valor = new Integer(-1);
 	}

@@ -7,6 +7,7 @@ package tSimbolos;
 import java.util.Hashtable;
 
 import tSimbolos.Tipo.Tipo;
+import tSimbolos.Tipo.TipoAux;
 
 /**
  * Clase que representa la tabla de simbolos, cuenta con los métodos
@@ -73,6 +74,17 @@ public class TablaSimbolos {
     	else return tabla.put(id, new TokenCte(valor, tipo));
 	}
 
+    /**
+     * Falta saber qué información necesita Tipo.
+     * @param id
+     * @param valor
+     * @param tipo
+     * @return
+     */
+    public Token addTipo(String id, TipoAux expresionTipos){
+    	if (id == null) return null;
+    	else return tabla.put(id, new TokenTipo(expresionTipos));
+	}
     
     /**
      * Método que indica si existe algún token relacionado con el
