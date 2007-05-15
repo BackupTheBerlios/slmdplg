@@ -862,6 +862,12 @@ public class AnLexico {
 					estado=54;
 					transita();
 				}
+				else	
+				if (buf=='T')
+				{
+					estado=26;
+					transita();
+				}
 				else	errorLex();
 			}
 			break;
