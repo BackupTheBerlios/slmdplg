@@ -28,12 +28,13 @@ public class Pointer extends TipoAux implements Tipo
 	
 	//Se comprueba que sea un puntero, y además recursivamente que apunten al mismo tipo.
 	public boolean equals(Tipo t) {
-		boolean iguales1 = nombre.equals(t.getNombre());
+		boolean iguales1 = lexema.equals(t.getLexema());
 		//boolean iguales1 = t.getNombre().equals("POINTER");
 		if (iguales1 == true) {
 			boolean iguales2 = apuntado.equals(((Pointer)t).getTipoApuntado());
 			return iguales2;
 		}
-		return false;
+		else
+			return false;
 	}
 }

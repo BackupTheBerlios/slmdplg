@@ -32,7 +32,7 @@ public class TipoAux implements Tipo{
 	//Por defecto sólo se compara el nombre, aunque se puede reescribir para punteros
 	//o registros, donde hay que hacer más comprobaciones.
 	public boolean equals(Tipo t) { 
-		return nombre.equals(t.getNombre());
+		return lexema.equals(t.getLexema());
 	}
 
 }

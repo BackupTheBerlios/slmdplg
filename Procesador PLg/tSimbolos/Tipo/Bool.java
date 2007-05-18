@@ -19,7 +19,8 @@ public class Bool extends TipoAux implements Tipo {
 	
 	//No tendría por qué sobreescribirlo, se hace por uniformidad.
 	public boolean equals(Tipo t) {
-		return nombre.equals(t.getNombre());
+		//return t instanceof Bool;
+		return lexema.equals(t.getLexema());
 	}
 
 }

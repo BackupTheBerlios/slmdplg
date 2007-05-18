@@ -160,4 +160,11 @@ public class TablaSimbolos {
 		else return tabla.size();
 	}
 	
+	public boolean esTipo(Token t) {
+		if (t instanceof TokenTipo)
+			return true;
+		else
+			return false;
+	}
+	
 }

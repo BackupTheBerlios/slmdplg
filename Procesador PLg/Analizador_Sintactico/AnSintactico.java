@@ -112,9 +112,16 @@ public class AnSintactico
 	 * @return Devuelve un booleano que informa si son compatibles o no.*/
 	private boolean compatibles (Tipo tipo1, Tipo tipo2)
 	{	
-		return ((tipo1.getLexema().equals(tipo2.getLexema())) || 
+		/*return ((tipo1.getLexema().equals(tipo2.getLexema())) || 
 				(tipo1.getLexema().equals("INT") && tipo2.getLexema().equals("NUM")) || 
-				(tipo2.getLexema().equals("INT") && tipo1.getLexema().equals("NUM")));
+				(tipo2.getLexema().equals("INT") && tipo1.getLexema().equals("NUM")));*/
+		//Redefinido con equals apra soportar comparación de tipos construidos (lo que deriva en que se 
+		//evalúan las 2 expresiones de tipos y se comparan sus contenidos (recursivamente).
+		if (tipo1.getLexema().equals("INT") && tipo2.getLexema().equals("NUM") ||
+			tipo1.getLexema().equals("NUM") && tipo2.getLexema().equals("INT") )
+				return true;
+		else	
+			return tipo1.equals(tipo2);
 	}
 
 	/** Método para análisis de la expresión:
@@ -152,13 +159,28 @@ public class AnSintactico
 		if (tActual.getTipo().equals("CONST"))
 		{
 			reconoce("CONST");
-			String tipoaux = tActual.getLexema();
+			String tipoNombre = tActual.getLexema();
 			Tipo tipo = null;
-			if (tipoaux.equals("INT"))
+			if (tipoNombre.equals("INT")) {
 				tipo = new Int();
-			if (tipoaux.equals("BOOL"))
+				reconoce("TIPO");
+			}
+			else if (tipoNombre.equals("BOOL")) {
 				tipo = new Bool();
-			reconoce("TIPO");
+				reconoce("TIPO");
+			}
+			//Aquí se tratan los tipos construidos
+			else {
+				//Se trata de un tipo construido, es decir, de un TokenTipo que debe aparecer en la tabla de símbolos
+				tSimbolos.Token t = ts.getToken(tipoNombre);
+				if (t!= null && t instanceof TokenTipo) {
+					tipo = ((TokenTipo)t).getTipoExpresionTipos();
+					reconoce("ID");
+				} else {
+					error = true;
+					//reconoce("Error");
+				}	
+			}
 			String nomconst = tActual.getLexema();
 			reconoce("ID");
 			reconoce("IGUAL");
@@ -185,12 +207,30 @@ public class AnSintactico
 		{
 			String tipoaux = tActual.getLexema();
 			Tipo tipo = null;
-			if (tipoaux.equals("INT"))
+			if (tipoaux.equals("INT")) {
 				tipo = new Int();
-			if (tipoaux.equals("BOOL"))
+				reconoce("TIPO");
+			}
+			else if (tipoaux.equals("BOOL")) {
 				tipo = new Bool();
-			reconoce("TIPO");
-			error = Ids(tipo);
+				reconoce("TIPO");
+			}
+			//Aquí se tratan los tipos construidos
+			else {
+				//Se trata de un tipo construido, es decir, de un TokenTipo que debe aparecer en la tabla de símbolos
+				
+				// Ver si hace falta hacer aquí alguna comprobación más de error.
+				
+				tSimbolos.Token t = ts.getToken(tipoaux);
+				if (t!= null && t instanceof TokenTipo) {
+					tipo = ((TokenTipo)t).getTipoExpresionTipos();
+					reconoce("ID");
+				} else {
+					error = true;
+				}	
+			}
+			error = Ids(tipo); //Hace el reconoce ID (ver si en el caso de tipos construidos deberia hacerse de otra forma)
+			
 		}
 		return error;
 	}
@@ -276,8 +316,8 @@ public class AnSintactico
 		if (tActual.getLexema().equals("BEGIN"))
 			return IComp();
 		//Para operación de punteros NEW(<id>)
-		//else if (tActual.getLexema().equalsIgnoreCase("IF"))
-		//	return INewID();
+		else if (tActual.getLexema().equals("NEW"))
+			return INewID();
 		else if (tActual.getLexema().equals("IF"))
 			return IIf();
 		else if (tActual.getLexema().equals("WHILE"))
@@ -978,6 +1018,32 @@ public class AnSintactico
 		else return null; //Error.
 		
 		//El ; lo reconoce fuera del Tipo, aquí no se incluye.
+	}
+	
+	private boolean INewID() {
+		boolean error1=false;
+		//......
+		reconoce("NEW");
+		reconoce("PAA"); // "("
+
+		String lex = tActual.getLexema();
+		tSimbolos.Token tSint= ts.getToken(lex);
+		if (tSint!=null && !ts.esTipo(tSint)) {
+			reconoce("ID");
+			reconoce("PAC"); // ")"
+			
+			//Generar código (en proceso)
+			/*traductor.emiteInstruccion("apila",tSint.getDireccion());
+			traductor.emiteInstruccion("apilaH");
+			traductor.emiteInstruccion("desapila_ind");
+			traductor.emiteInstruccion("incrementaH");*/
+			
+			return error1;
+		}
+		else {
+			error1 = true;
+			return error1;
+		}
 	}
 	
 }

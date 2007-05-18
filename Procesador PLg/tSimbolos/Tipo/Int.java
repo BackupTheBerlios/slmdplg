@@ -19,7 +19,8 @@ public class Int extends TipoAux implements Tipo {
 	
 	//No tendría por qué sobreescribirlo, se hace por uniformidad.
 	public boolean equals(Tipo t) {
-		return nombre.equals(t.getNombre());
+		//return t instanceof Int;
+		return lexema.equals(t.getLexema());
 	}
 
 }
