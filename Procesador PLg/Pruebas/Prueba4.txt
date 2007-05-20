@@ -15,5 +15,6 @@ BEGIN
 		BEGIN
 			r = 5;
 			x = falso
-		END
+		END;
+	x = TRUE
 END 7

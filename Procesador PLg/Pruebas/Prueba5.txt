@@ -6,9 +6,12 @@ CONST INT cero = 0
 BEGIN
 	valor.campo = 12 - 2;
 	final = 0;
-	WHILE (valor >= 0) THEN
+	WHILE (valor >= 0) DO
 		BEGIN
-			final = final + 1;
-			valor = valor - 1
-		END
+		final = final + 1;
+		valor = valor - 1
+		END;
+	
+	x = FALSE
+	
 END 7

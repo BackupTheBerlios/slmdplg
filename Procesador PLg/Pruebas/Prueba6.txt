@@ -1,0 +1,13 @@
+BOOL x;
+INT valor, final;
+CONST BOOL cierto = TRUE;
+CONST INT incremento = 1
+
+BEGIN
+	valor = 0;
+	REPEAT
+		final = final + 7;
+		valor = valor + incremento;
+	UNTIL (valor == 10);
+	x = (final>=10)
+END 7
