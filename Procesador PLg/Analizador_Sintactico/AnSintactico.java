@@ -298,7 +298,7 @@ public class AnSintactico
 	 * 		RIns -> ; I RIns | null            //NOTA : null se refiere a lambda en la gramática.*/
 	private boolean RIns() 
 	{
-		if (!tActual.getTipo().equals("END") && !tActual.getTipo().equals("ELSE"))
+		if (!tActual.getTipo().equals("END") && !tActual.getTipo().equals("ELSE") &&!tActual.getTipo().equals("UNTIL"))
 		{
 			boolean err1, err2;
 			reconoce("PYC");
@@ -309,7 +309,7 @@ public class AnSintactico
 		return false;
 	}
 	/** Método para análisis de la expresión
-	 * 		I -> IAsig | IComp | IIf | IWhile
+	 * 		I -> IAsig | IComp | IIf | IWhile | IRepeat
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
 	private boolean I() 
 	{
@@ -323,6 +323,10 @@ public class AnSintactico
 		else if (tActual.getLexema().equals("WHILE"))
 			return IWhile();
 		else if (tActual.getLexema().equals("ELSE"))
+			return false;
+		else if (tActual.getLexema().equals("REPEAT"))
+			return IRepeat();
+		else if (tActual.getLexema().equals("UNTIL"))
 			return false;
 		else 
 			return IAsig();
@@ -783,17 +787,19 @@ public class AnSintactico
 		//Si la expresión es de tipo booleano, procedemos a comprobar el if
 		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("THEN");
-			//Generamos el código de I(0)
-			error1 = Ins();
+			//Generamos el código de I(0). Lo reconocemos como bloque BEGIN-END.
+			error1 = IComp();
 			int etiquetaI1 = etiqueta;
 			//De nuevo, esta instrucción será parcheada posteriormente.
 			traductor.emiteInstrucciónParcheable("ir_a");
 			etiqueta++;
+			//Reconocemos un ";" antes del ELSE, que sería el del bloque Begin-End del IF (no del else).
+			reconoce("PYC");
 			reconoce("ELSE");
 			//Aquí ya conocemos la dirección para parchear el "ir_f" (else)
 			traductor.parchea(etiquetaI0,etiqueta+1);
-			//Generamos el código de I(1)
-			error2 = Ins();
+			//Generamos el código de I(1). Lo reconocemos como bloque BEGIN-END.
+			error2 = IComp();
 			//Aquí ya conocemos la dirección para parchear el "ir_a" (fin de if)
 			traductor.parchea(etiquetaI1,etiqueta+1);
 		} else {
@@ -819,8 +825,8 @@ public class AnSintactico
 		traductor.emiteInstrucciónParcheable("ir_f");
 		etiqueta++;
 		if (tipo1.getLexema().equals("BOOL")){
-			reconoce("THEN"); //!\ Álex: Estoy teniendo problemas para reconocer el DO, ¿léxico?
-			errorIns = Ins();
+			reconoce("DO");
+			errorIns = IComp();
 			//Esta instrucción será parcheada posteriormente
 			traductor.emiteInstruccion("ir_a",etiquetaExp+1);
 			etiqueta++;
@@ -839,15 +845,15 @@ public class AnSintactico
 	 */
 	private boolean IRepeat(){
 		
-		reconoce("REPEAT"); //!\ Álex: creo que no está en el anLexico.
-		
+		reconoce("REPEAT");
+		//El repeat no precisará de parcheos.
 		int etiquetaIns = etiqueta;
 		boolean errorIns = Ins();
-		reconoce("UNTIL"); //!\ Álex: de nuevo creo que no está en el anLéxico.
+		reconoce("UNTIL"); 
 		Tipo tipo1 = Exp();
 		if (tipo1.getLexema().equals("BOOL"))
 		{
-			traductor.emiteInstruccion("ir_f",etiquetaIns);
+			traductor.emiteInstruccion("ir_f",etiquetaIns+1);
 			etiqueta++;
 		} else {
 			return true;
