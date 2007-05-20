@@ -1,0 +1,7 @@
+TYPE
+
+FTYPE
+
+BEGIN
+
+END 7

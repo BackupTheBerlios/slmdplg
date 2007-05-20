@@ -6,6 +6,7 @@ import tSimbolos.TablaSimbolos;
 import tSimbolos.Tipo.Bool;
 import tSimbolos.Tipo.Error;
 import tSimbolos.Tipo.Int;
+import tSimbolos.Tipo.Record;
 import tSimbolos.Tipo.Tipo;
 import tSimbolos.TokenTipo;
 import tSimbolos.Tipo.TipoAux;
@@ -1001,7 +1002,8 @@ public class AnSintactico
 		}
 		else if (tActual.getTipo().equals("REGISTRO")) {
 			reconoce("RECORD");
-			TipoAux registro = tipo();
+			TipoAux registro = new Record(tActual.getLexema());
+			LCampos(registro);
 			//Tratar el tipo Regsitro de forma adecuada
 			//Seguramente no debería devolverse ese primer registro, no sé.
 			return registro;
@@ -1024,6 +1026,43 @@ public class AnSintactico
 		else return null; //Error.
 		
 		//El ; lo reconoce fuera del Tipo, aquí no se incluye.
+	}
+	
+	private boolean LCampos(TipoAux t){
+		//TipoAux registro = new Record(tActual.getLexema());
+		boolean error1 = LIdent(t);
+		boolean error2 = RLCampos(t);
+		return (error1 || error2);
+	}
+	
+	private boolean RLCampos(TipoAux t){
+		boolean error = LCampos(t);
+		return error;
+	}
+	
+	private boolean LIdent(TipoAux t){
+		boolean error;
+		String id = tActual.getLexema();
+		reconoce("ID");
+		TipoAux tipo = tipo();
+		((Record)t).añadirCampo(id, tipo);
+		error = RLIdent(t);
+		return error;
+	}
+	
+	private boolean RLIdent(TipoAux t){
+		boolean error;
+		/*
+		if (!tActual.getTipo().equals("FRECORD"))
+		{
+			error = LIdent(t);
+			return error;
+		}
+		else{
+			return false;
+		}
+		*/
+		return false;
 	}
 	
 	private boolean INewID() {
