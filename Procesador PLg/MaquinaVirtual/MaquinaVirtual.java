@@ -10,6 +10,7 @@ import java.util.Vector;
 /**
  * Clase encargada de la ejecución de las instrucciones generadas por el compilador a partir de 
  * un fichero que las contiene
+ * Preparada para ejecutar subrutinas sin parametros ni variables locales.
  * @author Grupo5 PLG
  *
  */
@@ -221,11 +222,30 @@ public class MaquinaVirtual
 		else if (funcion.equals("ir_f")){
 			ejecutaIrF(datos);
 		}
+		else if (funcion.equals("return")){
+			ejecutaRet();
+		}				
 		else {
 			estadoMaquina=2; //Pasa a error
 			System.out.println("Máquina pasa a estado error");
 		}
 
+	}
+
+	/**
+	 * Método que ejecuta la instruccion retorno de subrutina, para
+	 * ello salta a la direccion que se encuentra en la cima de la
+	 * pila y la desecha.
+	 * @throws Exception 
+	 *
+	 */
+	private void ejecutaRet() throws Exception {
+		if (pila.size()<1) 
+			throw new Exception("Error: Return. La pila no contiene operandos suficientes.");
+		else { 
+			Number oper=pila.pop();
+			program_counter = oper.intValue() - 1;			
+		}
 	}
 
 	/**
@@ -580,7 +600,7 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaIrA(Number param) throws Exception {
-		program_counter = param.intValue();
+		program_counter = param.intValue() -1;
 	}
 	
 	
@@ -592,7 +612,7 @@ public class MaquinaVirtual
 	 * @throws Exception 
 	 */
 	private void ejecutaIrV(Number param) throws Exception {
-		if (pila.pop().intValue() == 1)program_counter = param.intValue();
+		if (pila.pop().intValue() == 1)program_counter = param.intValue() - 1;
 	}		
 	
 	
@@ -604,7 +624,7 @@ public class MaquinaVirtual
 	 * @throws Exception 
 	 */
 	private void ejecutaIrF(Number param) throws Exception {
-		if (pila.pop().intValue() == 0)program_counter = param.intValue();
+		if (pila.pop().intValue() == 0)program_counter = param.intValue() - 1;
 	}		
 
 	/**
