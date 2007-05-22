@@ -946,7 +946,9 @@ public class AnSintactico
 	private boolean RTips() {
 		if (!tActual.getTipo().equals("FTYPE"))
 			{
-				reconoce("PYC");
+			if (tActual.getTipo().equals("FRECORD")){
+				reconoce("FRECORD");
+			}else reconoce("PYC");
 				boolean error1 = decTipo();
 				boolean error2 = RTips();
 				return (error1 || error2);
@@ -1000,9 +1002,9 @@ public class AnSintactico
 			TipoAux puntero = new Pointer("POINTER",apuntado);
 			return puntero;
 		}
-		else if (tActual.getTipo().equals("REGISTRO")) {
+		else if (tActual.getTipo().equals("RECORD")) {
 			reconoce("RECORD");
-			TipoAux registro = new Record(tActual.getLexema());
+			TipoAux registro = new Record("RECORD");
 			LCampos(registro);
 			//Tratar el tipo Regsitro de forma adecuada
 			//Seguramente no debería devolverse ese primer registro, no sé.
@@ -1028,41 +1030,55 @@ public class AnSintactico
 		//El ; lo reconoce fuera del Tipo, aquí no se incluye.
 	}
 	
-	private boolean LCampos(TipoAux t){
-		//TipoAux registro = new Record(tActual.getLexema());
-		boolean error1 = LIdent(t);
-		boolean error2 = RLCampos(t);
+	//Reconoce el tipo y el nombre de los campos
+	private boolean LCampos(TipoAux tRec){
+		TipoAux tipoCampo = tipo();
+		boolean error1 = LIdent(tipoCampo, tRec);
+		boolean error2 = RLCampos(tRec);
 		return (error1 || error2);
 	}
 	
-	private boolean RLCampos(TipoAux t){
-		boolean error = LCampos(t);
-		return error;
-	}
-	
-	private boolean LIdent(TipoAux t){
-		boolean error;
-		String id = tActual.getLexema();
-		reconoce("ID");
-		TipoAux tipo = tipo();
-		((Record)t).añadirCampo(id, tipo);
-		error = RLIdent(t);
-		return error;
-	}
-	
-	private boolean RLIdent(TipoAux t){
-		boolean error;
-		/*
-		if (!tActual.getTipo().equals("FRECORD"))
-		{
-			error = LIdent(t);
-			return error;
-		}
-		else{
+	//Resto de campos
+	private boolean RLCampos(TipoAux tRec){
+		if(!tActual.getTipo().equals("FRECORD")) {
+			boolean error1 = LCampos(tRec);
+			boolean error2 = RLCampos(tRec);
+			return (error1 || error2);
+		}else{
 			return false;
 		}
-		*/
-		return false;
+	}
+	
+	
+	//para declaraciones con varios identificadores del mismo tipo
+	private boolean LIdent(TipoAux tipoCampo, TipoAux tRec){
+		boolean error1;
+		String id = tActual.getLexema();
+		
+		reconoce("ID");
+
+		((Record)tRec).añadirCampo(id, tipoCampo);
+		error1 = RLIdent(tipoCampo, tRec);
+		return (error1);
+	}
+	
+	//Resto de identificadores
+	private boolean RLIdent(TipoAux tipoCampo, TipoAux tRec){
+		if (!tActual.getTipo().equals("PYC"))
+		{
+			boolean error1 = false;
+			reconoce("COMA");
+			String id = tActual.getLexema();
+			reconoce("ID");
+		    ((Record)tRec).añadirCampo(id, tipoCampo);
+			boolean error2 = RLIdent(tipoCampo, tRec);
+			return (error1 || error2);
+		}
+		else {
+			reconoce("PYC");
+			return true;
+		}
+
 	}
 	
 	private boolean INewID() {

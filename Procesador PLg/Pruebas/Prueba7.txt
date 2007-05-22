@@ -1,7 +1,24 @@
 TYPE
-
+pol : INT;
+casa : RECORD
+INT a;
+FRECORD
+lo : BOOL
 FTYPE
 
-BEGIN
+BOOL x, y;
+CONST BOOL z = FALSE;
+CONST INT t = 0;
+INT q, r
 
+BEGIN
+	x = 3 >= 4;
+	y = x && z || x;
+	BEGIN
+		q = 3 + 6;
+		r = (t + q) MOD 4;
+		BEGIN
+		END;
+	x = q == 9
+	END
 END 7
