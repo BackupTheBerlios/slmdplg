@@ -69,6 +69,12 @@ public class MaquinaVirtual
 	 * False -> Información del PC y tipo de instrucción únicamente.
 	 */
 	private boolean modoEjecucionDebug;
+	
+	/**
+	 * Registro que indica cual es la primera posición de memoria libre en el
+	 * bloque de memoria dinamica. 
+	 */
+	private int H;
 
 	/**
 	 * Constructor por defecto de la máquina virtual, que crea la memoria dinámica necesaria e inicializa
@@ -224,12 +230,72 @@ public class MaquinaVirtual
 		}
 		else if (funcion.equals("return")){
 			ejecutaRet();
-		}				
+		}		
+		else if (funcion.equals("apila_ind")){
+			ejecutaApilaInd();
+		}
+		else if (funcion.equals("desapila_ind")){
+			ejecutaDesapilaInd();
+		}
+		else if (funcion.equals("apilaH")){
+			ejecutaApilaH();		
+		}
+		else if (funcion.equals("incrementaH")){
+			ejecutaIncrementaH(datos);
+		}
 		else {
 			estadoMaquina=2; //Pasa a error
 			System.out.println("Máquina pasa a estado error");
 		}
 
+	}
+
+	/**
+	 * Método que incrementa el valor del registro H en el
+	 * número de posiciones pasadas como parametro.
+	 * @param param Número de posiciones en que se incrementará el valor
+	 * del registro H.
+	 */
+	private void ejecutaIncrementaH(Number param) {		
+		H += param.intValue();
+	}
+
+	/**
+	 * Método que coloca sobre la cima de la pila el valor del
+	 * registro H.
+	 *
+	 */
+	private void ejecutaApilaH() {		
+		pila.push(H);
+	}
+
+	/**
+	 * Funcion no especificada
+	 * @throws Exception Funcion no implementada.
+	 *
+	 */
+	private void ejecutaDesapilaInd() throws Exception {
+		System.out.println("Ejecuta DesapilaInd no implementado");
+		throw new Exception("Ejecuta DesapilaInd no implementado");		
+	}
+
+	/**
+	 * Funcion que coloca sobre la pila de operandos el valor contenido
+	 * en la direccion de memoria indicada por la actual cima de la pila,
+	 * desechando a partir de ahí esa cima.
+	 *
+	 */
+	private void ejecutaApilaInd() throws Exception{
+		if (pila.size()<1)throw new Exception("Error: ApilaInd. La pila no contiene operandos suficientes.");
+		else {
+			int dir = pila.pop().intValue();
+			if (!mem_datos.containsKey(dir)) {
+				System.out.println("No encuentra posicion en la mem_datos, en apila-ind\n");
+				pila.push(0);
+			}
+			else
+				pila.push(mem_datos.get(dir).getDato());				
+		}			
 	}
 
 	/**
@@ -265,7 +331,7 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaApilaDir(Number param) throws Exception {	
-		Integer dir = datos;
+		Integer dir = (Integer) param;
 		if (!mem_datos.containsKey(dir)) {
 			System.out.println("No encuentra posicion en la mem_datos, en apila-dir\n");
 			pila.push(0);
@@ -279,7 +345,8 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaDesapila() throws Exception {
-		pila.pop();
+		if (pila.size()<1)throw new Exception("Error: Desapila. La pila no contiene operandos suficientes.");
+		else pila.pop();
 	}
 
 	/**
@@ -289,8 +356,11 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaDesapilaDir(Number param) throws Exception {
-		int dir = datos;
-		mem_datos.put(dir, new DireccionMemoria(pila.pop(), dir));
+		if (pila.size()<1)throw new Exception("Error: DesapilaDir. La pila no contiene operandos suficientes.");
+		else {
+			int dir = param.intValue();
+			mem_datos.put(dir, new DireccionMemoria(pila.pop(), dir));	
+		}		
 	}
 
 	/**
