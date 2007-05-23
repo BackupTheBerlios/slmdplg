@@ -270,13 +270,19 @@ public class MaquinaVirtual
 	}
 
 	/**
-	 * Funcion no especificada
-	 * @throws Exception Funcion no implementada.
+	 * Funcion que coloca el valor de la cima de la pila sobre la
+	 * direccion de memoria especificada por el valor de la
+	 * subcima de la pila.
+	 * @throws Exception 
 	 *
 	 */
 	private void ejecutaDesapilaInd() throws Exception {
-		System.out.println("Ejecuta DesapilaInd no implementado");
-		throw new Exception("Ejecuta DesapilaInd no implementado");		
+		if (pila.size()<2)throw new Exception("Error: DesapilaInd. La pila no contiene operandos suficientes.");
+		else {
+			Number dato = pila.pop();
+			int dir = pila.pop().intValue();			
+			mem_datos.put(dir,new DireccionMemoria(dato,dir));				
+		}		
 	}
 
 	/**
