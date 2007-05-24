@@ -2,20 +2,31 @@ package MaquinaVirtual;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
 /**
  * Clase encargada de la ejecución de las instrucciones generadas por el compilador a partir de 
- * un fichero que las contiene
- * Preparada para ejecutar subrutinas sin parametros ni variables locales.
+ * un fichero que las contiene.
+ * Consta de dos registros datos1 y datos2 para los parametros de las instrucciones.
+ * Consta de una memoria de instrucciones y una única memoria de datos, tanto para las variables estaticas
+ * como para las pilas de registros de activación y de operandos. Dichas pilas se tratan como una sóla.
+ * Finalmente indicar que la memoria dinamica se organiza a partir de la posicion
+ * 5000 de la memoria de datos, y crece hacia arriba. 
  * @author Grupo5 PLG
  *
  */
 public class MaquinaVirtual 
 {
+	/**
+	 * Posicion a partir de la cual comienza la memoria dinamica.
+	 */
+	public static final int InicioH = 5000;
+	
 	/**
 	 * Archivo de texto del que se leerán las instrucciones generadas por el compilador.
 	 */
@@ -29,20 +40,23 @@ public class MaquinaVirtual
 
 	/**
 	 * Variable que se utilizará para extraer del archivo que contiene el programa compilado, en cada 
-	 * instrucción, los parámetros iniciales. 
+	 * instrucción, el primer parametro inicial. 
 	 */
-	int datos;
+	Number datos1;
+	
+	/**
+	 * Variable que se utilizará para extraer del archivo que contiene el programa compilado, en cada 
+	 * instrucción, el segundo parametro inicial. 
+	 */
+	Number datos2;	
 
 	/**
-	 * Representa la pila de operandos de la máquina virtual, en la que se realizan todas las operaciones
+	 * Tabla hash que ralaciona un valor d etipo Integer, con un valor de tipo Number.
+	 * Equivale formalente a la memoria del programa, donde la variable
+	 * de tipo integer, clave de la tabla Hash representa la direccion y la variable de 
+	 * tipo Number representa el contenido.
 	 */
-	private Stack<Number> pila;
-
-	/**
-	 * Tabla hash que relaciona el número de variable otorgado por el compilador acada variable del programa
-	 * con el valor que tiene en ejecución.
-	 */
-	private Hashtable<Integer, DireccionMemoria> mem_datos;
+	private Hashtable<Integer, Number> mem_datos;
 
 	/**
 	 * Vector que almacena todas las instrucciones en un formato más eficiente para la gestión de la
@@ -75,6 +89,18 @@ public class MaquinaVirtual
 	 * bloque de memoria dinamica. 
 	 */
 	private int H;
+	
+	/**
+	 * Registro que apunta a la base del registro de activación activo,
+	 * es decir, a la base de direcciones relativas en la memoria de datos.
+	 */
+	private int B;
+	
+	/**
+	 * Registro que apunta a la cima de la pila de la pila de registros de activacion,
+	 * en un principio, de la memoria.
+	 */
+	private int C;
 
 	/**
 	 * Constructor por defecto de la máquina virtual, que crea la memoria dinámica necesaria e inicializa
@@ -84,11 +110,14 @@ public class MaquinaVirtual
 	 */
 	public MaquinaVirtual(FileReader fis) throws IOException 
 	{
-		lector    = fis;
-		funcion   = "";
-		datos     = 0;
-		pila      = new Stack<Number>(); 
-		mem_datos = new Hashtable<Integer, DireccionMemoria>();
+		lector = fis;
+		funcion = "";
+		datos1 = 0;
+		datos2 = 0;
+		C = 0;
+		B = 0;
+		H = InicioH;
+		mem_datos = new Hashtable<Integer, Number>();
 		mem_instrucciones = new Vector<Instruccion>();
 		program_counter = 0;
 		estadoMaquina=0;
@@ -108,12 +137,13 @@ public class MaquinaVirtual
 		while (!(lectura = leerLinea()).equals("end;"))
 		{
 			divide(lectura);
-			mem_instrucciones.add(new Instruccion(funcion, datos));
+			mem_instrucciones.add(new Instruccion(funcion, datos1,datos2));
 		}
 		while (program_counter < mem_instrucciones.size())
 		{		
 			funcion = mem_instrucciones.get(program_counter).getOperacion();
-			datos = mem_instrucciones.get(program_counter).getParametros();
+			datos1 = mem_instrucciones.get(program_counter).getParametros1();
+			datos2 = mem_instrucciones.get(program_counter).getParametros2();
 			System.out.println("---------------- Nueva instrucción ----------------");
 			System.out.print("PC="+program_counter+": Operación de: "+mem_instrucciones.get(program_counter).toString());
 			ejecutaOrden();
@@ -139,12 +169,13 @@ public class MaquinaVirtual
 	private void mostrarEstadoVariables() 
 	{
 		System.out.println("Estado de las variables: ");
-		Enumeration<DireccionMemoria> iter = mem_datos.elements();
-		while (iter.hasMoreElements())
+		Set<Map.Entry<Integer,Number>> conjunto = mem_datos.entrySet();
+		Iterator<Map.Entry<Integer,Number>> iter = conjunto.iterator();
+		while (iter.hasNext())
 		{
-			DireccionMemoria dir = iter.nextElement();
-			System.out.print("   Variable Declarada nº " + (dir.getDireccion()+ 1) + " -> ");
-			System.out.println("Valor: " + dir.getDato() + ".");
+			Map.Entry<Integer,Number> var = iter.next();
+			System.out.print("   Direccion de memoria: " + (var.getKey()) + " -> ");
+			System.out.println("Valor: " + var.getValue().intValue() + ".");
 		}
 		System.out.println("NOTA: Las variables que no aparecen no tienen asignado ningún valor.");
 	}
@@ -204,29 +235,29 @@ public class MaquinaVirtual
 			ejecutaStop();
 		}
 		else if (funcion.equals("apila")) {
-			ejecutaApila(datos);
+			ejecutaApila(datos1);
 		}
 		else if (funcion.equals("desapila")) {
 			ejecutaDesapila();
 		}
 		else if (funcion.equals("apila-dir")) {
-			ejecutaApilaDir(datos);
+			ejecutaApilaDir(datos1,datos2);
 		}
 		else if (funcion.equals("desapila-dir")) {
-			ejecutaDesapilaDir(datos);
+			ejecutaDesapilaDir(datos1,datos2);
 		}
 		else if (funcion.equals("copia")) {
 			ejecutaCopia();
 		}
 		else if (funcion.equals("ir_a")){
-			ejecutaIrA(datos);
+			ejecutaIrA(datos1);
 		}
 		
 		else if (funcion.equals("ir_v")){
-			ejecutaIrV(datos);			
+			ejecutaIrV(datos1);			
 		}
 		else if (funcion.equals("ir_f")){
-			ejecutaIrF(datos);
+			ejecutaIrF(datos1);
 		}
 		else if (funcion.equals("return")){
 			ejecutaRet();
@@ -241,13 +272,63 @@ public class MaquinaVirtual
 			ejecutaApilaH();		
 		}
 		else if (funcion.equals("incrementaH")){
-			ejecutaIncrementaH(datos);
+			ejecutaIncrementaH(datos1);
+		}
+		else if (funcion.equals("incrementaC")){
+			ejecutaIncrementaC(datos1);
+		}
+		else if (funcion.equals("llamada")){
+			ejecutaLLamada(datos1,datos2);
 		}
 		else {
 			estadoMaquina=2; //Pasa a error
 			System.out.println("Máquina pasa a estado error");
 		}
 
+	}
+
+	/**
+	 * Método que incrementa el valor de la cima de la pila en el número
+	 * de posiciones de memoria pasadas por parámetro.
+	 * @param param Número de posiciones de memoria a incrementar el valor
+	 * de la cima de la pila.
+	 * @throws Exception 
+	 */
+	private void ejecutaIncrementaC(Number param) throws Exception {
+		if (C + param.intValue() > InicioH) 
+			throw new Exception("Error.IncrementaH : Intenta llevar las pilas más allá del" +
+					" comienzo de la memoria dínamica.");
+		else C += param.intValue();
+		
+	}
+
+	/**
+	 * Método que se utiliza de ejecutar la llamada a un procedimiento,
+	 * para ello crea su registro de activacion, con la Instruccion Siguiente,
+	 * el Enlace Dinamico y el Enlace Estatico.
+	 * 
+	 * @param fnp Indica el nivel del procedimiento, servirá para reconstruir
+	 * su entorno léxico.
+	 * @param etiq Direccion de comienzo del código del procedimiento.
+	 */
+	private void ejecutaLLamada(Number fnp, Number etiq) {
+		int IS;
+		int ED;
+		int EE;
+		
+		// Obtenemos los tres datos del registro de activacion;
+		IS = program_counter;
+		ED = B;
+		EE = extraeDirBase(fnp.intValue());
+		
+		// Almacenamos los datos en las posiciones de memoria correspondientes
+		mem_datos.put(new Integer(C),EE); 
+		mem_datos.put(new Integer(C+1),ED);
+		mem_datos.put(new Integer(C+2),IS);
+						
+		// Actualizamos el registro B, y el contador de programa
+		B=C;
+		program_counter = (etiq.intValue() - 1);
 	}
 
 	/**
@@ -266,22 +347,25 @@ public class MaquinaVirtual
 	 *
 	 */
 	private void ejecutaApilaH() {		
-		pila.push(H);
+		push(H);
 	}
 
 	/**
 	 * Funcion que coloca el valor de la cima de la pila sobre la
-	 * direccion de memoria especificada por el valor de la
-	 * subcima de la pila.
+	 * direccion de memoria especificada por los dos siguientes valores
+	 * en la pila, donde la subcima indica el número de niveles a retroceder
+	 * y el anterior a la subcima indica el desplazamiento.
 	 * @throws Exception 
 	 *
 	 */
 	private void ejecutaDesapilaInd() throws Exception {
-		if (pila.size()<2)throw new Exception("Error: DesapilaInd. La pila no contiene operandos suficientes.");
+		if (tamanoPila()<3)throw new Exception("Error: DesapilaInd. La pila no contiene operandos suficientes.");
 		else {
-			Number dato = pila.pop();
-			int dir = pila.pop().intValue();			
-			mem_datos.put(dir,new DireccionMemoria(dato,dir));				
+			Number dato = pop();
+			int fnv = pop().intValue();
+			int offset = pop().intValue();
+			int dir = extraeDirBase(fnv) + offset;
+			mem_datos.put(new Integer(dir),dato);				
 		}		
 	}
 
@@ -292,32 +376,30 @@ public class MaquinaVirtual
 	 *
 	 */
 	private void ejecutaApilaInd() throws Exception{
-		if (pila.size()<1)throw new Exception("Error: ApilaInd. La pila no contiene operandos suficientes.");
+		if (tamanoPila()<2)throw new Exception("Error: ApilaInd. La pila no contiene operandos suficientes.");
 		else {
-			int dir = pila.pop().intValue();
+			int fnv = pop().intValue();
+			int offset = pop().intValue();
+			int dir = extraeDirBase(fnv) + offset;
 			if (!mem_datos.containsKey(dir)) {
 				System.out.println("No encuentra posicion en la mem_datos, en apila-ind\n");
-				pila.push(0);
+				push(0);
 			}
 			else
-				pila.push(mem_datos.get(dir).getDato());				
+				push(mem_datos.get(dir));				
 		}			
 	}
 
 	/**
 	 * Método que ejecuta la instruccion retorno de subrutina, para
-	 * ello salta a la direccion que se encuentra en la cima de la
-	 * pila y la desecha.
-	 * @throws Exception 
-	 *
+	 * ello para ello actualiza los valores de los registros de Cima de Pila
+	 * y Base del registro de activacion activo.
+	 * Finalmente actualiza el contador de programa.
 	 */
-	private void ejecutaRet() throws Exception {
-		if (pila.size()<1) 
-			throw new Exception("Error: Return. La pila no contiene operandos suficientes.");
-		else { 
-			Number oper=pila.pop();
-			program_counter = oper.intValue() - 1;			
-		}
+	private void ejecutaRet() {		
+		C = B;
+		B= mem_datos.get(C+1).intValue();
+		program_counter = mem_datos.get(C+2).intValue();
 	}
 
 	/**
@@ -327,7 +409,7 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaApila(Number param) throws Exception {
-		pila.push(param);
+		push(param);
 	}
 	
 	/**
@@ -336,14 +418,14 @@ public class MaquinaVirtual
 	 * @param param Dirección de la variable, la cual ha sido definida durante el proceso de compilación.
 	 * @throws Exception
 	 */
-	private void ejecutaApilaDir(Number param) throws Exception {	
-		Integer dir = (Integer) param;
+	private void ejecutaApilaDir(Number fnv,Number offset) throws Exception {
+		int dir = extraeDirBase(fnv.intValue()) + offset.intValue();		
 		if (!mem_datos.containsKey(dir)) {
 			System.out.println("No encuentra posicion en la mem_datos, en apila-dir\n");
-			pila.push(0);
+			push(0);
 		}
 		else
-			pila.push(mem_datos.get(dir).getDato());
+			push(mem_datos.get(dir));
 	}
 
 	/**
@@ -351,21 +433,30 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaDesapila() throws Exception {
-		if (pila.size()<1)throw new Exception("Error: Desapila. La pila no contiene operandos suficientes.");
-		else pila.pop();
+		if (tamanoPila()<1)throw new Exception("Error: Desapila. La pila no contiene operandos suficientes.");
+		else pop();
 	}
-
+	
+	
 	/**
 	 * Método que ejecuta la instrucción desapila-dir(param): Coloca el valor de la cima de la pila de
-	 * ejecución sobre la variable de dirección n 
-	 * @param param Dirección de la variable, la cual ha sido definida durante el proceso de compilación.
+	 * ejecución sobre la variable una direccion de memoria. Dicha direccion
+	 * de memoria se obtiene, retrocediento tantos niveles de registros de
+	 * activación como nos indique fnv, teniendo esa base se le suma param, para
+	 * obtener la obtener la direccion de memoria a la que debemos acceder para llegar a la
+	 * vaariable en cuestion.  
+	 * @param fnv Número de niveles de indireccion a aplicar, partiendo de B, para conocer la
+	 * direccion base.
+	 * @param param Número de posiciones de memoria que habra que sumarle
+	 * a la direccion base para conocer la direccion de memoria objetivo.
 	 * @throws Exception
 	 */
-	private void ejecutaDesapilaDir(Number param) throws Exception {
-		if (pila.size()<1)throw new Exception("Error: DesapilaDir. La pila no contiene operandos suficientes.");
-		else {
-			int dir = param.intValue();
-			mem_datos.put(dir, new DireccionMemoria(pila.pop(), dir));	
+	private void ejecutaDesapilaDir(Number fnv,Number param) throws Exception {
+		if (tamanoPila()<1)throw new Exception("Error: DesapilaDir. La pila no contiene operandos suficientes.");
+		else {			
+			int dir = extraeDirBase(fnv.intValue()) + param.intValue();
+			Number value = pop();
+			mem_datos.put(new Integer(dir), value);	
 		}		
 	}
 
@@ -385,12 +476,12 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaNot() throws Exception {
-		if (pila.size()<1) 
+		if (tamanoPila()<1) 
 			throw new Exception("Error: Not. La pila no contiene operandos suficientes.");
 		else { 
-			Number oper1=pila.pop();
+			Number oper1=pop();
 			oper1=(1-oper1.intValue()); 
-			pila.push(oper1);
+			push(oper1);
 		}
 	}
 
@@ -401,14 +492,14 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaOr() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Or. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2= pila.pop(); 
-			Number oper1= pila.pop();
+			Number oper2= pop(); 
+			Number oper1= pop();
 			Boolean r=(oper1.intValue()==1 || oper2.intValue()==1);
 			Number resul=convertirBooleanoaEntero(r);
-			pila.push(resul);		
+			push(resul);		
 		}
 	}
 
@@ -419,14 +510,14 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaAnd() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: And. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2= pila.pop(); 
-			Number oper1= pila.pop();
+			Number oper2= pop(); 
+			Number oper1= pop();
 			Boolean r=(oper1.intValue()==1 && oper2.intValue()==1);
 			Number resul=convertirBooleanoaEntero(r);
-			pila.push(resul);		
+			push(resul);		
 		}
 	}
 
@@ -438,14 +529,14 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaMenorIgual() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: MenorIgual. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Boolean r= (oper1.floatValue() <= oper2.floatValue());
 			Number resul=convertirBooleanoaEntero(r);
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -457,14 +548,14 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaMayorIgual() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: MayorIgual. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Boolean r= (oper1.floatValue() >= oper2.floatValue());
 			Number resul=convertirBooleanoaEntero(r);
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -476,14 +567,14 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaMenor() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Menor. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Boolean r= (oper1.floatValue() < oper2.floatValue());
 			Number resul=convertirBooleanoaEntero(r);
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -495,14 +586,14 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaMayor() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Mayor. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Boolean r= (oper1.floatValue() > oper2.floatValue());
 			Number resul=convertirBooleanoaEntero(r);
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -514,15 +605,15 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaDistinto() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Distinto. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Integer) pila.pop(); 
-			Number oper1=(Integer) pila.pop();
+			Number oper2=(Integer) pop(); 
+			Number oper1=(Integer) pop();
 			Boolean r= (oper1.floatValue() != oper2.floatValue());
 			Number resul=convertirBooleanoaEntero(r);
 
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -534,15 +625,15 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaIgual() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Igual. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Boolean r= (oper1.floatValue() == oper2.floatValue());
 			Number resul=convertirBooleanoaEntero(r);
 
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -553,12 +644,12 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaCambioSigno() throws Exception {
-		if (pila.size()<1) 
+		if (tamanoPila()<1) 
 			throw new Exception("Error: Cambio de Signo. La pila no contiene operandos suficientes.");
 		else {
-			Number oper1=(Number) pila.pop();
+			Number oper1=(Number) pop();
 			Number resul= (-oper1.intValue());
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -570,13 +661,13 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaMod() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Módulo. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Number resul= (oper1.intValue() % oper2.intValue());
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -588,13 +679,13 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaDivision() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Division. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Number resul= (oper1.intValue() / oper2.intValue()); 
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -606,13 +697,13 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaMultiplicacion() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Multiplicacion. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Number resul= (oper1.intValue() * oper2.intValue());
-			pila.push(resul);
+			push(resul);
 		}
 	}
 
@@ -624,13 +715,13 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaResta() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Resta. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Number resul= (oper1.intValue() - oper2.intValue());
-			pila.push(resul);		
+			push(resul);		
 		}
 	}
 
@@ -642,13 +733,13 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaSuma() throws Exception {
-		if (pila.size()<2) 
+		if (tamanoPila()<2) 
 			throw new Exception("Error: Suma. La pila no contiene operandos suficientes.");
 		else {
-			Number oper2=(Number) pila.pop(); 
-			Number oper1=(Number) pila.pop();
+			Number oper2=(Number) pop(); 
+			Number oper1=(Number) pop();
 			Number resul= (oper1.intValue() + oper2.intValue());
-			pila.push(resul);		
+			push(resul);		
 		}
 	}
 	
@@ -658,12 +749,12 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaCopia() throws Exception {
-		if (pila.size()<1) 
+		if (tamanoPila()<1) 
 			throw new Exception("Error: Copia. La pila no contiene operandos suficientes.");
 		else {
-			Number oper1= pila.pop();			
-			pila.push(oper1);		
-			pila.push(oper1);
+			Number oper1= pop();			
+			push(oper1);		
+			push(oper1);
 		}
 	}
 	
@@ -688,7 +779,7 @@ public class MaquinaVirtual
 	 * @throws Exception 
 	 */
 	private void ejecutaIrV(Number param) throws Exception {
-		if (pila.pop().intValue() == 1)program_counter = param.intValue() - 1;
+		if (pop().intValue() == 1)program_counter = param.intValue() - 1;
 	}		
 	
 	
@@ -700,7 +791,7 @@ public class MaquinaVirtual
 	 * @throws Exception 
 	 */
 	private void ejecutaIrF(Number param) throws Exception {
-		if (pila.pop().intValue() == 0)program_counter = param.intValue() - 1;
+		if (pop().intValue() == 0)program_counter = param.intValue() - 1;
 	}		
 
 	/**
@@ -725,31 +816,58 @@ public class MaquinaVirtual
 
 	/**
 	 * Métood auxiliar para gestionar la lectura del fichero, que a aprtir del string de una linea del fichero 
-	 * separa el tipo de la instrucción de los posibles parámetros.
+	 * separa el tipo de la instrucción de sus dos posibles parámetros.
 	 * @param lectura Una linea que contiene una instrucción completa.
 	 */
 	private void divide(String lectura) 
 	{
 		int longitud = lectura.length();
-		int parentesis = lectura.lastIndexOf('(');
-		if (parentesis == -1) //No ha encontrado paréntesis (la linea es una operacion sin parámetros).
+		int parentesis1 = lectura.indexOf('(');
+		int parentesis2 = lectura.lastIndexOf('(');
+		if (parentesis1 == -1) //No ha encontrado paréntesis (la linea es una operacion sin parámetros).
 		{
 			funcion = lectura.substring(0,longitud - 1);
-			datos = 0;
+			datos1 = 0;
+			datos2 = 0;
 		}
-		else
-		{	
-			funcion = lectura.substring(0, parentesis);
-			//	Try & Catch para detectar cuando es una instrucción sin parametros, del tipo de suma; o iguales;
-			try 
-			{	
-				datos = Integer.parseInt(lectura.substring(parentesis + 1, longitud - 2));
-			} 
-			catch (NumberFormatException e) 
-			{
-				datos = 0;
+		// Al menos existe un parametro
+		else{	
+			funcion = lectura.substring(0, parentesis1);
+			if (parentesis1 == parentesis2){ /* Solo existe un
+			parentesis, por tanto un único parámetro.*/
+				
+				//	Try & Catch para detectar cuando es una instrucción sin parametros, del tipo de suma; o iguales;
+				try 
+				{	
+					datos1 = Integer.parseInt(lectura.substring(parentesis1 + 1, longitud - 2));
+				} 
+				catch (NumberFormatException e) 
+				{
+					datos1 = 0;
+				}
+				datos2=0;
+			}
+			else{ // Existen dos paramtros
+				try 
+				{	
+					datos1 = Integer.parseInt(lectura.substring(parentesis1 + 1, parentesis2 - 1));
+				} 
+				catch (NumberFormatException e) 
+				{
+					datos1 = 0;
+				}
+
+				try 
+				{	
+					datos2 = Integer.parseInt(lectura.substring(parentesis2 + 1, longitud - 2));
+				} 
+				catch (NumberFormatException e) 
+				{
+					datos2 = 0;
+				}				
 			}
 		} 
+
 	}
 
 	/**
@@ -763,6 +881,66 @@ public class MaquinaVirtual
 		else resul=new Integer(0);
 		return resul;
 	}
+	
+	/**
+	 * Método auxiliar para calcular direcciones base, retrocede en los
+	 * registros de activacion la cantidad de niveles indicada por el
+	 * parametro, hasta conseguir la direccion buscada;
+	 * @param niveles Numero de niveles a retroceder.
+	 * @return Int - Direccion base buscada
+	 */
+	private int extraeDirBase(int niveles){
+		int base = B;
+		for(;niveles > 0;niveles --){
+			base = mem_datos.get(base).intValue();
+		}
+		return base;
+	}
+	
+	
+	/**
+	 * Método auxiliar, sirve para colocar un elemento en la cima de la pila,
+	 * realmente, debido a que la pila de operandos y la de registros de
+	 * activacion es la misma, coloca el dato en la direccion de memoria apuntado
+	 * por C, e incrementa C en una posicion.
+	 * @param param Valor que se colocará en la cima de la pila.
+	 */
+	private void push(Number param){
+		mem_datos.put(new Integer(C),param);
+		C++;
+	}
+	
+	/**
+	 * Método auxiliar, sirve para extraer el elemento en la cima de la pila,
+	 * realmente, debido a que la pila de operandos y la de registros de
+	 * activacion es la misma, extrae el dato de la direccion de memoria previa a la
+	 * apuntada por C, decrementando C en una posicion.
+	 * @return Number - Valor en la cima.
+	 */
+	private Number pop(){
+		C--;
+		return mem_datos.get(C);
+	}
+	
+	/**
+	 * Método que devuelve el número de operandos en la pila, es decir el
+	 * número de posiciones de memoria ocupada en marco actual a partir del
+	 * registro de activación.
+	 * @return Número de posiciones en la pila
+	 */
+	private int tamanoPila(){
+		int tam = C - (B + 3);
+		if (tam >= 0) return tam;
+		else return 0;
+	}
+	
+	/**
+	 * Método auxiliar indica mediante un Booleano si tamanoPila == 0
+	 * @return Boolean - No hay ningún operando en la pila.
+	 */
+	private boolean pilaIsEmpty(){
+		return (tamanoPila() == 0);
+	}
 
 	/**
 	 * Método que devuelve un String con la información de la pila de ejecución, posición y valor, utilizando
@@ -772,13 +950,13 @@ public class MaquinaVirtual
 	public String muestraInfoPila(){
 		Stack<Number> pilaEjecucionAux = new Stack<Number>();
 		String pilaInfo="Número de operandos en la pila de ejecución: ";
-		int pilanum=(pila.size());
+		int pilanum=(tamanoPila());
 		pilaInfo= pilaInfo.concat(""+pilanum);
 
-		if (!pila.isEmpty()) {
+		if (!pilaIsEmpty()) {
 			pilaInfo=pilaInfo.concat(" operandos");
-			while(!pila.isEmpty()){
-				Number elem = pila.pop();
+			while(!pilaIsEmpty()){
+				Number elem = pop();
 				pilaInfo= pilaInfo.concat("\n"+"Operando "+pilanum+": ");
 				pilaInfo= pilaInfo.concat(elem.toString());
 				pilanum--;
@@ -787,7 +965,7 @@ public class MaquinaVirtual
 
 			while(!pilaEjecucionAux.isEmpty()){
 				Number elem = pilaEjecucionAux.pop();
-				pila.push(elem);
+				push(elem);
 			}
 		}
 		else {

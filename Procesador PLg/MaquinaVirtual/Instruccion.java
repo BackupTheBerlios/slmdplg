@@ -8,10 +8,16 @@ public class Instruccion
 	private String operacion;
 	
 	/**
-	 * Valores necesarios para la ejecución de esta instrucción. Su valor será NULL
+	 * Primeros valores necesarios para la ejecución de esta instrucción. Su valor será NULL
 	 * cuando la operación no tenga parámetros.
 	 */
-	private Integer parametros;
+	private Number parametros1;
+	
+	/**
+	 * Segundos valores necesarios para la ejecución de esta instrucción. Su valor será NULL
+	 * cuando la operación no tenga parámetros.
+	 */
+	private Number parametros2;	
 
 	/**
 	 * Método de acceso que devuelve el atributo operación
@@ -30,36 +36,56 @@ public class Instruccion
 	}
 
 	/**
-	 * Método de acceso que devuelve el atributo parámetros
-	 * @return El parámetro concreto de la isntrucción.
+	 * Método de acceso que devuelve el atributo parámetros1
+	 * @return El primer parámetro concreto de la instrucción.
 	 */
-	public Integer getParametros() {
-		return parametros;
+	public Number getParametros1() {
+		return parametros1;
 	}
 	
 	/**
-	 * Método mutador que modifica el atributo parámetros con el parámetro del método.
-	 * @param operacion Es el nuevo parámetro de la instrucción con que se modificará el atributo parametros.
+	 * Método de acceso que devuelve el atributo parámetros
+	 * @return El segundo parámetro concreto de la instrucción.
 	 */
-	public void setParametros(Integer parametros) {
-		this.parametros = parametros;
+	public Number getParametros2() {
+		return parametros2;
+	}	
+	
+	/**
+	 * Método mutador que modifica el atributo parámetros1 con el primer parámetro del método.
+	 * @param operacion Es el nuevo parámetro de la instrucción con que se modificará el atributo parametros1.
+	 */
+	public void setParametros1(Integer param) {
+		this.parametros1 = param;
 	}
+	
+	/**
+	 * Método mutador que modifica el atributo parámetros2 con el segundo parámetro del método.
+	 * @param operacion Es el nuevo parámetro de la instrucción con que se modificará el atributo parametros2.
+	 */
+	public void setParametros2(Integer param) {
+		this.parametros2 = param;
+	}	
 
 	/**
 	 * Constructor que inicializa todos los atributos de la clase. 
 	 * @param operacion Tipo de instrucción
-	 * @param parametros Parámetros de la instrucción
+	 * @param param1 Primer parámetro de la instrucción
+	 * @param param2 Segundo parámetro de la instrucción
 	 */
-	public Instruccion(String operacion, Integer parametros) 
+	public Instruccion(String operacion, Number param1,Number param2) 
 	{
 		this.operacion = operacion;
-		this.parametros = parametros;
+		this.parametros1 = param1;
+		this.parametros2 = param2;
 	}
 	
 	/**
-	 * Método para pasar la información de la clase (tipo de instrucción y posibles parámetros) a un String
+	 * Método no implementado
 	 */
 	public String toString() {
+		return new String("Instruccion.toString aun no implementado");		
+		/*
 		String s;
 		if (operacion.equals("apila") 
 				|| operacion.equals("apila-dir") 
@@ -68,6 +94,7 @@ public class Instruccion
 		else 
 			s=new String(""+operacion+"()");
 		return s;
+		*/
 	}
 	
 }
