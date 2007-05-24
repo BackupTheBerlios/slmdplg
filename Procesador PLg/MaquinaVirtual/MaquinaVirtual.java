@@ -139,7 +139,7 @@ public class MaquinaVirtual
 			divide(lectura);
 			mem_instrucciones.add(new Instruccion(funcion, datos1,datos2));
 		}
-		while (program_counter < mem_instrucciones.size())
+		while (program_counter < mem_instrucciones.size() && estadoMaquina==0)
 		{		
 			funcion = mem_instrucciones.get(program_counter).getOperacion();
 			datos1 = mem_instrucciones.get(program_counter).getParametros1();
@@ -156,7 +156,11 @@ public class MaquinaVirtual
 				System.out.println("Estado de la pila: \n"+muestraInfoPila());
 			}
 		}
-		System.out.println("Lectura y Ejecución finalizadas.\n");
+		if (estadoMaquina == 2) System.out.println("La maquina ha finalizado con un error");
+		else System.out.println("Lectura y Ejecución finalizadas.\n");
+		if (estadoMaquina == 0) System.out.println("La maquina ha finalizado " +
+				"debido a no disponer de más instrucciones, pero no ha encontrado " +
+				"instruccion de parada.");
 		System.out.println("Estado final de las variables");
 		mostrarEstadoVariables();
 

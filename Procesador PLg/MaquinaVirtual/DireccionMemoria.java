@@ -3,6 +3,7 @@ package MaquinaVirtual;
  * Clase que guarda la información necesaria en ejecución de cada variable declarada
  * en el programa que se está ejecutando (formalmente, una dirección de memoria y su dato).
  * @author Grupo5 PLG
+ * @deprecated En la segunda parte de la practica se hace innecesaria esta clase.
  */
 public class DireccionMemoria 
 {
