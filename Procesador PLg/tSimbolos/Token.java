@@ -18,6 +18,11 @@ public class Token {
 	protected int direccion;
 	
 	/**
+	 * Indica si la variable está instanciada o no (adecuada para punteros)
+	 */
+	protected int instanciada;
+	
+	/**
 	 * Tipo de datos que contiene el token.
 	 */
     protected Tipo tipo;
@@ -56,6 +61,7 @@ public class Token {
 		tipo = new Error(/*""*/);
 	    direccion = -1;	    	    
 	    valor = new Integer(-1);
+	    instanciada = 1;
 	}
 
 	/**
@@ -150,6 +156,13 @@ public class Token {
 	public void setValor(Integer valor) {
 		this.valor = valor;
 	}
-		
+	
+	public void instancia() {
+		instanciada = 1;
+	}
+
+	public int getInstanciada() {
+		return instanciada;
+	}
 }
 

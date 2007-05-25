@@ -889,7 +889,10 @@ public class AnSintactico
 			traductor.emiteInstruccion("apila", ts.getToken(id).getDireccion());
 			etiqueta++;
 			reconoce("ID");
-			tipo = RDesc(ts.getToken(id).getTipo()/*,id*/);
+			if (ts.getToken(id).getInstanciada() == 1)
+				tipo = RDesc(ts.getToken(id).getTipo()/*,id*/);
+			else //error
+				return new Error();
 		}
 		return tipo;
 	}
@@ -1106,7 +1109,7 @@ public class AnSintactico
 
 		String lex = tActual.getLexema();
 		tSimbolos.Token tSint= ts.getToken(lex);
-		if (tSint!=null && !ts.esTipo(tSint)) {
+		if (tSint!=null && (tSint.getTipo() instanceof Pointer) && !ts.esTipo(tSint)) { //Aquí habría que asegurarse de que es puntero
 			reconoce("ID");
 			reconoce("PAC"); // ")"
 			
@@ -1116,8 +1119,9 @@ public class AnSintactico
 			traductor.emiteInstruccion("desapila_ind");
 			//Aclarar entre estas 2.
 			//traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipo().getTamaño());
-			traductor.emiteInstruccion("incrementaH"+tSint.getTipo().getTamaño());
+			traductor.emiteInstruccion("incrementaH("+tSint.getTipo().getTamaño()+")");
 			etiqueta = etiqueta + 4;
+			tSint.instancia();
 			return error1;
 		}
 		else {

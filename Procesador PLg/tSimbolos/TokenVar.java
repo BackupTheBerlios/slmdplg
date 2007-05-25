@@ -3,6 +3,7 @@
  */
 package tSimbolos;
 
+import tSimbolos.Tipo.Pointer;
 import tSimbolos.Tipo.Tipo;
 
 /**
@@ -23,6 +24,10 @@ public class TokenVar extends Token {
 		this.tipo = tipo;
 		this.direccion = direccion;
 		this.clase = VARIABLE;
+		if (tipo instanceof Pointer)
+			instanciada = 0;
+		else
+			instanciada=1;
 	}
 
 	/**
