@@ -8,6 +8,7 @@ tipo6 variable2;
 tipo5 variable8
 
 BEGIN
+NEW (variable3) ;
 variable3^ = FALSE;
 variable3 = variable2;
 variable3 = variable2;

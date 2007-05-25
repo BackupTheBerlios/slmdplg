@@ -477,6 +477,12 @@ public class AnLexico {
 					estado=66;
 					token.setLinea(linea);
 				}break;
+				case 'N':
+				{
+					transita();
+					estado=77;
+					token.setLinea(linea);
+				}break;				
 				default:
 					errorLex();
 				break;
@@ -1307,6 +1313,24 @@ public class AnLexico {
 			case 76:
 			{
 				if (buf=='R')
+				{
+					estado=52;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 77:
+			{
+				if (buf=='E')
+				{
+					estado=78;
+					transita();
+				}
+				else errorLex();
+			}break;
+			case 78:
+			{
+				if (buf=='W')
 				{
 					estado=52;
 					transita();

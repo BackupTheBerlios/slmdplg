@@ -1116,7 +1116,7 @@ public class AnSintactico
 			traductor.emiteInstruccion("desapila_ind");
 			//Aclarar entre estas 2.
 			//traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipo().getTamaño());
-			traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipoExpresionTipos().getTamaño());
+			traductor.emiteInstruccion("incrementaH"+tSint.getTipo().getTamaño());
 			etiqueta = etiqueta + 4;
 			return error1;
 		}
