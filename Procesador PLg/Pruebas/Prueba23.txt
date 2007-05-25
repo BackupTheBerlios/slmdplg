@@ -1,10 +1,17 @@
 TYPE
-tipo4: ^BOOL
+tipo4: ^BOOL;
+tipo5: BOOL;
+tipo6: ^tipo5
 FTYPE
-tipo4 variable3
+tipo4 variable3;
+tipo6 variable2;
+tipo5 variable8
 
 BEGIN
-variable3 = FALSE^
+variable3^ = FALSE;
+variable3 = variable2;
+variable3 = variable2;
+variable8 = variable3^
 END.
 
 /*TYPE
@@ -13,5 +20,6 @@ FTYPE
 tipo4 variable3
 
 BEGIN
+new(variable3);
 variable3 = 7^
 END.*/
