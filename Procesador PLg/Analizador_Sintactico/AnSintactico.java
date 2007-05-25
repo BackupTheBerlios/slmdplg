@@ -720,7 +720,15 @@ public class AnSintactico
 			traductor.emiteInstruccion("apila", bool);
 			etiqueta++;
 			reconoce("BOOL");
-			tipo = new Bool();
+			//tipo = new Bool();
+			if (ts.constainsId(tActual.getLexema())) {
+				tSimbolos.Token aux = ts.getToken(tActual.getLexema());
+				tipo = aux.getTipo();
+				tipo = RDesc(tipo);
+			}
+			else
+				tipo = new Bool();
+			//Reconoce símbolos posteriores?
 		}
 		else if (tActual.getTipo().equals("NUM")) //El valor de Fact es un número. 
 		{
@@ -728,6 +736,8 @@ public class AnSintactico
 			etiqueta++;
 			reconoce("NUM");
 			tipo = new Int();
+			//tipo = RDesc();
+			//Reconoce símbolos posteriores?
 		}
 		else if (tActual.getTipo().equals("ID")) // El valor de Fact viene determinado por una variable o constante.
 		{
@@ -879,33 +889,40 @@ public class AnSintactico
 			traductor.emiteInstruccion("apila", ts.getToken(id).getDireccion());
 			etiqueta++;
 			reconoce("ID");
-			tipo = RDesc(ts.getToken(id).getTipo());
+			tipo = RDesc(ts.getToken(id).getTipo()/*,id*/);
 		}
 		return tipo;
 	}
 
-	private Tipo RDesc(Tipo tipo) 
+	private Tipo RDesc(Tipo tipo/*,String lexema*/) 
 	{
 		Tipo tiporet = tipo;
+		//String id = lexema;
 		if (tActual.getTipo().equals("PUNTERO")) //Es un puntero.
 		{
-			String id = tActual.getLexema();
-			tSimbolos.Token tk = ts.getToken(id);
+			//String id = tActual.getLexema();
+			//tSimbolos.Token tk = ts.getToken(id);
 			reconoce("PUNTERO");
-			if (tk == null || !tk.getTipo().equals("PUNTERO")) //No se si es puntero o pointer.
-				return new Error();
-			else
+			//if (tk == null || !tk.getTipo().equals("PUNTERO")) //No se si es puntero o pointer.
+			//	return new Error();
+			//else
+			if (tipo!=null && tipo instanceof Pointer)
 			{
 				traductor.emiteInstruccion("apila-ind");
 				etiqueta++;
-				tiporet = RDesc(tk.getTipo()/*.getTipoApuntado()*/); 
+				tiporet = RDesc(((Pointer)tipo).getTipoApuntado()/*,id*/);
+				//tiporet = RDesc(tk.getTipo()/*.getTipoApuntado()*/,id); 
 			}
+			else
+				return new Error();
+			
 		}
 		else 
 			if (tActual.getTipo().equals("PUNTO")) //Es el campo de un registro.
 			{
 				reconoce("PUNTO");
-				String id = tActual.getLexema();
+				
+				String idCampo = tActual.getLexema(); //Cambio BY Nacho Es: AUNQUE creo que no está acabado, y por tanto tener cuidado pero tal vez no afecte, lo que pasa que debía cambiar el nombre.
 				reconoce("ID");
 				/*if (!tipo.equals("REGISTRO")) //No se si es puntero o pointer.
 					return new Error();
@@ -1094,11 +1111,13 @@ public class AnSintactico
 			reconoce("PAC"); // ")"
 			
 			//Generar código (en proceso)
-			/*traductor.emiteInstruccion("apila",tSint.getDireccion());
+			traductor.emiteInstruccion("apila",tSint.getDireccion());
 			traductor.emiteInstruccion("apilaH");
 			traductor.emiteInstruccion("desapila_ind");
-			traductor.emiteInstruccion("incrementaH");*/
-			
+			//Aclarar entre estas 2.
+			//traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipo().getTamaño());
+			traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipoExpresionTipos().getTamaño());
+			etiqueta = etiqueta + 4;
 			return error1;
 		}
 		else {

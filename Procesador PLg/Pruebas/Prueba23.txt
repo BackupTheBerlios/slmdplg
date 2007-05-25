@@ -1,0 +1,17 @@
+TYPE
+tipo4: ^BOOL
+FTYPE
+tipo4 variable3
+
+BEGIN
+variable3 = FALSE^
+END.
+
+/*TYPE
+tipo4: ^INT
+FTYPE
+tipo4 variable3
+
+BEGIN
+variable3 = 7^
+END.*/

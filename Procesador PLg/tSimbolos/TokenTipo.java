@@ -14,7 +14,7 @@ public class TokenTipo extends Token {
 	 */
 	public TokenTipo(TipoAux expresionTipos) {
 		//this.valor = valor;
-		//this.tipo = tipo;
+		this.tipo = expresionTipos; //No debería hacer falta, pero puesto en principio por si es más facil que funcione así.
 		this.clase = TIPO;
 		this.tipoExpresionTipos = expresionTipos;
 	}
