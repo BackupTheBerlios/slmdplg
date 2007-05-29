@@ -13,17 +13,19 @@ import tSimbolos.Tipo.Tipo;
  * @author Luis Ortiz Carrillo
  * 
  */
-public class TokenVar extends Token {
+public class TokenFun extends Token {
+
+	private int etiqueta;
 
 	/**
 	 * Constructor de la clase dados sus parametros.
 	 * @param direccion Direccion en la que se encuentra el token.
 	 * @param tipo Tipo de datos que contiene el token.
 	 */
-	public TokenVar(int direccion, Tipo tipo, int nivel) {
+	public TokenFun(int etiqueta_comienzo, Tipo tipo, int nivel) {
 		this.tipo = tipo;
-		this.direccion = direccion;
-		this.clase = VARIABLE;
+		this.etiqueta = etiqueta_comienzo;
+		this.clase = FUNCTION;
 		if (tipo instanceof Pointer)
 			instanciada = 0;
 		else
@@ -35,9 +37,8 @@ public class TokenVar extends Token {
 	 * Constructor de copia para la clase
 	 * @param tkn Token del que copiará sus parametros.
 	 */
-	public TokenVar (TokenVar tkn){
+	public TokenFun (TokenFun tkn){
 		this.tipo = tkn.tipo;
-		this.direccion = tkn.direccion;
 		this.clase = VARIABLE;
 	}
 	
@@ -55,7 +56,7 @@ public class TokenVar extends Token {
 	 */
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
-		return (new TokenVar(this));
+		return (new TokenFun(this));
 	}
 	
 }

@@ -37,6 +37,7 @@ public class Token {
 	 */
 	protected Integer valor;
 	
+	protected int nivel;
 	/**
 	 * Entero que representa los tokens de clase constante.
 	 */
@@ -52,6 +53,11 @@ public class Token {
      */
 	public static final int TIPO = 2;
 
+	/**
+	 * Representa a las funciones.
+	 * */
+	public static final int FUNCTION = 3;
+	
 	/**
 	 * Constructor por defecto, crea un token de clase constante,
 	 * de tipo "ERROR", y cuya direccion y valor es -1. 

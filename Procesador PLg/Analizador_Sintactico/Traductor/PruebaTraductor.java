@@ -9,7 +9,7 @@ public class PruebaTraductor {
 	{
 		Traductor tr = new Traductor();
 		tr.emiteInstruccion("suma");
-		int linea = tr.getIndice();
+		int linea = tr.getEtiqueta();
 		tr.emiteInstrucciónParcheable("ir-f");
 		tr.parchea(linea, 0);
 		tr.emiteInstruccion("apila", 3);

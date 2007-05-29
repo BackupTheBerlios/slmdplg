@@ -1,6 +1,7 @@
 package Analizador_Sintactico;
 
 import java.io.FileReader;
+import java.util.Hashtable;
 
 import tSimbolos.TablaSimbolos;
 import tSimbolos.Tipo.Bool;
@@ -24,6 +25,10 @@ public class AnSintactico
 	/** Tabla de Simbolos del procesador. En ella se van introduciendo
 	 *  las nuevas variables declaradas.*/
 	private TablaSimbolos ts;
+	
+	/** Tabla para almacenar todas las tablas de símbolos. Inicialmente solo 
+	 * contiene la del programa principal*/
+	private Hashtable<String, TablaSimbolos> tablas;
 
 	/** Último token leido por el analizador léxico.*/
 	private Token tActual;
@@ -48,8 +53,10 @@ public class AnSintactico
 	public AnSintactico(FileReader fichero)
 	{
 		anLex = new AnLexico(fichero);
-		ts = new TablaSimbolos();
+		ts = new TablaSimbolos(null);
 		traductor = new Traductor();
+		tablas = new Hashtable<String, TablaSimbolos>();
+		tablas.put("PRINCIPAL",ts);
 		tActual = anLex.analizador();
 		dirección = 0;
 		etiqueta = 0;
@@ -63,6 +70,9 @@ public class AnSintactico
 	{
 		//Añadida sección tipos (opcional, no tiene por qué aparecer en todos los programas, en los más sencillos
 		//se utilizarán únicamente tipos simples).
+		int instruccion_comienzo = traductor.getEtiqueta();
+		traductor.emiteInstrucciónParcheable("ir-a");
+		
 		boolean errorT = false; //Por defecto no hay fallos en tipos
 		if (tActual.getTipo().equals("TYPE")) {
 			reconoce("TYPE");
@@ -70,13 +80,21 @@ public class AnSintactico
 			reconoce("FTYPE");
 		}	
 		
-		boolean errorD = Decs();
+		boolean errorD = Decs(ts, -1);
+		
+		//Añadida sección de funciones. Al igual que los tipos, también es opcional;
+		boolean errorF = false;
+		if (tActual.getTipo().equals("FUNCTION"))
+		{
+			errorF = Functions();
+		}
 		reconoce("BEGIN");
+		traductor.parchea(instruccion_comienzo, traductor.getEtiqueta());
 		boolean errorI = Ins();
 		reconoce("END");
 		traductor.emiteInstruccion("end");
 		etiqueta++;
-		boolean error = errorD || errorI;
+		boolean error = errorD || errorI || errorT;
 		if (error)
 		{
 			System.out.println("Hay errores sintácticos en el código. No se ha podido completar la compilación.");
@@ -87,6 +105,105 @@ public class AnSintactico
 			System.out.println("Compilación completada con éxito.");
 		}
 			
+	}
+
+	private boolean Functions() 
+	{
+		boolean err1 = function(ts, 0);
+		boolean err2 = RFuncs(ts, 0);
+		return (err1 || err2);
+	}
+
+	private boolean RFuncs(TablaSimbolos ts_padre, int nivel) 
+	{
+		return false;
+	}
+
+	private boolean function(TablaSimbolos ts_padre, int nivel) 
+	{
+		TablaSimbolos tablafun = new TablaSimbolos(ts_padre);
+		int dir_actual = traductor.getEtiqueta();
+		traductor.emiteInstrucciónParcheable("ir-a");
+		boolean err1 = cabeceraFun(ts_padre, tablafun, nivel);
+		if (!err1)
+		{
+			tablafun.actualizarDir();
+		}
+		Decs(tablafun, nivel);
+		boolean errorF = false;
+		if (tActual.getTipo().equals("FUNCTION"))
+		{
+			errorF = Functions();
+		}
+		reconoce("BEGIN");
+		traductor.parchea(dir_actual, traductor.getEtiqueta());
+		boolean errorI = Ins();
+		reconoce("END");
+		return err1 || errorF || errorI;
+	}
+
+	private boolean cabeceraFun(TablaSimbolos ts_padre, TablaSimbolos tablafun, int nivel) 
+	{
+		reconoce("FUNCTION");
+		String nombreFun = tActual.getLexema();
+		reconoce("ID");
+		reconoce("PAA");
+		if (tActual.getTipo().equals("TIPO"))
+		{
+			LParametros(tablafun, nivel);
+		}
+		reconoce("PAC");
+		reconoce("PP");
+		TipoAux tiporet = tipo();
+		if (!ts_padre.constainsId(nombreFun))
+		{
+			ts_padre.addFun(nombreFun, traductor.getEtiqueta(), tiporet, nivel + 1);
+			tablas.put(nombreFun, tablafun);
+		}
+		else
+			return true;
+		return false;
+	}
+
+	private boolean LParametros(TablaSimbolos tablafun, int nivel) 
+	{
+		boolean err1 = param(tablafun, nivel);
+		boolean err2 = RParam(tablafun, nivel, 2);
+		return err1 || err2;
+	}
+
+	/** Método para analizar un parámetro de la función.*/
+	private boolean param(TablaSimbolos tablafun, int nivel) 
+	{
+		TipoAux tipo = tipo();
+		String nombre = tActual.getLexema();
+		reconoce("ID");
+		if (!tablafun.constainsId(nombre))
+		{
+			tablafun.addVar(nombre, 1, tipo, nivel + 1);
+		}
+		else
+			return true;
+		return false;
+	}
+
+	private boolean RParam(TablaSimbolos tablafun, int nivel, int i) 
+	{
+		if (!tActual.getTipo().equals("PAC"))
+		{
+			reconoce("COMA");
+			TipoAux tipo = tipo();
+			String nombre = tActual.getLexema();
+			reconoce("ID");
+			if (!tablafun.constainsId(nombre))
+			{
+				tablafun.addVar(nombre, i, tipo, nivel + 1);
+				return RParam(tablafun, nivel, i+1);
+			}
+			else
+				return true;
+		}
+		return false;
 	}
 
 	/** Método que comprueba si el tipo del token actual es igual al que se le pasa como parámetro.
@@ -127,24 +244,28 @@ public class AnSintactico
 
 	/** Método para análisis de la expresión:
 	 * 		Decs -> Dec RDecs  
+	 * @param nivel 
+	 * @param tablafun 
 	 * @return Indica si ha habido un error duranta la función.*/
-	private boolean Decs()
+	private boolean Decs(TablaSimbolos tablafun, int nivel)
 	{
-		boolean error1 = Dec();
-		boolean error2 = RDecs();
+		boolean error1 = Dec(tablafun, nivel);
+		boolean error2 = RDecs(tablafun, nivel);
 		return (error1 || error2);
 	}
 
 	/** Método para análisis de la expresión:
 	 * 		RDecs -> ; Dec RDecs | null      //NOTA : null se refiere a lambda en la gramática.
+	 * @param nivel 
+	 * @param tablafun 
 	 * @return Indica si ha habido un error duranta la función.*/  
-	private boolean RDecs()
+	private boolean RDecs(TablaSimbolos tablafun, int nivel)
 	{
-		if (!tActual.getTipo().equals("BEGIN"))
+		if (!tActual.getTipo().equals("BEGIN") && !tActual.getTipo().equals("FUNCTION"))
 		{
 			reconoce("PYC");
-			boolean error1 = Dec();
-			boolean error2 = RDecs();
+			boolean error1 = Dec(tablafun, nivel);
+			boolean error2 = RDecs(tablafun, nivel);
 			return (error1 || error2);
 		}
 		return false;
@@ -153,8 +274,10 @@ public class AnSintactico
 	/** Método para análisis de las expresiones:
 	 * 		Dec -> CONST Tipo ID = Val
 	 * 		Dec -> Tipo ID   
+	 * @param nivel 
+	 * @param tablafun 
 	 * @return Indica si ha habido un error duranta la función.*/
-	private boolean Dec()
+	private boolean Dec(TablaSimbolos tablafun, int nivel)
 	{
 		boolean error = false;
 		if (tActual.getTipo().equals("CONST"))
@@ -173,7 +296,7 @@ public class AnSintactico
 			//Aquí se tratan los tipos construidos
 			else {
 				//Se trata de un tipo construido, es decir, de un TokenTipo que debe aparecer en la tabla de símbolos
-				tSimbolos.Token t = ts.getToken(tipoNombre);
+				tSimbolos.Token t = tablafun.getToken(tipoNombre);
 				if (t!= null && t instanceof TokenTipo) {
 					tipo = ((TokenTipo)t).getTipoExpresionTipos();
 					reconoce("ID");
@@ -191,15 +314,15 @@ public class AnSintactico
 			else 
 				if (valor.equals("TRUE"))
 					valor = "1";
-			if (compatibles(tipo, new TipoAux(tActual.getTipo())) && !ts.constainsId(nomconst))
+			if (compatibles(tipo, new TipoAux(tActual.getTipo())) && !tablafun.constainsId(nomconst))
 			{
-				ts.addCte(nomconst, new Integer(valor), tipo);
+				tablafun.addCte(nomconst, new Integer(valor), tipo, nivel + 1);
 				reconoce(tActual.getTipo());
 				error = false;
 			}
 			else
 			{
-				ts.addCte(nomconst, new Integer(0), new Error());
+				tablafun.addCte(nomconst, new Integer(0), new Error(), nivel + 1);
 				reconoce(tActual.getTipo());
 				error = true;
 			}
@@ -222,7 +345,7 @@ public class AnSintactico
 				
 				// Ver si hace falta hacer aquí alguna comprobación más de error.
 				
-				tSimbolos.Token t = ts.getToken(tipoaux);
+				tSimbolos.Token t = tablafun.getToken(tipoaux);
 				if (t!= null && t instanceof TokenTipo) {
 					tipo = ((TokenTipo)t).getTipoExpresionTipos();
 					reconoce("ID");
@@ -230,7 +353,7 @@ public class AnSintactico
 					error = true;
 				}	
 			}
-			error = Ids(tipo); //Hace el reconoce ID (ver si en el caso de tipos construidos deberia hacerse de otra forma)
+			error = Ids(tipo, tablafun, nivel); //Hace el reconoce ID (ver si en el caso de tipos construidos deberia hacerse de otra forma)
 			
 		}
 		return error;
@@ -238,20 +361,22 @@ public class AnSintactico
 	
 	/** Método para análisis de la expresión:
 	 * 		Ids -> ID RIds    
+	 * @param nivel 
+	 * @param tablafun 
 	 * @return Indica si ha habido un error duranta la función.*/
-	private boolean Ids(Tipo tipo)
+	private boolean Ids(Tipo tipo, TablaSimbolos tablafun, int nivel)
 	{
 		boolean error1;
 		String id = tActual.getLexema();
 		reconoce("ID");
-		if (!ts.constainsId(id))
+		if (!tablafun.constainsId(id))
 		{
-			ts.addVar(id, dirección++, tipo);
+			tablafun.addVar(id, dirección++, tipo, nivel + 1);
 			error1 = false;
 		}
 		else
 		{
-			ts.addVar(id, dirección++, new Error());
+			tablafun.addVar(id, dirección++, new Error(), nivel + 1);
 			error1 = true;
 		}
 		boolean error2 = RIds(tipo);
@@ -265,17 +390,17 @@ public class AnSintactico
 	private boolean RIds(Tipo tipo)
 	{
 		
-		if (!tActual.getTipo().equals("PYC") && !tActual.getTipo().equals("BEGIN"))
+		if (!tActual.getTipo().equals("PYC") && !tActual.getTipo().equals("BEGIN") && !tActual.getTipo().equals("FUNCTION"))
 		{
 			boolean error1 = false;
 			reconoce("COMA");
 			String id = tActual.getLexema();
 			reconoce("ID");
 			if (!ts.constainsId(id))
-				ts.addVar(id, dirección++, tipo);
+				ts.addVar(id, dirección++, tipo, 0);
 			else
 			{
-				ts.addVar(id, dirección++, new Error());
+				ts.addVar(id, dirección++, new Error(), 0);
 				error1 = true;
 			}
 			boolean error2 = RIds(tipo);

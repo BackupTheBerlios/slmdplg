@@ -874,7 +874,14 @@ public class AnLexico {
 					estado=26;
 					transita();
 				}
-				else	errorLex();
+				else
+				if (buf=='U')
+				{
+					estado = 79; //No se cual es el valor maximo...
+					transita();
+				}
+				else
+					errorLex();
 			}
 			break;
 			case 31:
@@ -1334,6 +1341,62 @@ public class AnLexico {
 				{
 					estado=52;
 					transita();
+				}
+				else errorLex();
+			}break;
+			case 79:
+			{
+				if (buf == 'N')
+				{
+					estado=80;
+					transita();						
+				}
+				else errorLex();
+			}break;
+			case 80:
+			{
+				if (buf == 'C')
+				{
+					estado=81;
+					transita();						
+				}
+				else errorLex();
+			}break;
+			case 81:
+			{
+				if (buf == 'T')
+				{
+					estado=82;
+					transita();						
+				}
+				else errorLex();
+			}break;
+			case 82:
+			{
+				if (buf == 'I')
+				{
+					estado=83;
+					transita();						
+				}
+				else errorLex();
+			}break;
+			case 83:
+			{
+				if (buf == 'O')
+				{
+					estado=84;
+					transita();						
+				}
+				else errorLex();
+			}break;
+			case 84:
+			{
+				if (buf == 'N') //Fin del token FUNCTION
+				{
+					token.setLexema("FUNCTION");
+					token.setLinea(linea);
+					token.setTipo("FUNCTION");
+					return(token);						
 				}
 				else errorLex();
 			}break;

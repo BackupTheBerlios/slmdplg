@@ -71,7 +71,7 @@ public class Traductor
 		catch (IOException excepcion){}
 	}
 
-	public int getIndice() {
+	public int getEtiqueta() {
 		return indice;
 	}
 }

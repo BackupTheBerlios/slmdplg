@@ -4,6 +4,7 @@
 package tSimbolos;
 
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import tSimbolos.Tipo.Tipo;
@@ -17,6 +18,9 @@ import tSimbolos.Tipo.TipoAux;
  */
 public class TablaSimbolos {
 
+	/** La tabla de la función padre de la que ha creado esta tabla.*/
+	private TablaSimbolos tabla_padre;
+	
 	/**
 	 * Se trata de la Tabla Hash donde se almacenará la información necesaria,
 	 * para realizar las operaiones sobre la tabla de simbolos.
@@ -27,21 +31,10 @@ public class TablaSimbolos {
 	 * Constructor por defecto.
 	 *
 	 */
-	public TablaSimbolos() { 
-		tabla = new Hashtable<String,Token>(); 
-	}
-	
-	/**
-	 * Constructor por copia. Realiza una copia de la HashTable
-	 * de la TablaSimbolos pasada.
-	 * @param t TablaSimbolos que utilizará para copiar su HashTable.
-	 * Si la Hashtable de la TablaSimbolos pasada es null, se creara una
-	 * nueva tabla de simbolos vacia.
-	 */
-	@SuppressWarnings("unchecked")
-	public TablaSimbolos (TablaSimbolos t){
-		if (t.tabla != null)tabla = (Hashtable<String, Token>) t.tabla.clone();
-		else tabla = new Hashtable<String,Token>();
+	public TablaSimbolos(TablaSimbolos padre) 
+	{ 
+		tabla = new Hashtable<String,Token>();
+		tabla_padre = padre;
 	}
 
 	/**
@@ -54,11 +47,27 @@ public class TablaSimbolos {
 	 * @return Devuelve el token asociado a ese identificador previamente
 	 * en la tabla de simbolos, si no habia ninguno devuelve null.
 	 */
-    public Token addVar(String id, int dir, Tipo tipo){
+    public Token addVar(String id, int dir, Tipo tipo, int nivel){
     	if (id == null) return null;
-    	else return tabla.put(id, new TokenVar(dir, tipo));
+    	else return tabla.put(id, new TokenVar(dir, tipo, nivel));
 	}
 
+	/**
+	 * Método para añadir un token de tipo variable, dados el identificador,
+	 * la dirección en la que se encuentra y el tipo de datos que
+	 * contiene, en el propio método es donde se construye el token.
+	 * @param id Identificador para el token a construir.
+	 * @param dir Dirección en la que se encuentra el token.
+	 * @param tipo Tipo de datos que contiene.
+	 * @return Devuelve el token asociado a ese identificador previamente
+	 * en la tabla de simbolos, si no habia ninguno devuelve null.
+	 */
+    public Token addFun(String id, int etq, Tipo tipo, int nivel){
+    	if (id == null) return null;
+    	else return tabla.put(id, new TokenFun(etq, tipo, nivel));
+	}
+
+    
 	/**
 	 * Método para añadir un token de tipo variable, dados el identificador,
 	 * el valor y el tipo de datos que contiene.En el propio método es 
@@ -66,12 +75,13 @@ public class TablaSimbolos {
 	 * @param id Identificador para el token a construir.
 	 * @param valor Objeto que contendra el valor del token.
 	 * @param tipo Tipo de datos que contiene.
+	 * @param i 
 	 * @return Devuelve el token asociado a ese identificador previamente
 	 * en la tabla de simbolos, si no habia ninguno devuelve null.
 	 */
-    public Token addCte(String id, Integer valor, Tipo tipo){
+    public Token addCte(String id, Integer valor, Tipo tipo, int i){
     	if (id == null) return null;
-    	else return tabla.put(id, new TokenCte(valor, tipo));
+    	else return tabla.put(id, new TokenCte(valor, tipo, i));
 	}
 
     /**
@@ -165,6 +175,24 @@ public class TablaSimbolos {
 			return true;
 		else
 			return false;
+	}
+
+	public void actualizarDir() 
+	{
+		Enumeration<Token> enu = tabla.elements();
+		int dir_maxima = 0;
+		while (enu.hasMoreElements())
+		{
+			Token t = enu.nextElement();
+			if (t.getDireccion() > dir_maxima)
+				dir_maxima = t.getDireccion();
+		}
+		enu = tabla.elements();
+		while (enu.hasMoreElements())
+		{
+			Token t = enu.nextElement();
+			t.setDireccion(t.getDireccion() - dir_maxima - 1);
+		}
 	}
 	
 }

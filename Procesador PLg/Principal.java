@@ -12,7 +12,7 @@ public class Principal
 		FileReader ficheroFuente;
 		try
 		{
-			for (int i = 1; i<8; i++)
+			for (int i = 1; i<2; i++)
 			{
 				System.out.println(" >> Prueba " + i + ":");
 	            //Apertura del fichero fuente
