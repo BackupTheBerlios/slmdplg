@@ -58,6 +58,8 @@ public class Token {
 	 * */
 	public static final int FUNCTION = 3;
 	
+	protected String id;
+	
 	/**
 	 * Constructor por defecto, crea un token de clase constante,
 	 * de tipo "ERROR", y cuya direccion y valor es -1. 
@@ -169,6 +171,22 @@ public class Token {
 
 	public int getInstanciada() {
 		return instanciada;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public int getNivel() {
+		return nivel;
+	}
+
+	public void setNivel(int nivel) {
+		this.nivel = nivel;
 	}
 }
 

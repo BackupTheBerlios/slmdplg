@@ -27,6 +27,8 @@ public class TablaSimbolos {
 	 */
 	private Hashtable<String,Token> tabla;
 	
+	
+	private int direccion;
 	/**
 	 * Constructor por defecto.
 	 *
@@ -35,6 +37,7 @@ public class TablaSimbolos {
 	{ 
 		tabla = new Hashtable<String,Token>();
 		tabla_padre = padre;
+		direccion = 0;
 	}
 
 	/**
@@ -47,9 +50,9 @@ public class TablaSimbolos {
 	 * @return Devuelve el token asociado a ese identificador previamente
 	 * en la tabla de simbolos, si no habia ninguno devuelve null.
 	 */
-    public Token addVar(String id, int dir, Tipo tipo, int nivel){
+    public Token addVar(String id, Tipo tipo, int nivel){
     	if (id == null) return null;
-    	else return tabla.put(id, new TokenVar(dir, tipo, nivel));
+    	else return tabla.put(id, new TokenVar(id, direccion++, tipo, nivel));
 	}
 
 	/**
@@ -64,7 +67,7 @@ public class TablaSimbolos {
 	 */
     public Token addFun(String id, int etq, Tipo tipo, int nivel){
     	if (id == null) return null;
-    	else return tabla.put(id, new TokenFun(etq, tipo, nivel));
+    	else return tabla.put(id, new TokenFun(id, etq, tipo, nivel));
 	}
 
     
@@ -81,7 +84,7 @@ public class TablaSimbolos {
 	 */
     public Token addCte(String id, Integer valor, Tipo tipo, int i){
     	if (id == null) return null;
-    	else return tabla.put(id, new TokenCte(valor, tipo, i));
+    	else return tabla.put(id, new TokenCte(id, valor, tipo, i));
 	}
 
     /**
@@ -93,7 +96,7 @@ public class TablaSimbolos {
      */
     public Token addTipo(String id, TipoAux expresionTipos){
     	if (id == null) return null;
-    	else return tabla.put(id, new TokenTipo(expresionTipos));
+    	else return tabla.put(id, new TokenTipo(id, expresionTipos));
 	}
     
     /**
@@ -192,7 +195,28 @@ public class TablaSimbolos {
 		{
 			Token t = enu.nextElement();
 			t.setDireccion(t.getDireccion() - dir_maxima - 1);
+			
 		}
+	}
+
+	public TablaSimbolos getTabla_padre() {
+		return tabla_padre;
+	}
+
+	public void setTabla_padre(TablaSimbolos tabla_padre) {
+		this.tabla_padre = tabla_padre;
+	}
+
+	public Hashtable<String, Token> getTabla() {
+		return tabla;
+	}
+
+	public int getDireccion() {
+		return direccion;
+	}
+
+	public void setDireccion(int direccion) {
+		this.direccion = direccion;
 	}
 	
 }

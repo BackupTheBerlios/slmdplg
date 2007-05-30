@@ -1,22 +1,26 @@
 package Analizador_Sintactico;
 
 import java.io.FileReader;
+import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 import tSimbolos.TablaSimbolos;
+import tSimbolos.TokenCte;
+import tSimbolos.TokenFun;
+import tSimbolos.TokenTipo;
 import tSimbolos.Tipo.Bool;
 import tSimbolos.Tipo.Error;
 import tSimbolos.Tipo.Int;
+import tSimbolos.Tipo.Pointer;
 import tSimbolos.Tipo.Record;
 import tSimbolos.Tipo.Tipo;
-import tSimbolos.TokenTipo;
 import tSimbolos.Tipo.TipoAux;
-import tSimbolos.Tipo.Pointer;
 import Analizador_Lexico.AnLexico;
 import Analizador_Lexico.Token;
 import Analizador_Sintactico.Traductor.Traductor;
 
-public class AnSintactico 
+public class AnSintactico
 {
 	/** Enlace al analizador léxico, al que se le van pidiendo
 	 *  los token según se vayan necesitando.*/
@@ -32,16 +36,7 @@ public class AnSintactico
 
 	/** Último token leido por el analizador léxico.*/
 	private Token tActual;
-	
-	/** Dirección de la última variable insertada en la tabla de símbolos.
-	 *  Se incrementa al introducir una nueva variable.*/
-	private int dirección;
-	
-	/**
-	 * Indica la etiqueta actual, que se va actualizando según sea necesario (atributo remoto).
-	 */
-	private int etiqueta;
-	
+		
 	/** Traductor que se encarga de convertir las instrucciones en codigo fuente
 	 * que se van analizando a codigo objeto. */
 	private Traductor traductor; 
@@ -54,12 +49,11 @@ public class AnSintactico
 	{
 		anLex = new AnLexico(fichero);
 		ts = new TablaSimbolos(null);
+		ts.setDireccion(3); //Las primeras están reservadas.
 		traductor = new Traductor();
 		tablas = new Hashtable<String, TablaSimbolos>();
 		tablas.put("PRINCIPAL",ts);
 		tActual = anLex.analizador();
-		dirección = 0;
-		etiqueta = 0;
 		progr();
 	} 
 
@@ -76,11 +70,11 @@ public class AnSintactico
 		boolean errorT = false; //Por defecto no hay fallos en tipos
 		if (tActual.getTipo().equals("TYPE")) {
 			reconoce("TYPE");
-			errorT = Tips(ts, -1);
+			errorT = Tips(ts, 0);
 			reconoce("FTYPE");
 		}	
 		
-		boolean errorD = Decs(ts, -1);
+		boolean errorD = Decs(ts, 0);
 		
 		//Añadida sección de funciones. Al igual que los tipos, también es opcional;
 		boolean errorF = false;
@@ -90,11 +84,16 @@ public class AnSintactico
 		}
 		reconoce("BEGIN");
 		traductor.parchea(instruccion_comienzo, traductor.getEtiqueta());
+		
+		Enumeration<tSimbolos.Token> tokens = ts.getTabla().elements();
+		LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
+		traductor.emiteInstruccion("incrementaH", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion());
+		
 		boolean errorI = Ins(ts, 0);
+		
 		reconoce("END");
 		traductor.emiteInstruccion("end");
-		etiqueta++;
-		boolean error = errorD || errorI || errorT;
+		boolean error = errorD || errorI || errorT || errorF;
 		if (error)
 		{
 			System.out.println("Hay errores sintácticos en el código. No se ha podido completar la compilación.");
@@ -109,8 +108,8 @@ public class AnSintactico
 
 	private boolean Functions(TablaSimbolos ts_padre, int nivel) 
 	{
-		boolean err1 = function(ts_padre, 0);
-		boolean err2 = RFuncs(ts_padre, 0);
+		boolean err1 = function(ts_padre, nivel + 1);
+		boolean err2 = RFuncs(ts_padre, nivel + 1);
 		return (err1 || err2);
 	}
 
@@ -130,16 +129,17 @@ public class AnSintactico
 		TablaSimbolos tablafun = new TablaSimbolos(ts_padre);
 		int dir_actual = traductor.getEtiqueta();
 		traductor.emiteInstrucciónParcheable("ir-a");
-		boolean err1 = cabeceraFun(ts_padre, tablafun, nivel);
-		if (!err1)
+		Tipo t1 = cabeceraFun(ts_padre, tablafun, nivel, dir_actual);
+		if (!(t1 instanceof Error))
 		{
-			tablafun.actualizarDir(); //Los parámetros se añaden con dirección positiva y hay que modificarlos 
+			tablafun.actualizarDir(); //Los parámetros se añaden con dirección positiva y hay que modificarlos
+			tablafun.setDireccion(3); //Las tres primeras direcciones estan reservadas.
 		}
 		
 		boolean errorT = false; //Por defecto no hay fallos en tipos
 		if (tActual.getTipo().equals("TYPE")) {
 			reconoce("TYPE");
-			errorT = Tips(ts, -1);
+			errorT = Tips(tablafun, nivel);
 			reconoce("FTYPE");
 		}	
 		
@@ -148,18 +148,30 @@ public class AnSintactico
 		boolean errorF = false;
 		if (tActual.getTipo().equals("FUNCTION"))
 		{
-			errorF = Functions(ts_padre, nivel + 1);
+			errorF = Functions(ts_padre, nivel);
 		}
 		reconoce("BEGIN");
 		traductor.parchea(dir_actual, traductor.getEtiqueta());
+		
+		Enumeration<tSimbolos.Token> tokens = tablafun.getTabla().elements();
+		LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
+		
+		traductor.emiteInstruccion("incrementaH", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion());
+		
 		boolean errorI = Ins(tablafun, nivel);
 		reconoce("RETURN");
+				
+		traductor.emiteInstruccion("apila", reorden.getLast().getDireccion() - t1.getTamaño());
+		traductor.emiteInstruccion("apila", 0);
 		Tipo t = ExpOr(tablafun, nivel);
+		traductor.emiteInstruccion("desapila-ind");
+		traductor.emiteInstruccion("retorno");
+		
 		reconoce("END");
-		return err1 || errorF || errorI || errorT || t instanceof Error;
+		return !compatibles(t1, t) || errorF || errorI || errorT || t instanceof Error;
 	}
 
-	private boolean cabeceraFun(TablaSimbolos ts_padre, TablaSimbolos tablafun, int nivel) 
+	private Tipo cabeceraFun(TablaSimbolos ts_padre, TablaSimbolos tablafun, int nivel, int dir_actual) 
 	{
 		reconoce("FUNCTION");
 		String nombreFun = tActual.getLexema();
@@ -174,18 +186,18 @@ public class AnSintactico
 		TipoAux tiporet = tipo(tablafun, nivel);
 		if (!ts_padre.constainsId(nombreFun))
 		{
-			ts_padre.addFun(nombreFun, traductor.getEtiqueta(), tiporet, nivel + 1);
+			ts_padre.addFun(nombreFun, dir_actual, tiporet, nivel);
 			tablas.put(nombreFun, tablafun);
 		}
 		else
-			return true;
-		return false;
+			return new Error();
+		return tiporet;
 	}
 
 	private boolean LParametros(TablaSimbolos tablafun, int nivel) 
 	{
 		boolean err1 = param(tablafun, nivel);
-		boolean err2 = RParam(tablafun, nivel, 2);
+		boolean err2 = RParam(tablafun, nivel);
 		return err1 || err2;
 	}
 
@@ -197,14 +209,14 @@ public class AnSintactico
 		reconoce("ID");
 		if (!tablafun.constainsId(nombre))
 		{
-			tablafun.addVar(nombre, 1, tipo, nivel + 1);
+			tablafun.addVar(nombre, tipo, nivel + 1);
 		}
 		else
 			return true;
 		return false;
 	}
 
-	private boolean RParam(TablaSimbolos tablafun, int nivel, int i) 
+	private boolean RParam(TablaSimbolos tablafun, int nivel) 
 	{
 		if (!tActual.getTipo().equals("PAC"))
 		{
@@ -214,8 +226,8 @@ public class AnSintactico
 			reconoce("ID");
 			if (!tablafun.constainsId(nombre))
 			{
-				tablafun.addVar(nombre, i, tipo, nivel + 1);
-				return RParam(tablafun, nivel, i+1);
+				tablafun.addVar(nombre, tipo, nivel + 1);
+				return RParam(tablafun, nivel);
 			}
 			else
 				return true;
@@ -388,12 +400,12 @@ public class AnSintactico
 		reconoce("ID");
 		if (!tablafun.constainsId(id))
 		{
-			tablafun.addVar(id, dirección++, tipo, nivel + 1);
+			tablafun.addVar(id, tipo, nivel + 1);
 			error1 = false;
 		}
 		else
 		{
-			tablafun.addVar(id, dirección++, new Error(), nivel + 1);
+			tablafun.addVar(id, new Error(), nivel + 1);
 			error1 = true;
 		}
 		boolean error2 = RIds(tipo, tablafun, nivel);
@@ -414,10 +426,10 @@ public class AnSintactico
 			String id = tActual.getLexema();
 			reconoce("ID");
 			if (!tablafun.constainsId(id))
-				tablafun.addVar(id, dirección++, tipo, 0);
+				tablafun.addVar(id, tipo, 0);
 			else
 			{
-				tablafun.addVar(id, dirección++, new Error(), 0);
+				tablafun.addVar(id, new Error(), 0);
 				error1 = true;
 			}
 			boolean error2 = RIds(tipo, tablafun, nivel);
@@ -498,12 +510,19 @@ public class AnSintactico
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
 	private boolean IAsig(TablaSimbolos tablafun, int nivel) 
 	{
-		Tipo tipo = Desc(tablafun, nivel);
-		reconoce("IGUAL");
-		Tipo tipo1 = ExpOr(tablafun, nivel);
-		traductor.emiteInstruccion("desapila-ind");
-		etiqueta++;
-		return (tipo1.getLexema().equals("ERROR") || !compatibles (tipo1, tipo));
+		if (tablafun.getToken(tActual.getLexema()).getClase() == tSimbolos.Token.CONSTANTE)
+		{
+			reconoce("ID");
+			return true;
+		}
+		else
+		{
+			Tipo tipo = Desc(tablafun, nivel);
+			reconoce("IGUAL");
+			Tipo tipo1 = ExpOr(tablafun, nivel);
+			traductor.emiteInstruccion("desapila-ind");
+			return (tipo1.getLexema().equals("ERROR") || !compatibles (tipo1, tipo));
+		}
 	}
 
 	/**
@@ -529,11 +548,10 @@ public class AnSintactico
 		{
 			reconoce("OPSUM");
 			
-			int irv = etiqueta + 1;
+			int irv = traductor.getEtiqueta() + 1;
 			traductor.emiteInstruccion("copia");
 			traductor.emiteInstrucciónParcheable("ir-v");
 			traductor.emiteInstruccion("desapila");
-			etiqueta += 3;
 			
 			Tipo tipo2 = ExpAnd(tablafun, nivel);
 			Tipo tipo22;
@@ -542,7 +560,7 @@ public class AnSintactico
 			else
 				tipo22 = new Bool();
 
-			traductor.parchea(irv, etiqueta);
+			traductor.parchea(irv, traductor.getEtiqueta());
 			tipo2 = RExpOr(tipo22, tablafun, nivel);
 			return tipo2;
 		}
@@ -572,9 +590,8 @@ public class AnSintactico
 		{
 			reconoce("OPMUL");
 
-			int irf = etiqueta;
+			int irf = traductor.getEtiqueta();
 			traductor.emiteInstrucciónParcheable("ir-f");
-			etiqueta++;
 			
 			Tipo tipo2 = Exp(tablafun, nivel);
 			
@@ -584,10 +601,9 @@ public class AnSintactico
 			else
 				tipo22 = new Bool();
 			
-			traductor.parchea(irf, etiqueta+1);
-			traductor.emiteInstruccion("ir-a", etiqueta+2);
+			traductor.parchea(irf, traductor.getEtiqueta()+1);
+			traductor.emiteInstruccion("ir-a", traductor.getEtiqueta()+2);
 			traductor.emiteInstruccion("apila", 0);
-			etiqueta += 2;
 			
 			tipo2 = RExpAnd(tipo22, tablafun, nivel);
 			return tipo2;
@@ -629,7 +645,6 @@ public class AnSintactico
 					traductor.emiteInstruccion("menoroigual");
 					else if (lexema.equals(">="))
 						traductor.emiteInstruccion("mayoroigual");
-			etiqueta++;
 			tipo2 = RExp(tipo22, tablafun, nivel);
 			return tipo2;
 		}
@@ -666,7 +681,6 @@ public class AnSintactico
 				traductor.emiteInstruccion("distintos");
 			else if (lexema.equals("=="))
 				traductor.emiteInstruccion("iguales");
-			etiqueta++;
 			tipo2 = RExp1(tipo22, tablafun, nivel);
 			return tipo2;
 		}
@@ -706,7 +720,6 @@ public class AnSintactico
 				traductor.emiteInstruccion("resta");
 				/*else if (lexema.equals("||"))
 					traductor.emiteInstruccion("or");*/
-			etiqueta++;
 			tipo2 = RExp2(tipo22, tablafun, nivel);
 			return tipo2;
 		}
@@ -760,16 +773,14 @@ public class AnSintactico
 				traductor.emiteInstruccion("copia");
 				traductor.emiteInstruccion("apila", 0);
 				traductor.emiteInstruccion("iguales");
-				traductor.emiteInstruccion("ir-f",etiqueta+6); //No es necesario parchear, se conoce la direccion ya.
+				traductor.emiteInstruccion("ir-f",traductor.getEtiqueta()+6); //No es necesario parchear, se conoce la direccion ya.
 				traductor.emiteInstruccion("Stop");
-				etiqueta=etiqueta+5;
 				traductor.emiteInstruccion("divide"); //La última suma en etiqueta se hace fuera del else
 				}
 				else if (lexema.equals("MOD"))
 				traductor.emiteInstruccion("modulo");
 					/*else if (lexema.equals("&&"))
 						traductor.emiteInstruccion("and");*/
-			etiqueta++;
 			tipo2 = RExp3(tipo22, tablafun, nivel);
 			return tipo2;
 		}
@@ -802,13 +813,11 @@ public class AnSintactico
 			if (tipoOp.getLexema().equals(new Bool()))
 			{
 				traductor.emiteInstruccion("negacion");
-				etiqueta++;
 			}
 			else 
 				if (tipoOp.getLexema().equals(new Int()))
 				{
 					traductor.emiteInstruccion("opuesto");  //El valor opuesto de un numero p.e. 2 opuesto de -2
-					etiqueta++;
 				}
 			if (!compatibles(tipoOp, tipo))
 				return new Error();
@@ -860,7 +869,6 @@ public class AnSintactico
 			else
 				bool = 0;
 			traductor.emiteInstruccion("apila", bool);
-			etiqueta++;
 			reconoce("BOOL");
 			//tipo = new Bool();
 			if (tablafun.constainsId(tActual.getLexema())) {
@@ -875,7 +883,6 @@ public class AnSintactico
 		else if (tActual.getTipo().equals("NUM")) //El valor de Fact es un número. 
 		{
 			traductor.emiteInstruccion("apila", Integer.parseInt(tActual.getLexema()));
-			etiqueta++;
 			reconoce("NUM");
 			tipo = new Int();
 			//tipo = RDesc();
@@ -883,9 +890,62 @@ public class AnSintactico
 		}
 		else if (tActual.getTipo().equals("ID")) // El valor de Fact viene determinado por una variable o constante.
 		{
-			tipo = Desc(tablafun, nivel);
-			traductor.emiteInstruccion("apila-ind");
-			etiqueta++;
+			if (!tActual.getLexema().equals("PRINCIPAL") && tablas.containsKey(tActual.getLexema())) //Está declarada y no es el programa principal
+			{
+				TablaSimbolos tsaux = tablas.get(tActual.getLexema()); 
+				TablaSimbolos padre = tsaux.getTabla_padre();
+				tipo = padre.getToken(tActual.getLexema()).getTipo();
+				int etq = ((TokenFun)(padre.getToken(tActual.getLexema()))).getEtiqueta();
+				reconoce("ID");
+				reconoce("PAA");
+				traductor.emiteInstruccion("incrementaH", tipo.getTamaño());
+				
+				boolean error1 = false;
+				Enumeration<tSimbolos.Token> tokens = tsaux.getTabla().elements();
+				
+				LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
+				
+				while (!reorden.isEmpty() && !error1)
+				{
+					tSimbolos.Token parametro = reorden.getLast();
+					reorden.removeLast();
+					if (parametro.getDireccion() < 0)
+					{
+						Tipo t = ExpOr(tablafun, nivel);
+						if (!compatibles(t, parametro.getTipo()))
+							error1 = true;
+						if (!reorden.isEmpty() && reorden.getLast().getDireccion() < 0)
+							reconoce("COMA");
+					}
+				}
+				reconoce("PAC");
+				traductor.emiteInstruccion("llamar", etq); //Dirección de comienzo de la función
+				if (error1)
+					return new Error();
+				else
+					return tipo;
+			}
+			else
+			{
+				String id = tActual.getLexema();
+				if (tablafun.getToken(id) instanceof TokenCte)  //id representa una constante.
+				{
+					if (tablafun.getToken(id).getTipo().equals(new Bool()))
+						if (tablafun.getToken(id).getValor().equals("TRUE"))
+							traductor.emiteInstruccion("apila", 1);
+						else
+							traductor.emiteInstruccion("apila", 0);
+					else
+						traductor.emiteInstruccion("apila", tablafun.getToken(id).getValor());
+					tipo = ts.getToken(id).getTipo();
+					reconoce("ID");
+				}
+				else
+				{
+					tipo = Desc(tablafun, nivel);
+					traductor.emiteInstruccion("apila-ind");
+				}
+			}
 			/*String id = tActual.getLexema();
 			if (!ts.constainsId(id))
 				tipo = new Error();
@@ -922,6 +982,28 @@ public class AnSintactico
 		return tipo;
 	}
 	
+	/** Reordena la lista de tokens atendiendo a su direción.*/
+	private LinkedList<tSimbolos.Token> reordenar(Enumeration<tSimbolos.Token> tokens) 
+	{
+		LinkedList<tSimbolos.Token> lista = new LinkedList<tSimbolos.Token>();
+		while (tokens.hasMoreElements())
+		{
+			tSimbolos.Token tk = tokens.nextElement();
+			if (lista.isEmpty())
+				lista.add(tk);
+			else
+			{
+				int i = 0;
+				while (i < lista.size() && lista.get(i).getDireccion() > tk.getDireccion())
+				{
+					i++;
+				}
+				lista.add(i, tk);
+			}
+		}
+		return lista;
+	}
+
 	/**
 	 * Método para el análisis de la expresión
 	 * 		IIf -> IF Exp THEN Ins(0) else Ins(1)
@@ -933,28 +1015,26 @@ public class AnSintactico
 		reconoce("IF");
 		
 		Tipo tipo1 = Exp(tablafun, nivel);
-		int etiquetaI0 = etiqueta;
+		int etiquetaI0 = traductor.getEtiqueta();
 		//Esta instrucción será parcheada posteriormente.
 		traductor.emiteInstrucciónParcheable("ir_f");
-		etiqueta++;
 		//Si la expresión es de tipo booleano, procedemos a comprobar el if
 		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("THEN");
 			//Generamos el código de I(0). Lo reconocemos como bloque BEGIN-END.
 			error1 = IComp(tablafun, nivel);
-			int etiquetaI1 = etiqueta;
+			int etiquetaI1 = traductor.getEtiqueta();
 			//De nuevo, esta instrucción será parcheada posteriormente.
 			traductor.emiteInstrucciónParcheable("ir_a");
-			etiqueta++;
 			//Reconocemos un ";" antes del ELSE, que sería el del bloque Begin-End del IF (no del else).
 			reconoce("PYC");
 			reconoce("ELSE");
 			//Aquí ya conocemos la dirección para parchear el "ir_f" (else)
-			traductor.parchea(etiquetaI0,etiqueta+1);
+			traductor.parchea(etiquetaI0,traductor.getEtiqueta()+1);
 			//Generamos el código de I(1). Lo reconocemos como bloque BEGIN-END.
 			error2 = IComp(tablafun, nivel);
 			//Aquí ya conocemos la dirección para parchear el "ir_a" (fin de if)
-			traductor.parchea(etiquetaI1,etiqueta+1);
+			traductor.parchea(etiquetaI1,traductor.getEtiqueta()+1);
 		} else {
 			return true;
 		}
@@ -971,20 +1051,18 @@ public class AnSintactico
 		
 		reconoce("WHILE");
 		
-		int etiquetaExp = etiqueta;
+		int etiquetaExp = traductor.getEtiqueta();
 		Tipo tipo1 = Exp(tablafun, nivel);
-		int etiquetaIns = etiqueta;
+		int etiquetaIns = traductor.getEtiqueta();
 		//Esta instrucción será parcheada posteriormente
 		traductor.emiteInstrucciónParcheable("ir_f");
-		etiqueta++;
 		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("DO");
 			errorIns = IComp(tablafun, nivel);
 			//Esta instrucción será parcheada posteriormente
 			traductor.emiteInstruccion("ir_a",etiquetaExp+1);
-			etiqueta++;
 			//Ahora ya conocemos el destino del primer "ir_f"
-			traductor.parchea(etiquetaIns,etiqueta+1);
+			traductor.parchea(etiquetaIns,traductor.getEtiqueta()+1);
 		} else {
 			return true;
 		}
@@ -1000,14 +1078,13 @@ public class AnSintactico
 		
 		reconoce("REPEAT");
 		//El repeat no precisará de parcheos.
-		int etiquetaIns = etiqueta;
+		int etiquetaIns = traductor.getEtiqueta();
 		boolean errorIns = Ins(tablafun, nivel);
 		reconoce("UNTIL"); 
 		Tipo tipo1 = Exp(tablafun, nivel);
 		if (tipo1.getLexema().equals("BOOL"))
 		{
 			traductor.emiteInstruccion("ir_f",etiquetaIns+1);
-			etiqueta++;
 		} else {
 			return true;
 		}
@@ -1029,7 +1106,6 @@ public class AnSintactico
 		else
 		{
 			traductor.emiteInstruccion("apila", tablafun.getToken(id).getDireccion());
-			etiqueta++;
 			reconoce("ID");
 			if (tablafun.getToken(id).getInstanciada() == 1)
 				tipo = RDesc(tablafun.getToken(id).getTipo()/*,id*/, tablafun, nivel);
@@ -1054,7 +1130,6 @@ public class AnSintactico
 			if (tipo!=null && tipo instanceof Pointer)
 			{
 				traductor.emiteInstruccion("apila-ind");
-				etiqueta++;
 				tiporet = RDesc(((Pointer)tipo).getTipoApuntado()/*,id*/, tablafun, nivel);
 				//tiporet = RDesc(tk.getTipo()/*.getTipoApuntado()*/,id); 
 			}
@@ -1079,13 +1154,13 @@ public class AnSintactico
 					{
 						traductor.emiteInstruccion("apila",desplazamiento);
 						traductor.emiteInstruccion("suma");
-						etiqueta += 2;
 						//tiporet = RDesc(tipocampo);
 					} 
 					else 
 						return new Error();
 				}
 			}
+		traductor.emiteInstruccion("apila", 0); //Aqui iría la diferencia de niveles.
 		return tiporet;
 	}
 	
@@ -1262,7 +1337,6 @@ public class AnSintactico
 			//Aclarar entre estas 2.
 			//traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipo().getTamaño());
 			traductor.emiteInstruccion("incrementaH("+tSint.getTipo().getTamaño()+")");
-			etiqueta = etiqueta + 4;
 			tSint.instancia();
 			return error1;
 		}

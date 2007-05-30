@@ -17,10 +17,12 @@ public class TokenVar extends Token {
 
 	/**
 	 * Constructor de la clase dados sus parametros.
+	 * @param id 
 	 * @param direccion Direccion en la que se encuentra el token.
 	 * @param tipo Tipo de datos que contiene el token.
 	 */
-	public TokenVar(int direccion, Tipo tipo, int nivel) {
+	public TokenVar(String id, int direccion, Tipo tipo, int nivel) {
+		this.id = id;
 		this.tipo = tipo;
 		this.direccion = direccion;
 		this.clase = VARIABLE;

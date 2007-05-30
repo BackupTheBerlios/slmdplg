@@ -13,16 +13,19 @@ import tSimbolos.Tipo.Tipo;
  * @author Luis Ortiz Carrillo
  * 
  */
-public class TokenFun extends Token {
+public class TokenFun extends Token 
+{
 
 	private int etiqueta;
 
 	/**
 	 * Constructor de la clase dados sus parametros.
+	 * @param id 
 	 * @param direccion Direccion en la que se encuentra el token.
 	 * @param tipo Tipo de datos que contiene el token.
 	 */
-	public TokenFun(int etiqueta_comienzo, Tipo tipo, int nivel) {
+	public TokenFun(String id, int etiqueta_comienzo, Tipo tipo, int nivel) 
+	{
 		this.tipo = tipo;
 		this.etiqueta = etiqueta_comienzo;
 		this.clase = FUNCTION;
@@ -57,6 +60,14 @@ public class TokenFun extends Token {
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		return (new TokenFun(this));
+	}
+
+	public int getEtiqueta() {
+		return etiqueta;
+	}
+
+	public void setEtiqueta(int etiqueta) {
+		this.etiqueta = etiqueta;
 	}
 	
 }

@@ -15,32 +15,31 @@ FUNCTION fun(INT a, INT b, BOOL c, BOOL d) : INT
 		FTYPE
 		
 		BOOL b3;
-		tipo4 ,t;
+		tipo4 t;
 		INT i
 		BEGIN
 			b3 = TRUE;
 			b3 = b3 || cierto;
 			i = 4;
+			WHILE (i > 0) DO
+			BEGIN 
+				i = i - 1
+			END
+			RETURN TRUE
+		END
+		
+	FUNCTION fun3(BOOL cierto) : INT
+		BOOL b3;
+		INT i
+		BEGIN
+			b3 = TRUE;
+			b3 = b3 || cierto;
+			i = 4 + 2;
 			WHILE (i > 0) DO
 			BEGIN 
 				i = i - 1
 			END
 			RETURN 2
-		END
-		
-	FUNCTION fun3(BOOL cierto) : INT
-		BOOL b3;
-		tipo4 ,t;
-		INT i
-		BEGIN
-			b3 = TRUE;
-			b3 = b3 || cierto;
-			i = 4;
-			WHILE (i > 0) DO
-			BEGIN 
-				i = i - 1
-			END
-			RETURN b3
 		END
 		
 	BEGIN
@@ -55,6 +54,7 @@ BEGIN
 	BEGIN
 		q = 3 + 6;
 		r = (t + q) MOD 4;
+		r = fun(3,15,TRUE,FALSE);
 		BEGIN
 		END;
 	x = q == 9
