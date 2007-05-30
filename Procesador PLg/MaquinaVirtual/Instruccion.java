@@ -84,7 +84,7 @@ public class Instruccion
 	 * Método no implementado
 	 */
 	public String toString() {
-		return new String("Instruccion.toString aun no implementado");		
+		return new String(operacion);		
 		/*
 		String s;
 		if (operacion.equals("apila") 

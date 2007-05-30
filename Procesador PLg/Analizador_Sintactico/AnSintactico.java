@@ -87,7 +87,7 @@ public class AnSintactico
 		
 		Enumeration<tSimbolos.Token> tokens = ts.getTabla().elements();
 		LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
-		traductor.emiteInstruccion("incrementaH", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion());
+		traductor.emiteInstruccion("incrementaC", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion());
 		
 		boolean errorI = Ins(ts, 0);
 		
@@ -156,12 +156,12 @@ public class AnSintactico
 		Enumeration<tSimbolos.Token> tokens = tablafun.getTabla().elements();
 		LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
 		
-		traductor.emiteInstruccion("incrementaH", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion());
+		traductor.emiteInstruccion("incrementaC", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion());
 		
 		boolean errorI = Ins(tablafun, nivel);
 		reconoce("RETURN");
 				
-		traductor.emiteInstruccion("apila", reorden.getLast().getDireccion() - t1.getTamaño());
+		traductor.emiteInstruccion("apila", Math.min(0, reorden.getLast().getDireccion()) - t1.getTamaño());
 		traductor.emiteInstruccion("apila", 0);
 		Tipo t = ExpOr(tablafun, nivel);
 		traductor.emiteInstruccion("desapila-ind");
@@ -898,13 +898,13 @@ public class AnSintactico
 				int etq = ((TokenFun)(padre.getToken(tActual.getLexema()))).getEtiqueta();
 				reconoce("ID");
 				reconoce("PAA");
-				traductor.emiteInstruccion("incrementaH", tipo.getTamaño());
+				traductor.emiteInstruccion("incrementaC", tipo.getTamaño());
 				
 				boolean error1 = false;
 				Enumeration<tSimbolos.Token> tokens = tsaux.getTabla().elements();
 				
 				LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
-				
+				int restar = reorden.getFirst().getDireccion() + reorden.getFirst().getTipo().getTamaño();
 				while (!reorden.isEmpty() && !error1)
 				{
 					tSimbolos.Token parametro = reorden.getLast();
@@ -919,7 +919,9 @@ public class AnSintactico
 					}
 				}
 				reconoce("PAC");
-				traductor.emiteInstruccion("llamar", etq); //Dirección de comienzo de la función
+				traductor.emiteInstruccion("apila", etq);
+				traductor.emiteInstruccion("llamada"); //Dirección de comienzo de la función
+				traductor.emiteInstruccion("incrementaC", -restar);
 				if (error1)
 					return new Error();
 				else

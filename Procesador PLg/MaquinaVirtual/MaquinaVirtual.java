@@ -235,7 +235,7 @@ public class MaquinaVirtual
 		else if (funcion.equals("negacion")) {
 			ejecutaNot();
 		}
-		else if (funcion.equals("Stop")) {
+		else if (funcion.equals("end")) {
 			ejecutaStop();
 		}
 		else if (funcion.equals("apila")) {
@@ -253,23 +253,23 @@ public class MaquinaVirtual
 		else if (funcion.equals("copia")) {
 			ejecutaCopia();
 		}
-		else if (funcion.equals("ir_a")){
+		else if (funcion.equals("ir-a")){
 			ejecutaIrA(datos1);
 		}
 		
-		else if (funcion.equals("ir_v")){
+		else if (funcion.equals("ir-v")){
 			ejecutaIrV(datos1);			
 		}
-		else if (funcion.equals("ir_f")){
+		else if (funcion.equals("ir-f")){
 			ejecutaIrF(datos1);
 		}
 		else if (funcion.equals("return")){
 			ejecutaRet();
 		}		
-		else if (funcion.equals("apila_ind")){
+		else if (funcion.equals("apila-ind")){
 			ejecutaApilaInd();
 		}
-		else if (funcion.equals("desapila_ind")){
+		else if (funcion.equals("desapila-ind")){
 			ejecutaDesapilaInd();
 		}
 		else if (funcion.equals("apilaH")){
@@ -284,11 +284,23 @@ public class MaquinaVirtual
 		else if (funcion.equals("llamada")){
 			ejecutaLLamada(datos1,datos2);
 		}
+		else if (funcion.equals("retorno")){
+			ejecutaRetorno();
+		}
 		else {
 			estadoMaquina=2; //Pasa a error
 			System.out.println("Máquina pasa a estado error");
 		}
 
+	}
+
+	private void ejecutaRetorno() 
+	{
+		int base = B;
+		B = mem_datos.get(new Integer(B+1)).intValue();
+		C = base-1;
+		int basemod = base + 2;
+		program_counter = mem_datos.get(new Integer(basemod)).intValue();
 	}
 
 	/**
@@ -302,7 +314,11 @@ public class MaquinaVirtual
 		if (C + param.intValue() > InicioH) 
 			throw new Exception("Error.IncrementaH : Intenta llevar las pilas más allá del" +
 					" comienzo de la memoria dínamica.");
-		else C += param.intValue();
+		else 
+			{
+				for (int i = 0; i < param.intValue(); i++)
+					push(new Integer(0));
+			}
 		
 	}
 
@@ -332,7 +348,8 @@ public class MaquinaVirtual
 						
 		// Actualizamos el registro B, y el contador de programa
 		B=C;
-		program_counter = (etiq.intValue() - 1);
+		C=C+3;
+		program_counter = (etiq.intValue());
 	}
 
 	/**
@@ -953,6 +970,8 @@ public class MaquinaVirtual
 	 */
 	public String muestraInfoPila(){
 		Stack<Number> pilaEjecucionAux = new Stack<Number>();
+		System.out.println("B = " + B);
+		System.out.println("C = " + C);
 		String pilaInfo="Número de operandos en la pila de ejecución: ";
 		int pilanum=(tamanoPila());
 		pilaInfo= pilaInfo.concat(""+pilanum);
@@ -962,7 +981,10 @@ public class MaquinaVirtual
 			while(!pilaIsEmpty()){
 				Number elem = pop();
 				pilaInfo= pilaInfo.concat("\n"+"Operando "+pilanum+": ");
-				pilaInfo= pilaInfo.concat(elem.toString());
+				if (elem != null)
+					pilaInfo= pilaInfo.concat(elem.toString());
+				else
+					pilaInfo = "-----------------";
 				pilanum--;
 				pilaEjecucionAux.push(elem);
 			}

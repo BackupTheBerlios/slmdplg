@@ -1,18 +1,13 @@
-BOOL x, y;
-CONST BOOL z = FALSE;
-CONST INT t = 0;
-INT q, r
+INT r
 
-FUNCTION fun(INT a, INT b, BOOL c, BOOL d) : INT
-	INT a2, b2;
-	BOOL c2
+FUNCTION cinco() : INT
+	INT a1
 		
 	BEGIN
-		a2 = 10;
-		b2 = 3 * a2
-		RETURN b2 + a2
+		a1 = 5
+		RETURN a1
 	END
 
 BEGIN
-	r = fun(3,15,TRUE,FALSE)
+	r = cinco()
 END 7
