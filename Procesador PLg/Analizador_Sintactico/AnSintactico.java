@@ -76,7 +76,7 @@ public class AnSintactico
 		boolean errorT = false; //Por defecto no hay fallos en tipos
 		if (tActual.getTipo().equals("TYPE")) {
 			reconoce("TYPE");
-			errorT = Tips();
+			errorT = Tips(ts, -1);
 			reconoce("FTYPE");
 		}	
 		
@@ -86,11 +86,11 @@ public class AnSintactico
 		boolean errorF = false;
 		if (tActual.getTipo().equals("FUNCTION"))
 		{
-			errorF = Functions();
+			errorF = Functions(ts, 0);
 		}
 		reconoce("BEGIN");
 		traductor.parchea(instruccion_comienzo, traductor.getEtiqueta());
-		boolean errorI = Ins();
+		boolean errorI = Ins(ts, 0);
 		reconoce("END");
 		traductor.emiteInstruccion("end");
 		etiqueta++;
@@ -107,15 +107,21 @@ public class AnSintactico
 			
 	}
 
-	private boolean Functions() 
+	private boolean Functions(TablaSimbolos ts_padre, int nivel) 
 	{
-		boolean err1 = function(ts, 0);
-		boolean err2 = RFuncs(ts, 0);
+		boolean err1 = function(ts_padre, 0);
+		boolean err2 = RFuncs(ts_padre, 0);
 		return (err1 || err2);
 	}
 
 	private boolean RFuncs(TablaSimbolos ts_padre, int nivel) 
 	{
+		if (tActual.getTipo().equals("FUNCTION"))
+		{
+			boolean err1 = function(ts_padre, nivel);
+			boolean err2 = RFuncs(ts_padre, nivel);
+			return err1 || err2;
+		}
 		return false;
 	}
 
@@ -127,19 +133,30 @@ public class AnSintactico
 		boolean err1 = cabeceraFun(ts_padre, tablafun, nivel);
 		if (!err1)
 		{
-			tablafun.actualizarDir();
+			tablafun.actualizarDir(); //Los parámetros se añaden con dirección positiva y hay que modificarlos 
 		}
-		Decs(tablafun, nivel);
+		
+		boolean errorT = false; //Por defecto no hay fallos en tipos
+		if (tActual.getTipo().equals("TYPE")) {
+			reconoce("TYPE");
+			errorT = Tips(ts, -1);
+			reconoce("FTYPE");
+		}	
+		
+		Decs(tablafun, nivel + 1);
+		
 		boolean errorF = false;
 		if (tActual.getTipo().equals("FUNCTION"))
 		{
-			errorF = Functions();
+			errorF = Functions(ts_padre, nivel + 1);
 		}
 		reconoce("BEGIN");
 		traductor.parchea(dir_actual, traductor.getEtiqueta());
-		boolean errorI = Ins();
+		boolean errorI = Ins(tablafun, nivel);
+		reconoce("RETURN");
+		Tipo t = ExpOr(tablafun, nivel);
 		reconoce("END");
-		return err1 || errorF || errorI;
+		return err1 || errorF || errorI || errorT || t instanceof Error;
 	}
 
 	private boolean cabeceraFun(TablaSimbolos ts_padre, TablaSimbolos tablafun, int nivel) 
@@ -154,7 +171,7 @@ public class AnSintactico
 		}
 		reconoce("PAC");
 		reconoce("PP");
-		TipoAux tiporet = tipo();
+		TipoAux tiporet = tipo(tablafun, nivel);
 		if (!ts_padre.constainsId(nombreFun))
 		{
 			ts_padre.addFun(nombreFun, traductor.getEtiqueta(), tiporet, nivel + 1);
@@ -175,7 +192,7 @@ public class AnSintactico
 	/** Método para analizar un parámetro de la función.*/
 	private boolean param(TablaSimbolos tablafun, int nivel) 
 	{
-		TipoAux tipo = tipo();
+		TipoAux tipo = tipo(tablafun, nivel);
 		String nombre = tActual.getLexema();
 		reconoce("ID");
 		if (!tablafun.constainsId(nombre))
@@ -192,7 +209,7 @@ public class AnSintactico
 		if (!tActual.getTipo().equals("PAC"))
 		{
 			reconoce("COMA");
-			TipoAux tipo = tipo();
+			TipoAux tipo = tipo(tablafun, nivel);
 			String nombre = tActual.getLexema();
 			reconoce("ID");
 			if (!tablafun.constainsId(nombre))
@@ -379,7 +396,7 @@ public class AnSintactico
 			tablafun.addVar(id, dirección++, new Error(), nivel + 1);
 			error1 = true;
 		}
-		boolean error2 = RIds(tipo);
+		boolean error2 = RIds(tipo, tablafun, nivel);
 		return (error1 || error2);
 	}
 
@@ -387,7 +404,7 @@ public class AnSintactico
 	 * 		RIds -> , ID RIds | null         //NOTA : null se refiere a lambda en la gramática.
 	 * @param tipo El tipo de las variables que se están declarando.  
 	 * @return Indica si ha habido un error duranta la función.*/
-	private boolean RIds(Tipo tipo)
+	private boolean RIds(Tipo tipo, TablaSimbolos tablafun, int nivel)
 	{
 		
 		if (!tActual.getTipo().equals("PYC") && !tActual.getTipo().equals("BEGIN") && !tActual.getTipo().equals("FUNCTION"))
@@ -396,14 +413,14 @@ public class AnSintactico
 			reconoce("COMA");
 			String id = tActual.getLexema();
 			reconoce("ID");
-			if (!ts.constainsId(id))
-				ts.addVar(id, dirección++, tipo, 0);
+			if (!tablafun.constainsId(id))
+				tablafun.addVar(id, dirección++, tipo, 0);
 			else
 			{
-				ts.addVar(id, dirección++, new Error(), 0);
+				tablafun.addVar(id, dirección++, new Error(), 0);
 				error1 = true;
 			}
-			boolean error2 = RIds(tipo);
+			boolean error2 = RIds(tipo, tablafun, nivel);
 			return (error1 || error2);
 		}
 		return false;
@@ -412,24 +429,24 @@ public class AnSintactico
 	/** Método para análisis de la expresión:
 	 * 		Ins -> I RIns 
 	 * @return Un booleano informando de si ha habido un error contextual en la instrucciones. */
-	private boolean Ins() 
+	private boolean Ins(TablaSimbolos tablafun, int nivel) 
 	{
 		boolean err1, err2;
-		err1 = I();
-		err2 = RIns();
+		err1 = I(tablafun, nivel);
+		err2 = RIns(tablafun, nivel);
 		return (err1 || err2);
 	}
 
 	/** Método para análisis de la expresión:
 	 * 		RIns -> ; I RIns | null            //NOTA : null se refiere a lambda en la gramática.*/
-	private boolean RIns() 
+	private boolean RIns(TablaSimbolos tablafun, int nivel) 
 	{
-		if (!tActual.getTipo().equals("END") && !tActual.getTipo().equals("ELSE") &&!tActual.getTipo().equals("UNTIL"))
+		if (!tActual.getTipo().equals("END") && !tActual.getTipo().equals("ELSE") &&!tActual.getTipo().equals("UNTIL") && !tActual.getTipo().equals("RETURN"))
 		{
 			boolean err1, err2;
 			reconoce("PYC");
-			err1 = I();
-			err2 = RIns();
+			err1 = I(tablafun, nivel);
+			err2 = RIns(tablafun, nivel);
 			return (err1 || err2);
 		}
 		return false;
@@ -437,41 +454,41 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		I -> IAsig | IComp | IIf | IWhile | IRepeat
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
-	private boolean I() 
+	private boolean I(TablaSimbolos tablafun, int nivel) 
 	{
 		if (tActual.getLexema().equals("BEGIN"))
-			return IComp();
+			return IComp(tablafun, nivel);
 		//Para operación de punteros NEW(<id>)
 		else if (tActual.getLexema().equals("NEW"))
-			return INewID();
+			return INewID(tablafun, nivel);
 		else if (tActual.getLexema().equals("IF"))
-			return IIf();
+			return IIf(tablafun, nivel);
 		else if (tActual.getLexema().equals("WHILE"))
-			return IWhile();
+			return IWhile(tablafun, nivel);
 		else if (tActual.getLexema().equals("ELSE"))
 			return false;
 		else if (tActual.getLexema().equals("REPEAT"))
-			return IRepeat();
+			return IRepeat(tablafun, nivel);
 		else if (tActual.getLexema().equals("UNTIL"))
 			return false;
 		else 
-			return IAsig();
+			return IAsig(tablafun, nivel);
 	}
 	/** Método para análisis de la expresión
 	 * 		IComp -> BEGIN IsOpc END
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
-	private boolean IComp() 
+	private boolean IComp(TablaSimbolos tablafun, int nivel) 
 	{
 		reconoce("BEGIN");
-		boolean err = IsOpc();
+		boolean err = IsOpc(tablafun, nivel);
 		reconoce("END");
 		return err;
 	}
 
-	private boolean IsOpc() 
+	private boolean IsOpc(TablaSimbolos tablafun, int nivel) 
 	{
 		if (!tActual.getLexema().equals("END"))
-			return Ins();
+			return Ins(tablafun, nivel);
 		else
 			return false;
 	}
@@ -479,11 +496,11 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		IAsig -> ID = Exp 
 	 * @return Un booleano informando de si ha habido un error contextual en la instucción.*/
-	private boolean IAsig() 
+	private boolean IAsig(TablaSimbolos tablafun, int nivel) 
 	{
-		Tipo tipo = Desc();
+		Tipo tipo = Desc(tablafun, nivel);
 		reconoce("IGUAL");
-		Tipo tipo1 = ExpOr();
+		Tipo tipo1 = ExpOr(tablafun, nivel);
 		traductor.emiteInstruccion("desapila-ind");
 		etiqueta++;
 		return (tipo1.getLexema().equals("ERROR") || !compatibles (tipo1, tipo));
@@ -494,10 +511,10 @@ public class AnSintactico
 	 * 		ExpOr -> ExpAnd RExpOr
 	 * @return El tipo de la expresión
 	 */
-	private Tipo ExpOr() 
+	private Tipo ExpOr(TablaSimbolos tablafun, int nivel) 
 	{
-		Tipo tipo1 = ExpAnd();
-		Tipo tipo2 = RExpOr(tipo1);
+		Tipo tipo1 = ExpAnd(tablafun, nivel);
+		Tipo tipo2 = RExpOr(tipo1, tablafun, nivel);
 		return tipo2;
 	}
 	
@@ -506,7 +523,7 @@ public class AnSintactico
 	 * 		RExpOr -> || ExpAnd RExpOr | null    //NOTA : null se refiere a lambda en la gramática.
 	 * @return El tipo de la expresión
 	 */
-	private Tipo RExpOr(Tipo tipo1)
+	private Tipo RExpOr(Tipo tipo1, TablaSimbolos tablafun, int nivel)
 	{
 		if (tActual.getLexema().equals("||"))
 		{
@@ -518,7 +535,7 @@ public class AnSintactico
 			traductor.emiteInstruccion("desapila");
 			etiqueta += 3;
 			
-			Tipo tipo2 = ExpAnd();
+			Tipo tipo2 = ExpAnd(tablafun, nivel);
 			Tipo tipo22;
 			if (!tipo1.getLexema().equals("BOOL") || !tipo2.getLexema().equals("BOOL"))
 				tipo22 = new Error();
@@ -526,7 +543,7 @@ public class AnSintactico
 				tipo22 = new Bool();
 
 			traductor.parchea(irv, etiqueta);
-			tipo2 = RExpOr(tipo22);
+			tipo2 = RExpOr(tipo22, tablafun, nivel);
 			return tipo2;
 		}
 		return tipo1;
@@ -537,10 +554,10 @@ public class AnSintactico
 	 * 		ExpAnd -> Exp RExpAnd
 	 * @return El tipo de la expresión
 	 */
-	private Tipo ExpAnd()
+	private Tipo ExpAnd(TablaSimbolos tablafun, int nivel)
 	{
-		Tipo tipo1 = Exp();
-		Tipo tipo2 = RExpAnd(tipo1);
+		Tipo tipo1 = Exp(tablafun, nivel);
+		Tipo tipo2 = RExpAnd(tipo1, tablafun, nivel);
 		return tipo2;
 	}
 	
@@ -549,7 +566,7 @@ public class AnSintactico
 	 * 		RExpAnd -> && Exp RExpAnd | null    //NOTA : null se refiere a lambda en la gramática.
 	 * @return El tipo de la expresión
 	 */
-	private Tipo RExpAnd(Tipo tipo1)
+	private Tipo RExpAnd(Tipo tipo1, TablaSimbolos tablafun, int nivel)
 	{
 		if (tActual.getLexema().equals("&&"))
 		{
@@ -559,7 +576,7 @@ public class AnSintactico
 			traductor.emiteInstrucciónParcheable("ir-f");
 			etiqueta++;
 			
-			Tipo tipo2 = Exp();
+			Tipo tipo2 = Exp(tablafun, nivel);
 			
 			Tipo tipo22;
 			if (!tipo1.getLexema().equals("BOOL") || !tipo2.getLexema().equals("BOOL"))
@@ -572,7 +589,7 @@ public class AnSintactico
 			traductor.emiteInstruccion("apila", 0);
 			etiqueta += 2;
 			
-			tipo2 = RExpAnd(tipo22);
+			tipo2 = RExpAnd(tipo22, tablafun, nivel);
 			return tipo2;
 		}
 		return tipo1;
@@ -581,10 +598,10 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		Exp -> Exp1 RExp 
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo Exp() 
+	private Tipo Exp(TablaSimbolos tablafun, int nivel) 
 	{
-		Tipo tipo1 = Exp1();
-		Tipo tipo2 = RExp(tipo1);
+		Tipo tipo1 = Exp1(tablafun, nivel);
+		Tipo tipo2 = RExp(tipo1, tablafun, nivel);
 		return tipo2;
 	}
 
@@ -592,13 +609,13 @@ public class AnSintactico
 	 * 		RExp -> OpOrd Exp1 RExp | null       //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo RExp(Tipo tipo1) 
+	private Tipo RExp(Tipo tipo1, TablaSimbolos tablafun, int nivel) 
 	{
 		if (tActual.getTipo().equals("OPORD"))
 		{
 			String lexema = tActual.getLexema();
 			reconoce("OPORD");
-			Tipo tipo2 = Exp1();
+			Tipo tipo2 = Exp1(tablafun, nivel);
 			Tipo tipo22;
 			if (!compatibles(tipo1,new Int()) || !compatibles(tipo2,new Int()))
 				tipo22 = new Error();
@@ -613,7 +630,7 @@ public class AnSintactico
 					else if (lexema.equals(">="))
 						traductor.emiteInstruccion("mayoroigual");
 			etiqueta++;
-			tipo2 = RExp(tipo22);
+			tipo2 = RExp(tipo22, tablafun, nivel);
 			return tipo2;
 		}
 		return tipo1;
@@ -622,10 +639,10 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		Exp1 -> Exp2 RExp1 
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo Exp1()
+	private Tipo Exp1(TablaSimbolos tablafun, int nivel)
 	{
-		Tipo tipo1 = Exp2();
-		Tipo tipo2 = RExp1(tipo1);
+		Tipo tipo1 = Exp2(tablafun, nivel);
+		Tipo tipo2 = RExp1(tipo1, tablafun, nivel);
 		return tipo2;
 	}
 
@@ -633,13 +650,13 @@ public class AnSintactico
 	 * 		RExp1 -> OpEq Exp2 RExp1 | null             //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo RExp1(Tipo tipo1) 
+	private Tipo RExp1(Tipo tipo1, TablaSimbolos tablafun, int nivel) 
 	{
 		if (tActual.getTipo().equals("OPEQ"))
 		{
 			String lexema = tActual.getLexema();
 			reconoce("OPEQ");
-			Tipo tipo2 = Exp2();
+			Tipo tipo2 = Exp2(tablafun, nivel);
 			Tipo tipo22;
 			if (!compatibles(tipo1, tipo2))
 				tipo22 = new Error();
@@ -650,7 +667,7 @@ public class AnSintactico
 			else if (lexema.equals("=="))
 				traductor.emiteInstruccion("iguales");
 			etiqueta++;
-			tipo2 = RExp1(tipo22);
+			tipo2 = RExp1(tipo22, tablafun, nivel);
 			return tipo2;
 		}
 		return tipo1;
@@ -659,10 +676,10 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		Exp2 -> Exp3 RExp2
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo Exp2()
+	private Tipo Exp2(TablaSimbolos tablafun, int nivel)
 	{
-		Tipo tipo1 = Exp3();
-		Tipo tipo2 = RExp2(tipo1);
+		Tipo tipo1 = Exp3(tablafun, nivel);
+		Tipo tipo2 = RExp2(tipo1, tablafun, nivel);
 		return tipo2;
 	}
 
@@ -670,14 +687,14 @@ public class AnSintactico
 	 * 		RExp2 -> OpSum Exp3 RExp2 | null                //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo RExp2(Tipo tipo1) 
+	private Tipo RExp2(Tipo tipo1, TablaSimbolos tablafun, int nivel) 
 	{
 		if (tActual.getTipo().equals("OPSUM") && !tActual.getLexema().equals("||")) //Ahora el || se hace con cortocircuito.
 		{
 			Tipo tipoOp = tipoOpSum();
 			String lexema = tActual.getLexema();
 			reconoce("OPSUM");
-			Tipo tipo2 = Exp3();
+			Tipo tipo2 = Exp3(tablafun, nivel);
 			Tipo tipo22;
 			if (!compatibles(tipo1, tipo2) || !compatibles(tipo1, tipoOp))
 				tipo22 = new Error();
@@ -690,7 +707,7 @@ public class AnSintactico
 				/*else if (lexema.equals("||"))
 					traductor.emiteInstruccion("or");*/
 			etiqueta++;
-			tipo2 = RExp2(tipo22);
+			tipo2 = RExp2(tipo22, tablafun, nivel);
 			return tipo2;
 		}
 		return tipo1;
@@ -712,10 +729,10 @@ public class AnSintactico
 	/** Método para análisis de la expresión
 	 * 		Exp3 -> Exp4 RExp3 
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo Exp3()
+	private Tipo Exp3(TablaSimbolos tablafun, int nivel)
 	{
-		Tipo tipo1 = Exp4();
-		Tipo tipo2 = RExp3(tipo1);
+		Tipo tipo1 = Exp4(tablafun, nivel);
+		Tipo tipo2 = RExp3(tipo1,tablafun, nivel);
 		return tipo2;
 	}
 	
@@ -723,14 +740,14 @@ public class AnSintactico
 	 * 		RExp3 -> OpMul Exp4 RExp3 | null             //NOTA : null se refiere a lambda en la gramática.
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo RExp3(Tipo tipo1) 
+	private Tipo RExp3(Tipo tipo1, TablaSimbolos tablafun, int nivel) 
 	{
 		if (tActual.getTipo().equals("OPMUL") && !tActual.getLexema().equals("&&")) //Ahora el && se hace con cortocircuito
 		{
 			Tipo tipoOp = tipoOpMul();
 			String lexema = tActual.getLexema();
 			reconoce("OPMUL");
-			Tipo tipo2 = Exp4();
+			Tipo tipo2 = Exp4(tablafun, nivel);
 			Tipo tipo22 = null;
 			if (!compatibles(tipo1,tipo2) || !compatibles(tipo1, tipoOp))
 				tipo22 = new Error();
@@ -753,7 +770,7 @@ public class AnSintactico
 					/*else if (lexema.equals("&&"))
 						traductor.emiteInstruccion("and");*/
 			etiqueta++;
-			tipo2 = RExp3(tipo22);
+			tipo2 = RExp3(tipo22, tablafun, nivel);
 			return tipo2;
 		}
 		return tipo1;
@@ -776,12 +793,12 @@ public class AnSintactico
 	 * 		Exp4 -> OpUn Fact | Fact 
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo Exp4()
+	private Tipo Exp4(TablaSimbolos tablafun, int nivel)
 	{
 		if (tActual.getTipo().equals("OPSUM") || tActual.getTipo().equals("OPNEG")) //Existe operador unario
 		{
 			Tipo tipoOp = tipoOpUn();
-			Tipo tipo = Fact();
+			Tipo tipo = Fact(tablafun, nivel);
 			if (tipoOp.getLexema().equals(new Bool()))
 			{
 				traductor.emiteInstruccion("negacion");
@@ -800,7 +817,7 @@ public class AnSintactico
 		}
 		else //No existe operador unario.
 		{
-			Tipo tipo = Fact();
+			Tipo tipo = Fact(tablafun, nivel);
 			return tipo;
 		}
 	}
@@ -832,7 +849,7 @@ public class AnSintactico
 	 * 		Fact -> ( Exp )        (Si llega esto vuelve a llamar a Exp)
 	 * Añade al código la instrucción de la operación correspondiente.
 	 * @return El tipo de la expresión resultante o ERROR si ha tenido lugar un error contextual en la expresión.*/
-	private Tipo Fact()
+	private Tipo Fact(TablaSimbolos tablafun, int nivel)
 	{
 		Tipo tipo;
 		if (tActual.getTipo().equals("BOOL")) // El valor de Fact es TRUE o FALSE.
@@ -846,10 +863,10 @@ public class AnSintactico
 			etiqueta++;
 			reconoce("BOOL");
 			//tipo = new Bool();
-			if (ts.constainsId(tActual.getLexema())) {
-				tSimbolos.Token aux = ts.getToken(tActual.getLexema());
+			if (tablafun.constainsId(tActual.getLexema())) {
+				tSimbolos.Token aux = tablafun.getToken(tActual.getLexema());
 				tipo = aux.getTipo();
-				tipo = RDesc(tipo);
+				tipo = RDesc(tipo, tablafun, nivel);
 			}
 			else
 				tipo = new Bool();
@@ -866,7 +883,7 @@ public class AnSintactico
 		}
 		else if (tActual.getTipo().equals("ID")) // El valor de Fact viene determinado por una variable o constante.
 		{
-			tipo = Desc();
+			tipo = Desc(tablafun, nivel);
 			traductor.emiteInstruccion("apila-ind");
 			etiqueta++;
 			/*String id = tActual.getLexema();
@@ -897,7 +914,7 @@ public class AnSintactico
 		else if (tActual.getTipo().equals("PAA")) //El valor de Fact viene dado por una espresión parentizada.
 		{
 			reconoce("PAA");
-			tipo = ExpOr();
+			tipo = ExpOr(tablafun, nivel);
 			reconoce("PAC");
 		}
 		else
@@ -910,12 +927,12 @@ public class AnSintactico
 	 * 		IIf -> IF Exp THEN Ins(0) else Ins(1)
 	 * @return Boolean que indica si se ha producido un error en la expresión
 	 */
-	private boolean IIf(){
+	private boolean IIf(TablaSimbolos tablafun, int nivel){
 		boolean error1,error2;
 		
 		reconoce("IF");
 		
-		Tipo tipo1 = Exp();
+		Tipo tipo1 = Exp(tablafun, nivel);
 		int etiquetaI0 = etiqueta;
 		//Esta instrucción será parcheada posteriormente.
 		traductor.emiteInstrucciónParcheable("ir_f");
@@ -924,7 +941,7 @@ public class AnSintactico
 		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("THEN");
 			//Generamos el código de I(0). Lo reconocemos como bloque BEGIN-END.
-			error1 = IComp();
+			error1 = IComp(tablafun, nivel);
 			int etiquetaI1 = etiqueta;
 			//De nuevo, esta instrucción será parcheada posteriormente.
 			traductor.emiteInstrucciónParcheable("ir_a");
@@ -935,7 +952,7 @@ public class AnSintactico
 			//Aquí ya conocemos la dirección para parchear el "ir_f" (else)
 			traductor.parchea(etiquetaI0,etiqueta+1);
 			//Generamos el código de I(1). Lo reconocemos como bloque BEGIN-END.
-			error2 = IComp();
+			error2 = IComp(tablafun, nivel);
 			//Aquí ya conocemos la dirección para parchear el "ir_a" (fin de if)
 			traductor.parchea(etiquetaI1,etiqueta+1);
 		} else {
@@ -949,20 +966,20 @@ public class AnSintactico
 	 * 		IWhile -> WHILE Exp DO Ins
 	 * @return Boolean que indica si se ha producido un error en la expresión
 	 */
-	private boolean IWhile(){
+	private boolean IWhile(TablaSimbolos tablafun, int nivel){
 		boolean errorIns;
 		
 		reconoce("WHILE");
 		
 		int etiquetaExp = etiqueta;
-		Tipo tipo1 = Exp();
+		Tipo tipo1 = Exp(tablafun, nivel);
 		int etiquetaIns = etiqueta;
 		//Esta instrucción será parcheada posteriormente
 		traductor.emiteInstrucciónParcheable("ir_f");
 		etiqueta++;
 		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("DO");
-			errorIns = IComp();
+			errorIns = IComp(tablafun, nivel);
 			//Esta instrucción será parcheada posteriormente
 			traductor.emiteInstruccion("ir_a",etiquetaExp+1);
 			etiqueta++;
@@ -979,14 +996,14 @@ public class AnSintactico
 	 * 		IRepeat -> REPEAT Ins UNTIL Exp
 	 * @return Boolean que indica si se ha producido un error en la expresión
 	 */
-	private boolean IRepeat(){
+	private boolean IRepeat(TablaSimbolos tablafun, int nivel){
 		
 		reconoce("REPEAT");
 		//El repeat no precisará de parcheos.
 		int etiquetaIns = etiqueta;
-		boolean errorIns = Ins();
+		boolean errorIns = Ins(tablafun, nivel);
 		reconoce("UNTIL"); 
-		Tipo tipo1 = Exp();
+		Tipo tipo1 = Exp(tablafun, nivel);
 		if (tipo1.getLexema().equals("BOOL"))
 		{
 			traductor.emiteInstruccion("ir_f",etiquetaIns+1);
@@ -1003,26 +1020,26 @@ public class AnSintactico
 	 * 		Desc -> ID RDesc
 	 * @return Boolean que indica se se ha producido un error en la expresión
 	 * */ 
-	private Tipo Desc()
+	private Tipo Desc(TablaSimbolos tablafun, int nivel)
 	{
 		String id = tActual.getLexema();
 		Tipo tipo = null;
-		if (!ts.constainsId(id))
+		if (!tablafun.constainsId(id))
 			tipo = new Error();
 		else
 		{
-			traductor.emiteInstruccion("apila", ts.getToken(id).getDireccion());
+			traductor.emiteInstruccion("apila", tablafun.getToken(id).getDireccion());
 			etiqueta++;
 			reconoce("ID");
-			if (ts.getToken(id).getInstanciada() == 1)
-				tipo = RDesc(ts.getToken(id).getTipo()/*,id*/);
+			if (tablafun.getToken(id).getInstanciada() == 1)
+				tipo = RDesc(tablafun.getToken(id).getTipo()/*,id*/, tablafun, nivel);
 			else //error
 				return new Error();
 		}
 		return tipo;
 	}
 
-	private Tipo RDesc(Tipo tipo/*,String lexema*/) 
+	private Tipo RDesc(Tipo tipo/*,String lexema*/,TablaSimbolos tablafun, int nivel) 
 	{
 		Tipo tiporet = tipo;
 		//String id = lexema;
@@ -1038,7 +1055,7 @@ public class AnSintactico
 			{
 				traductor.emiteInstruccion("apila-ind");
 				etiqueta++;
-				tiporet = RDesc(((Pointer)tipo).getTipoApuntado()/*,id*/);
+				tiporet = RDesc(((Pointer)tipo).getTipoApuntado()/*,id*/, tablafun, nivel);
 				//tiporet = RDesc(tk.getTipo()/*.getTipoApuntado()*/,id); 
 			}
 			else
@@ -1077,9 +1094,9 @@ public class AnSintactico
 	 * 		Tips -> decTipo RTips
 	 * @return Boolean que indica si se ha producido un error en la expresión
 	 */
-	private boolean Tips() {
-		boolean err1 = decTipo();
-		boolean err2 = RTips();
+	private boolean Tips(TablaSimbolos tablafun, int nivel) {
+		boolean err1 = decTipo(tablafun, nivel);
+		boolean err2 = RTips(tablafun, nivel);
 		return (err1 || err2);
 	}
 	
@@ -1088,14 +1105,14 @@ public class AnSintactico
 	 * 		RTips -> decTipo | null             //NOTA : null se refiere a lambda en la gramática.
 	 * @return Boolean que indica si se ha producido un error en la expresión
 	 */	
-	private boolean RTips() {
+	private boolean RTips(TablaSimbolos tablafun, int nivel) {
 		if (!tActual.getTipo().equals("FTYPE"))
 			{
 			if (tActual.getTipo().equals("FRECORD")){
 				reconoce("FRECORD");
 			}else reconoce("PYC");
-				boolean error1 = decTipo();
-				boolean error2 = RTips();
+				boolean error1 = decTipo(tablafun, nivel);
+				boolean error2 = RTips(tablafun, nivel);
 				return (error1 || error2);
 			}
 		return false;
@@ -1106,17 +1123,17 @@ public class AnSintactico
 	 * 		decTipo -> id : tipo;             
 	 * @return Boolean que indica si se ha producido un error en la expresión
 	 */	
-	private boolean decTipo() {
+	private boolean decTipo(TablaSimbolos tablafun, int nivel) {
 		String nombreTipo = tActual.getLexema();
 		reconoce("ID");
 		reconoce("PP");
-		TipoAux tipoRetorno = tipo();
+		TipoAux tipoRetorno = tipo(tablafun, nivel);
 		boolean err1 = (tipoRetorno ==null);
 		/*if (ts==null) {
 			int j;
 			j = 5;
 		}*/
-		ts.addTipo(nombreTipo,tipoRetorno);
+		tablafun.addTipo(nombreTipo,tipoRetorno);
 		//reconoce("PYC");
 		return err1;
 	}
@@ -1126,7 +1143,7 @@ public class AnSintactico
 	 * tipo -> id | BOOL | INT | ^tipo | tipo
 	 * @return
 	 */
-	private TipoAux tipo() {
+	private TipoAux tipo(TablaSimbolos tablafun, int nivel) {
 		boolean err1;
 		//Creo que debería reconocer algo distinto de TIPO, pero así es como está hecho en las 
 		//declaraciones de variables (seguramente porque haya que hacer cambios en tipos).
@@ -1143,14 +1160,14 @@ public class AnSintactico
 		else if (tActual.getTipo().equals("PUNTERO")) { //O "POINTER", comprobar.
 			reconoce("PUNTERO");
 			//Crea nodoPointer
-			TipoAux apuntado= tipo();
+			TipoAux apuntado= tipo(tablafun, nivel);
 			TipoAux puntero = new Pointer("POINTER",apuntado);
 			return puntero;
 		}
 		else if (tActual.getTipo().equals("RECORD")) {
 			reconoce("RECORD");
 			TipoAux registro = new Record("RECORD");
-			LCampos(registro);
+			LCampos(registro, tablafun, nivel);
 			//Tratar el tipo Regsitro de forma adecuada
 			//Seguramente no debería devolverse ese primer registro, no sé.
 			return registro;
@@ -1159,7 +1176,7 @@ public class AnSintactico
 			//De momento en esta versión se reconocen en orden los tipos, de modo que no se 
 			//permite en el lado derecho utilizar un tipo que no haya sido declarado anteriormente.
 			String nombreid = tActual.getLexema();
-			tSimbolos.Token tok = ts.getToken(nombreid);
+			tSimbolos.Token tok = tablafun.getToken(nombreid);
 			if ((tok==null) || !(tok instanceof TokenTipo) ) {
 				err1=true;
 				return null; //Forma de propagar el error, meramente cuestión de implementación (Java solo permite devolver un valor).
@@ -1176,18 +1193,18 @@ public class AnSintactico
 	}
 	
 	//Reconoce el tipo y el nombre de los campos
-	private boolean LCampos(TipoAux tRec){
-		TipoAux tipoCampo = tipo();
-		boolean error1 = LIdent(tipoCampo, tRec);
-		boolean error2 = RLCampos(tRec);
+	private boolean LCampos(TipoAux tRec, TablaSimbolos tablafun, int nivel){
+		TipoAux tipoCampo = tipo(tablafun, nivel);
+		boolean error1 = LIdent(tipoCampo, tRec, tablafun, nivel);
+		boolean error2 = RLCampos(tRec, tablafun, nivel);
 		return (error1 || error2);
 	}
 	
 	//Resto de campos
-	private boolean RLCampos(TipoAux tRec){
+	private boolean RLCampos(TipoAux tRec, TablaSimbolos tablafun, int nivel){
 		if(!tActual.getTipo().equals("FRECORD")) {
-			boolean error1 = LCampos(tRec);
-			boolean error2 = RLCampos(tRec);
+			boolean error1 = LCampos(tRec, tablafun, nivel);
+			boolean error2 = RLCampos(tRec, tablafun, nivel);
 			return (error1 || error2);
 		}else{
 			return false;
@@ -1196,19 +1213,19 @@ public class AnSintactico
 	
 	
 	//para declaraciones con varios identificadores del mismo tipo
-	private boolean LIdent(TipoAux tipoCampo, TipoAux tRec){
+	private boolean LIdent(TipoAux tipoCampo, TipoAux tRec, TablaSimbolos tablafun, int nivel){
 		boolean error1;
 		String id = tActual.getLexema();
 		
 		reconoce("ID");
 
 		((Record)tRec).añadirCampo(id, tipoCampo);
-		error1 = RLIdent(tipoCampo, tRec);
+		error1 = RLIdent(tipoCampo, tRec, tablafun, nivel);
 		return (error1);
 	}
 	
 	//Resto de identificadores
-	private boolean RLIdent(TipoAux tipoCampo, TipoAux tRec){
+	private boolean RLIdent(TipoAux tipoCampo, TipoAux tRec, TablaSimbolos tablafun, int nivel){
 		if (!tActual.getTipo().equals("PYC"))
 		{
 			boolean error1 = false;
@@ -1216,7 +1233,7 @@ public class AnSintactico
 			String id = tActual.getLexema();
 			reconoce("ID");
 		    ((Record)tRec).añadirCampo(id, tipoCampo);
-			boolean error2 = RLIdent(tipoCampo, tRec);
+			boolean error2 = RLIdent(tipoCampo, tRec, tablafun, nivel);
 			return (error1 || error2);
 		}
 		else {
@@ -1226,15 +1243,15 @@ public class AnSintactico
 
 	}
 	
-	private boolean INewID() {
+	private boolean INewID(TablaSimbolos tablafun, int nivel) {
 		boolean error1=false;
 		//......
 		reconoce("NEW");
 		reconoce("PAA"); // "("
 
 		String lex = tActual.getLexema();
-		tSimbolos.Token tSint= ts.getToken(lex);
-		if (tSint!=null && (tSint.getTipo() instanceof Pointer) && !ts.esTipo(tSint)) { //Aquí habría que asegurarse de que es puntero
+		tSimbolos.Token tSint= tablafun.getToken(lex);
+		if (tSint!=null && (tSint.getTipo() instanceof Pointer) && !tablafun.esTipo(tSint)) { //Aquí habría que asegurarse de que es puntero
 			reconoce("ID");
 			reconoce("PAC"); // ")"
 			

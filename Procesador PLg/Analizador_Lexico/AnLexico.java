@@ -17,7 +17,7 @@ public class AnLexico {
 	/**
 	 * Atributo que indica la parte del lexema que se ha leido
 	 */
-	private  String lexema;
+	private String lexema;
 	/**
 	 * Atributo que tendra el siguiente caracter a leer
 	 */
@@ -1127,7 +1127,13 @@ public class AnLexico {
 				{
 					estado=59;
 					transita();
-				}else
+				}
+				else if (buf == 'T')
+				{
+					estado=85;
+					transita();
+				}
+				else
 					errorLex();
 				
 			}break;
@@ -1397,6 +1403,35 @@ public class AnLexico {
 					token.setLinea(linea);
 					token.setTipo("FUNCTION");
 					return(token);						
+				}
+				else errorLex();
+			}break;
+			case 85:
+			{
+				if (buf == 'U') //Fin del token FUNCTION
+				{
+					estado=86;
+					transita();			
+				}
+				else errorLex();
+			}break;
+			case 86:
+			{
+				if (buf == 'R') //Fin del token FUNCTION
+				{
+					estado=87;
+					transita();			
+				}
+				else errorLex();
+			}break;
+			case 87:
+			{
+				if (buf == 'N') //Fin del token RETURN
+				{
+					token.setLexema("RETURN");
+					token.setLinea(linea);
+					token.setTipo("RETURN");	
+					return(token);
 				}
 				else errorLex();
 			}break;

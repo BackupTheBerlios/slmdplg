@@ -6,8 +6,47 @@ INT q, r
 FUNCTION fun(INT a, INT b, BOOL c, BOOL d) : INT
 	INT a2, b2;
 	BOOL c2
+	
+	FUNCTION fun2(BOOL cierto) : BOOL
+		TYPE
+			tipo4: ^BOOL;
+			tipo5: BOOL;
+			tipo6: ^tipo5
+		FTYPE
+		
+		BOOL b3;
+		tipo4 ,t;
+		INT i
+		BEGIN
+			b3 = TRUE;
+			b3 = b3 || cierto;
+			i = 4;
+			WHILE (i > 0) DO
+			BEGIN 
+				i = i - 1
+			END
+			RETURN 2
+		END
+		
+	FUNCTION fun3(BOOL cierto) : INT
+		BOOL b3;
+		tipo4 ,t;
+		INT i
+		BEGIN
+			b3 = TRUE;
+			b3 = b3 || cierto;
+			i = 4;
+			WHILE (i > 0) DO
+			BEGIN 
+				i = i - 1
+			END
+			RETURN b3
+		END
+		
 	BEGIN
-		a2 = 10
+		a2 = 10;
+		b2 = 3 * a2
+		RETURN b2 + a2
 	END
 
 BEGIN
