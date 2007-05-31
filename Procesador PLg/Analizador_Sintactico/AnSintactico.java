@@ -1,9 +1,12 @@
 package Analizador_Sintactico;
 
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
+
+import javax.swing.text.html.HTMLDocument.Iterator;
 
 import tSimbolos.TablaSimbolos;
 import tSimbolos.TokenCte;
@@ -1248,6 +1251,7 @@ public class AnSintactico
 			reconoce("RECORD");
 			TipoAux registro = new Record("RECORD");
 			LCampos(registro, tablafun, nivel);
+			reconoce("FRECORD");
 			//Tratar el tipo Regsitro de forma adecuada
 			//Seguramente no debería devolverse ese primer registro, no sé.
 			return registro;
@@ -1274,16 +1278,26 @@ public class AnSintactico
 	
 	//Reconoce el tipo y el nombre de los campos
 	private boolean LCampos(TipoAux tRec, TablaSimbolos tablafun, int nivel){
-		TipoAux tipoCampo = tipo(tablafun, nivel);
-		boolean error1 = LIdent(tipoCampo, tRec, tablafun, nivel);
+		ArrayList<String> ids = new ArrayList<String>();
+		boolean error1 = LIdent(tRec, tablafun, nivel, ids);
+		reconoce("PP");
+		TipoAux tipo = tipo(tablafun, nivel);
+		asignarTipoAIds(tRec, tipo, ids);
 		boolean error2 = RLCampos(tRec, tablafun, nivel);
 		return (error1 || error2);
 	}
 	
+	
+
 	//Resto de campos
 	private boolean RLCampos(TipoAux tRec, TablaSimbolos tablafun, int nivel){
 		if(!tActual.getTipo().equals("FRECORD")) {
-			boolean error1 = LCampos(tRec, tablafun, nivel);
+			reconoce("PYC");
+			ArrayList<String> ids = new ArrayList<String>();
+			boolean error1 = LIdent(tRec, tablafun, nivel, ids);
+			reconoce("PP");
+			TipoAux tipo = tipo(tablafun, nivel);
+			asignarTipoAIds(tRec, tipo, ids);
 			boolean error2 = RLCampos(tRec, tablafun, nivel);
 			return (error1 || error2);
 		}else{
@@ -1291,36 +1305,43 @@ public class AnSintactico
 		}
 	}
 	
+	private void asignarTipoAIds(TipoAux tRec, TipoAux tipo, ArrayList<String> ids) {
+		String actual;
+		while (!ids.isEmpty())
+		{
+			actual = ids.get(0);
+			ids.remove(0);
+			((Record)tRec).añadirCampo(actual, tipo);
+		}
+	}
 	
 	//para declaraciones con varios identificadores del mismo tipo
-	private boolean LIdent(TipoAux tipoCampo, TipoAux tRec, TablaSimbolos tablafun, int nivel){
+	//NUNCA VA A DEVOLVER ERROR. CUIDADO CON IDENTIFICADORES REPETIDOS!!
+	private boolean LIdent(TipoAux tRec, TablaSimbolos tablafun, int nivel, ArrayList<String> ids){
 		boolean error1;
 		String id = tActual.getLexema();
-		
 		reconoce("ID");
-
-		((Record)tRec).añadirCampo(id, tipoCampo);
-		error1 = RLIdent(tipoCampo, tRec, tablafun, nivel);
+		ids.add(id);
+		error1 = RLIdent(tRec, tablafun, nivel, ids);
 		return (error1);
 	}
 	
 	//Resto de identificadores
-	private boolean RLIdent(TipoAux tipoCampo, TipoAux tRec, TablaSimbolos tablafun, int nivel){
+	private boolean RLIdent(TipoAux tRec, TablaSimbolos tablafun, int nivel, ArrayList<String> ids){
 		if (!tActual.getTipo().equals("PYC"))
 		{
 			boolean error1 = false;
 			reconoce("COMA");
 			String id = tActual.getLexema();
 			reconoce("ID");
-		    ((Record)tRec).añadirCampo(id, tipoCampo);
-			boolean error2 = RLIdent(tipoCampo, tRec, tablafun, nivel);
-			return (error1 || error2);
+			ids.add(id);
+			error1 = RLIdent(tRec, tablafun, nivel, ids);
+			//boolean error2 = RLIdent(tRec, tablafun, nivel, ids);
+			return (error1);
 		}
 		else {
-			reconoce("PYC");
-			return true;
+			return false;
 		}
-
 	}
 	
 	private boolean INewID(TablaSimbolos tablafun, int nivel) {
