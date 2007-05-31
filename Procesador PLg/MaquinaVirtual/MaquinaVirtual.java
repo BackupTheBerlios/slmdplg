@@ -2,6 +2,7 @@ package MaquinaVirtual;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class MaquinaVirtual
 	 * de tipo integer, clave de la tabla Hash representa la direccion y la variable de 
 	 * tipo Number representa el contenido.
 	 */
-	private Hashtable<Integer, Number> mem_datos;
+	private ArrayList<Number> mem_datos;
 
 	/**
 	 * Vector que almacena todas las instrucciones en un formato más eficiente para la gestión de la
@@ -117,7 +118,7 @@ public class MaquinaVirtual
 		C = 0;
 		B = 0;
 		H = InicioH;
-		mem_datos = new Hashtable<Integer, Number>();
+		mem_datos = new ArrayList<Number>();
 		mem_instrucciones = new Vector<Instruccion>();
 		program_counter = 0;
 		estadoMaquina=0;
@@ -162,7 +163,7 @@ public class MaquinaVirtual
 				"debido a no disponer de más instrucciones, pero no ha encontrado " +
 				"instruccion de parada.");
 		System.out.println("Estado final de las variables");
-		mostrarEstadoVariables();
+		//mostrarEstadoVariables();
 
 	}
 
@@ -173,13 +174,13 @@ public class MaquinaVirtual
 	private void mostrarEstadoVariables() 
 	{
 		System.out.println("Estado de las variables: ");
-		Set<Map.Entry<Integer,Number>> conjunto = mem_datos.entrySet();
-		Iterator<Map.Entry<Integer,Number>> iter = conjunto.iterator();
+		Iterator<Number> iter = mem_datos.iterator();
+		int i = 0;
 		while (iter.hasNext())
 		{
-			Map.Entry<Integer,Number> var = iter.next();
-			System.out.print("   Direccion de memoria: " + (var.getKey()) + " -> ");
-			System.out.println("Valor: " + var.getValue().intValue() + ".");
+			Number var = iter.next();
+			System.out.print("   Direccion de memoria: " + i++ + " -> ");
+			System.out.println("Valor: " + var.intValue() + ".");
 		}
 		System.out.println("NOTA: Las variables que no aparecen no tienen asignado ningún valor.");
 	}
@@ -282,7 +283,7 @@ public class MaquinaVirtual
 			ejecutaIncrementaC(datos1);
 		}
 		else if (funcion.equals("llamada")){
-			ejecutaLLamada(datos1,datos2);
+			ejecutaLLamada();
 		}
 		else if (funcion.equals("retorno")){
 			ejecutaRetorno();
@@ -294,13 +295,16 @@ public class MaquinaVirtual
 
 	}
 
-	private void ejecutaRetorno() 
+	private void ejecutaRetorno() throws Exception 
 	{
 		int base = B;
-		B = mem_datos.get(new Integer(B+1)).intValue();
-		C = base-1;
+		int baux = mem_datos.get(new Integer(B+1)).intValue();
+		int caux = base;
 		int basemod = base + 2;
 		program_counter = mem_datos.get(new Integer(basemod)).intValue();
+		ejecutaIncrementaC(B - C);
+		B = baux;
+		C = caux;
 	}
 
 	/**
@@ -316,8 +320,12 @@ public class MaquinaVirtual
 					" comienzo de la memoria dínamica.");
 		else 
 			{
-				for (int i = 0; i < param.intValue(); i++)
-					push(new Integer(0));
+				if (param.intValue() >= 0)
+					for (int i = 0; i < param.intValue(); i++)
+						push(new Integer(0));
+				else
+					for (int i = 0; i < -param.intValue(); i++)
+						pop();
 			}
 		
 	}
@@ -329,22 +337,21 @@ public class MaquinaVirtual
 	 * 
 	 * @param fnp Indica el nivel del procedimiento, servirá para reconstruir
 	 * su entorno léxico.
-	 * @param etiq Direccion de comienzo del código del procedimiento.
 	 */
-	private void ejecutaLLamada(Number fnp, Number etiq) {
-		int IS;
-		int ED;
-		int EE;
+	private void ejecutaLLamada() {
+		
+		Number fnp = pop();
+		Number etiq = pop(); 
 		
 		// Obtenemos los tres datos del registro de activacion;
-		IS = program_counter;
-		ED = B;
-		EE = extraeDirBase(fnp.intValue());
+		int IS = program_counter;
+		int ED = B;
+		int EE = extraeDirBase(fnp.intValue());
 		
 		// Almacenamos los datos en las posiciones de memoria correspondientes
-		mem_datos.put(new Integer(C),EE); 
-		mem_datos.put(new Integer(C+1),ED);
-		mem_datos.put(new Integer(C+2),IS);
+		mem_datos.add(C,EE); 
+		mem_datos.add(C+1,ED);
+		mem_datos.add(C+2,IS);
 						
 		// Actualizamos el registro B, y el contador de programa
 		B=C;
@@ -386,7 +393,8 @@ public class MaquinaVirtual
 			int fnv = pop().intValue();
 			int offset = pop().intValue();
 			int dir = extraeDirBase(fnv) + offset;
-			mem_datos.put(new Integer(dir),dato);				
+			mem_datos.remove(dir);
+			mem_datos.add(dir,dato);				
 		}		
 	}
 
@@ -402,7 +410,7 @@ public class MaquinaVirtual
 			int fnv = pop().intValue();
 			int offset = pop().intValue();
 			int dir = extraeDirBase(fnv) + offset;
-			if (!mem_datos.containsKey(dir)) {
+			if (mem_datos.size() < dir || dir < 0) {
 				System.out.println("No encuentra posicion en la mem_datos, en apila-ind\n");
 				push(0);
 			}
@@ -441,7 +449,7 @@ public class MaquinaVirtual
 	 */
 	private void ejecutaApilaDir(Number fnv,Number offset) throws Exception {
 		int dir = extraeDirBase(fnv.intValue()) + offset.intValue();		
-		if (!mem_datos.containsKey(dir)) {
+		if (mem_datos.size() < dir || dir < 0) {
 			System.out.println("No encuentra posicion en la mem_datos, en apila-dir\n");
 			push(0);
 		}
@@ -477,7 +485,7 @@ public class MaquinaVirtual
 		else {			
 			int dir = extraeDirBase(fnv.intValue()) + param.intValue();
 			Number value = pop();
-			mem_datos.put(new Integer(dir), value);	
+			mem_datos.add(dir, value);	
 		}		
 	}
 
@@ -927,7 +935,7 @@ public class MaquinaVirtual
 	 * @param param Valor que se colocará en la cima de la pila.
 	 */
 	private void push(Number param){
-		mem_datos.put(new Integer(C),param);
+		mem_datos.add(C,param);
 		C++;
 	}
 	
@@ -940,7 +948,9 @@ public class MaquinaVirtual
 	 */
 	private Number pop(){
 		C--;
-		return mem_datos.get(C);
+		Number n = mem_datos.get(C);
+		mem_datos.remove(C);
+		return n;
 	}
 	
 	/**

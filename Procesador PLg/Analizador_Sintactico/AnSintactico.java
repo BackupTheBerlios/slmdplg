@@ -156,7 +156,7 @@ public class AnSintactico
 		Enumeration<tSimbolos.Token> tokens = tablafun.getTabla().elements();
 		LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
 		
-		traductor.emiteInstruccion("incrementaC", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion());
+		traductor.emiteInstruccion("incrementaC", reorden.getFirst().getTipo().getTamaño() + reorden.getFirst().getDireccion() - 3);
 		
 		boolean errorI = Ins(tablafun, nivel);
 		reconoce("RETURN");
@@ -904,13 +904,14 @@ public class AnSintactico
 				Enumeration<tSimbolos.Token> tokens = tsaux.getTabla().elements();
 				
 				LinkedList<tSimbolos.Token> reorden = reordenar(tokens);
-				int restar = reorden.getFirst().getDireccion() + reorden.getFirst().getTipo().getTamaño();
+				int restar = 0;
 				while (!reorden.isEmpty() && !error1)
 				{
 					tSimbolos.Token parametro = reorden.getLast();
 					reorden.removeLast();
 					if (parametro.getDireccion() < 0)
 					{
+						restar += parametro.getTipo().getTamaño();
 						Tipo t = ExpOr(tablafun, nivel);
 						if (!compatibles(t, parametro.getTipo()))
 							error1 = true;
@@ -920,8 +921,10 @@ public class AnSintactico
 				}
 				reconoce("PAC");
 				traductor.emiteInstruccion("apila", etq);
+				traductor.emiteInstruccion("apila",0); //Nivel del procedimiento
 				traductor.emiteInstruccion("llamada"); //Dirección de comienzo de la función
-				traductor.emiteInstruccion("incrementaC", -restar);
+				if (restar != 0)
+					traductor.emiteInstruccion("incrementaC", -restar);
 				if (error1)
 					return new Error();
 				else
@@ -1019,7 +1022,7 @@ public class AnSintactico
 		Tipo tipo1 = Exp(tablafun, nivel);
 		int etiquetaI0 = traductor.getEtiqueta();
 		//Esta instrucción será parcheada posteriormente.
-		traductor.emiteInstrucciónParcheable("ir_f");
+		traductor.emiteInstrucciónParcheable("ir-f");
 		//Si la expresión es de tipo booleano, procedemos a comprobar el if
 		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("THEN");
@@ -1027,15 +1030,15 @@ public class AnSintactico
 			error1 = IComp(tablafun, nivel);
 			int etiquetaI1 = traductor.getEtiqueta();
 			//De nuevo, esta instrucción será parcheada posteriormente.
-			traductor.emiteInstrucciónParcheable("ir_a");
+			traductor.emiteInstrucciónParcheable("ir-a");
 			//Reconocemos un ";" antes del ELSE, que sería el del bloque Begin-End del IF (no del else).
 			reconoce("PYC");
 			reconoce("ELSE");
-			//Aquí ya conocemos la dirección para parchear el "ir_f" (else)
+			//Aquí ya conocemos la dirección para parchear el "ir-f" (else)
 			traductor.parchea(etiquetaI0,traductor.getEtiqueta()+1);
 			//Generamos el código de I(1). Lo reconocemos como bloque BEGIN-END.
 			error2 = IComp(tablafun, nivel);
-			//Aquí ya conocemos la dirección para parchear el "ir_a" (fin de if)
+			//Aquí ya conocemos la dirección para parchear el "ir-a" (fin de if)
 			traductor.parchea(etiquetaI1,traductor.getEtiqueta()+1);
 		} else {
 			return true;
@@ -1057,14 +1060,14 @@ public class AnSintactico
 		Tipo tipo1 = Exp(tablafun, nivel);
 		int etiquetaIns = traductor.getEtiqueta();
 		//Esta instrucción será parcheada posteriormente
-		traductor.emiteInstrucciónParcheable("ir_f");
+		traductor.emiteInstrucciónParcheable("ir-f");
 		if (tipo1.getLexema().equals("BOOL")){
 			reconoce("DO");
 			errorIns = IComp(tablafun, nivel);
 			//Esta instrucción será parcheada posteriormente
-			traductor.emiteInstruccion("ir_a",etiquetaExp+1);
-			//Ahora ya conocemos el destino del primer "ir_f"
-			traductor.parchea(etiquetaIns,traductor.getEtiqueta()+1);
+			traductor.emiteInstruccion("ir-a",etiquetaExp);
+			//Ahora ya conocemos el destino del primer "ir-f"
+			traductor.parchea(etiquetaIns,traductor.getEtiqueta());
 		} else {
 			return true;
 		}
@@ -1086,7 +1089,7 @@ public class AnSintactico
 		Tipo tipo1 = Exp(tablafun, nivel);
 		if (tipo1.getLexema().equals("BOOL"))
 		{
-			traductor.emiteInstruccion("ir_f",etiquetaIns+1);
+			traductor.emiteInstruccion("ir-f",etiquetaIns+1);
 		} else {
 			return true;
 		}

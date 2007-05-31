@@ -1,4 +1,4 @@
-INT r
+INT r, aux
 
 FUNCTION cinco() : INT
 	INT a1
@@ -7,7 +7,22 @@ FUNCTION cinco() : INT
 		a1 = 5
 		RETURN a1
 	END
+	
+FUNCTION factorial(INT n) : INT
+	INT resultado, i
+	
+	BEGIN
+		resultado = 1;
+		i = 1;
+		WHILE (i <= n) DO
+			BEGIN
+				resultado = resultado * i;
+				i = i + 1
+			END
+		RETURN resultado
+	END
 
 BEGIN
-	r = cinco()
+	aux = factorial(10);
+	r = (aux + aux) * cinco()
 END 7
