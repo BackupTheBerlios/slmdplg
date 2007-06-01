@@ -1,7 +1,5 @@
 package tSimbolos.Tipo;
 
-import java.util.Iterator;
-import java.util.LinkedList;
 
 public class Record extends TipoAux implements Tipo {
 

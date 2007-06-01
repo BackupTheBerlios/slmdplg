@@ -54,7 +54,7 @@ public class ListaCampos
 			else
 			{
 				Campo campoNuevo = new Campo(actual, tipo);
-				lista.add(campoNuevo);
+				lista.addFirst(campoNuevo);
 				numElementos++;
 			}
 		}

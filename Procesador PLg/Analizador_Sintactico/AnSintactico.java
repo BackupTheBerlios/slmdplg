@@ -1,7 +1,6 @@
 package Analizador_Sintactico;
 
 import java.io.FileReader;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -1320,7 +1319,7 @@ public class AnSintactico
 	
 	//Resto de identificadores
 	private boolean RLIdent(TablaSimbolos tablafun, int nivel, LinkedList<String> ids){
-		if (!tActual.getTipo().equals("PYC"))
+		if (tActual.getTipo().equals("COMA"))
 		{
 			reconoce("COMA");
 			String id = tActual.getLexema();

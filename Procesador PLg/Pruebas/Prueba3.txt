@@ -1,5 +1,12 @@
-INT x, y, z, u, w, r;
-BOOL res
+TYPE registro : RECORD
+		x, y : INT;
+		z : BOOL
+		FRECORD
+FTYPE
+	
+registro reg;
+INT i
+
 BEGIN
-res = (x==y || z != w) && (r <= u || (z > x && y < r))
+	i = 0
 END 7
