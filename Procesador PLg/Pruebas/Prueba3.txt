@@ -4,7 +4,7 @@ TYPE registro : RECORD
 		FRECORD ;
 		
 		registro2 : RECORD
-		x2, y2 : INT;
+		x2, y2 : registro;
 		z2 : BOOL
 		FRECORD
 FTYPE
@@ -14,5 +14,5 @@ registro2 reg2
 
 BEGIN
 	reg.z = FALSE;
-	reg2.y2 = 6
+	reg2.y2.z = TRUE
 END 7
