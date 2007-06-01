@@ -4,12 +4,11 @@ public class Bool extends TipoAux implements Tipo {
 	
 	public Bool(/*String lex*/) {
 		super("BOOL");
-		this.nombre = "BOOL";
 	}
 
 	public String getLexema() 
 	{
-		return nombre;
+		return lexema;
 	}
 
 	public int getTamaño() 

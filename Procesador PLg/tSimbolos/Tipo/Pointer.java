@@ -7,7 +7,6 @@ public class Pointer extends TipoAux implements Tipo
 	public Pointer(String lex, TipoAux apuntado)
 	{
 		super(lex);
-		nombre = "POINTER";
 		this.apuntado = apuntado;
 	}
 	

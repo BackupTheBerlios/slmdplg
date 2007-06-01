@@ -4,7 +4,6 @@ public class Error extends TipoAux implements Tipo {
 
 	public Error(/*String lex*/) {
 		super("ERROR");
-		this.nombre = "ERROR";
 		// TODO Auto-generated constructor stub
 	}
 

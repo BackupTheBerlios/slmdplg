@@ -6,8 +6,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
-import javax.swing.text.html.HTMLDocument.Iterator;
-
 import tSimbolos.TablaSimbolos;
 import tSimbolos.TokenCte;
 import tSimbolos.TokenFun;
@@ -15,6 +13,7 @@ import tSimbolos.TokenTipo;
 import tSimbolos.Tipo.Bool;
 import tSimbolos.Tipo.Error;
 import tSimbolos.Tipo.Int;
+import tSimbolos.Tipo.ListaCampos;
 import tSimbolos.Tipo.Pointer;
 import tSimbolos.Tipo.Record;
 import tSimbolos.Tipo.Tipo;
@@ -1249,8 +1248,10 @@ public class AnSintactico
 		}
 		else if (tActual.getTipo().equals("RECORD")) {
 			reconoce("RECORD");
-			TipoAux registro = new Record("RECORD");
-			LCampos(registro, tablafun, nivel);
+			ListaCampos listacampos = new ListaCampos();
+			LCampos(tablafun, nivel, listacampos);
+			listacampos.evaluar_offsets();
+			TipoAux registro = new Record("RECORD", listacampos);
 			reconoce("FRECORD");
 			//Tratar el tipo Regsitro de forma adecuada
 			//Seguramente no debería devolverse ese primer registro, no sé.
@@ -1277,67 +1278,56 @@ public class AnSintactico
 	}
 	
 	//Reconoce el tipo y el nombre de los campos
-	private boolean LCampos(TipoAux tRec, TablaSimbolos tablafun, int nivel){
-		ArrayList<String> ids = new ArrayList<String>();
-		boolean error1 = LIdent(tRec, tablafun, nivel, ids);
+	private boolean LCampos(TablaSimbolos tablafun, int nivel, ListaCampos listacampos)
+	{
+		LinkedList<String> ids = new LinkedList<String>();
+		boolean error1 = LIdent(tablafun, nivel, ids);
 		reconoce("PP");
 		TipoAux tipo = tipo(tablafun, nivel);
-		asignarTipoAIds(tRec, tipo, ids);
-		boolean error2 = RLCampos(tRec, tablafun, nivel);
+		boolean error2 = RLCampos(tablafun, nivel, listacampos);
+		listacampos.añadeIdentificadores(ids, tipo);
 		return (error1 || error2);
 	}
 	
 	
 
 	//Resto de campos
-	private boolean RLCampos(TipoAux tRec, TablaSimbolos tablafun, int nivel){
+	private boolean RLCampos(TablaSimbolos tablafun, int nivel, ListaCampos listacampos)
+	{
 		if(!tActual.getTipo().equals("FRECORD")) {
 			reconoce("PYC");
-			ArrayList<String> ids = new ArrayList<String>();
-			boolean error1 = LIdent(tRec, tablafun, nivel, ids);
+			LinkedList<String> ids = new LinkedList<String>();
+			boolean error1 = LIdent(tablafun, nivel, ids);
 			reconoce("PP");
 			TipoAux tipo = tipo(tablafun, nivel);
-			asignarTipoAIds(tRec, tipo, ids);
-			boolean error2 = RLCampos(tRec, tablafun, nivel);
+			boolean error2 = RLCampos(tablafun, nivel, listacampos);
+			listacampos.añadeIdentificadores(ids, tipo);
 			return (error1 || error2);
 		}else{
 			return false;
 		}
 	}
 	
-	private void asignarTipoAIds(TipoAux tRec, TipoAux tipo, ArrayList<String> ids) {
-		String actual;
-		while (!ids.isEmpty())
-		{
-			actual = ids.get(0);
-			ids.remove(0);
-			((Record)tRec).añadirCampo(actual, tipo);
-		}
-	}
-	
 	//para declaraciones con varios identificadores del mismo tipo
 	//NUNCA VA A DEVOLVER ERROR. CUIDADO CON IDENTIFICADORES REPETIDOS!!
-	private boolean LIdent(TipoAux tRec, TablaSimbolos tablafun, int nivel, ArrayList<String> ids){
-		boolean error1;
+	private boolean LIdent(TablaSimbolos tablafun, int nivel, LinkedList<String> ids){
 		String id = tActual.getLexema();
 		reconoce("ID");
+		boolean error1 = RLIdent(tablafun, nivel, ids);
 		ids.add(id);
-		error1 = RLIdent(tRec, tablafun, nivel, ids);
-		return (error1);
+		return error1;
 	}
 	
 	//Resto de identificadores
-	private boolean RLIdent(TipoAux tRec, TablaSimbolos tablafun, int nivel, ArrayList<String> ids){
+	private boolean RLIdent(TablaSimbolos tablafun, int nivel, LinkedList<String> ids){
 		if (!tActual.getTipo().equals("PYC"))
 		{
-			boolean error1 = false;
 			reconoce("COMA");
 			String id = tActual.getLexema();
 			reconoce("ID");
+			boolean error1 = RLIdent(tablafun, nivel, ids);
 			ids.add(id);
-			error1 = RLIdent(tRec, tablafun, nivel, ids);
-			//boolean error2 = RLIdent(tRec, tablafun, nivel, ids);
-			return (error1);
+			return error1;
 		}
 		else {
 			return false;

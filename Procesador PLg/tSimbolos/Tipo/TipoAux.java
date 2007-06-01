@@ -4,8 +4,6 @@ public class TipoAux implements Tipo{
 
 	protected String lexema;
 	
-	protected String nombre;
-	
 	public TipoAux(String lex)
 	{
 		lexema = lex;
@@ -19,14 +17,6 @@ public class TipoAux implements Tipo{
 	public int getTamaño() 
 	{
 		return 1;
-	}
-
-	public String getNombre() {
-		return nombre;
-	}
-
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
 	}
 	
 	//Por defecto sólo se compara el nombre, aunque se puede reescribir para punteros
