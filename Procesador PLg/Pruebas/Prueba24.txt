@@ -1,0 +1,28 @@
+TYPE
+tipo1: ^^BOOL
+FTYPE
+tipo1 a1;
+INT j
+BEGIN
+j=100;
+IF (60<56) THEN BEGIN
+	j=50
+END;
+ELSE BEGIN
+	j=850 
+	END
+END.
+
+/*TYPE
+tipo1: ^^BOOL;
+tipo2: ^BOOL;
+tipo3: BOOL
+FTYPE
+tipo1 a1,b1,c1;
+tipo2 a2,b2;
+tipo3 a3,c3
+
+BEGIN
+NEW(a1);
+a1^^=FALSE
+END.*/
