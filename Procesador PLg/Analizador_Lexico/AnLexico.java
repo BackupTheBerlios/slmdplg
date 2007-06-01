@@ -1345,8 +1345,12 @@ public class AnLexico {
 			{
 				if (buf=='W')
 				{
-					estado=52;
-					transita();
+					//estado=52;
+					//transita();
+					token.setLexema("NEW");
+					token.setLinea(linea);
+					token.setTipo("NEW");
+					return(token);	
 				}
 				else errorLex();
 			}break;
