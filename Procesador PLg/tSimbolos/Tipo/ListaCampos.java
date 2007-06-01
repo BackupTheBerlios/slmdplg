@@ -1,5 +1,6 @@
 package tSimbolos.Tipo;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 
 public class ListaCampos 
@@ -29,9 +30,21 @@ public class ListaCampos
 		this.tamaño = tamaño;
 	}
 	
+	/**
+	 * Recorre la lista de campos, actualizando los offsets
+	 * dependiendo de los elementos que tiene delante.
+	 */
 	public void evaluar_offsets()
 	{
-		
+		int offset = 0;
+		Iterator<Campo> it = lista.iterator();
+		Campo c;
+		while (it.hasNext())
+		{
+			c = it.next();
+			c.setOffset(offset);
+			offset += c.getTipoCampo().getTamaño();
+		}
 	}
 
 	/**
@@ -49,16 +62,29 @@ public class ListaCampos
 		{
 			actual = ids.get(0);
 			ids.remove(0);
-			if (lista.contains(actual))
+			if (existe(actual))
 				error = true;
 			else
 			{
 				Campo campoNuevo = new Campo(actual, tipo);
-				lista.addFirst(campoNuevo);
+				lista.add(campoNuevo);
 				numElementos++;
 			}
 		}
 		tamaño += numElementos * tipo.getTamaño();
 		return error;
+	}
+
+	private boolean existe(String actual) 
+	{
+		Iterator<Campo> it = lista.iterator();
+		Campo c;
+		while (it.hasNext())
+		{
+			c = it.next();
+			if (c.getLexema().equals(actual))
+				return true;
+		}
+		return false;
 	}
 }

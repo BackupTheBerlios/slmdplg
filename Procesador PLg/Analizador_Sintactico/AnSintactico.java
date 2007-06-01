@@ -1248,13 +1248,15 @@ public class AnSintactico
 		else if (tActual.getTipo().equals("RECORD")) {
 			reconoce("RECORD");
 			ListaCampos listacampos = new ListaCampos();
-			LCampos(tablafun, nivel, listacampos);
-			listacampos.evaluar_offsets();
-			TipoAux registro = new Record("RECORD", listacampos);
+			boolean err = LCampos(tablafun, nivel, listacampos);
+			TipoAux tipoDevuelto = null;
+			if (!err)
+			{
+				listacampos.evaluar_offsets();
+				tipoDevuelto = new Record("RECORD", listacampos);
+			}
 			reconoce("FRECORD");
-			//Tratar el tipo Regsitro de forma adecuada
-			//Seguramente no debería devolverse ese primer registro, no sé.
-			return registro;
+			return tipoDevuelto;
 		}
 		else if (tActual.getTipo().equals("ID")) {
 			//De momento en esta versión se reconocen en orden los tipos, de modo que no se 
@@ -1280,12 +1282,12 @@ public class AnSintactico
 	private boolean LCampos(TablaSimbolos tablafun, int nivel, ListaCampos listacampos)
 	{
 		LinkedList<String> ids = new LinkedList<String>();
-		boolean error1 = LIdent(tablafun, nivel, ids);
+		LIdent(tablafun, nivel, ids);
 		reconoce("PP");
 		TipoAux tipo = tipo(tablafun, nivel);
-		boolean error2 = RLCampos(tablafun, nivel, listacampos);
 		listacampos.añadeIdentificadores(ids, tipo);
-		return (error1 || error2);
+		boolean err = RLCampos(tablafun, nivel, listacampos);
+		return err;
 	}
 	
 	
@@ -1296,40 +1298,34 @@ public class AnSintactico
 		if(!tActual.getTipo().equals("FRECORD")) {
 			reconoce("PYC");
 			LinkedList<String> ids = new LinkedList<String>();
-			boolean error1 = LIdent(tablafun, nivel, ids);
+			LIdent(tablafun, nivel, ids);
 			reconoce("PP");
 			TipoAux tipo = tipo(tablafun, nivel);
-			boolean error2 = RLCampos(tablafun, nivel, listacampos);
-			listacampos.añadeIdentificadores(ids, tipo);
-			return (error1 || error2);
-		}else{
-			return false;
+			boolean err = listacampos.añadeIdentificadores(ids, tipo);
+			RLCampos(tablafun, nivel, listacampos);
+			return err;
 		}
+		return false;
 	}
 	
 	//para declaraciones con varios identificadores del mismo tipo
 	//NUNCA VA A DEVOLVER ERROR. CUIDADO CON IDENTIFICADORES REPETIDOS!!
-	private boolean LIdent(TablaSimbolos tablafun, int nivel, LinkedList<String> ids){
+	private void LIdent(TablaSimbolos tablafun, int nivel, LinkedList<String> ids){
 		String id = tActual.getLexema();
 		reconoce("ID");
-		boolean error1 = RLIdent(tablafun, nivel, ids);
 		ids.add(id);
-		return error1;
+		RLIdent(tablafun, nivel, ids);
 	}
 	
 	//Resto de identificadores
-	private boolean RLIdent(TablaSimbolos tablafun, int nivel, LinkedList<String> ids){
+	private void RLIdent(TablaSimbolos tablafun, int nivel, LinkedList<String> ids){
 		if (tActual.getTipo().equals("COMA"))
 		{
 			reconoce("COMA");
 			String id = tActual.getLexema();
 			reconoce("ID");
-			boolean error1 = RLIdent(tablafun, nivel, ids);
 			ids.add(id);
-			return error1;
-		}
-		else {
-			return false;
+			RLIdent(tablafun, nivel, ids);
 		}
 	}
 	
