@@ -269,8 +269,57 @@ public class AnSintactico
 		if (tipo1.getLexema().equals("INT") && tipo2.getLexema().equals("NUM") ||
 			tipo1.getLexema().equals("NUM") && tipo2.getLexema().equals("INT") )
 				return true;
-		else	
-			return tipo1.equals(tipo2);
+		else {	
+			boolean compatibles = tipo1.equals(tipo2);
+			if (compatibles == false) {
+				errorTiposNoCompatibles(tipo1.getLexema(),tipo2.getLexema()); //No vale solo con el lexema, mejorar.
+				return false;
+			}
+			else
+				return true;
+		}
+	}
+	
+	/**
+	 * Muestra un mensaje de error concreto que se refiere a un error en la sección de declaraciones,
+	 * ya que se han declarado dos variables con el mismo nombre (restricción de integridad vulnerada)
+	 * @param id Nombre de la variable que está duplicada
+	 */
+	private void errorVariableYaDeclarada(String id) {
+		System.out.println("Error (línea " + tActual.getLinea() + "): " 
+			   + "Variable con nombre: "+id+", ya declarada anteriormente.");
+	}
+	
+	/**
+	 * Muestra un mensaje de error concreto referente a un error de incompatiblidad de tipos,
+	 * que puede aparecer tanto en la sección de declaraciones (en las constantes) como en la 
+	 * sección de instrucciones 
+	 * @param tipo1 Tipo del valor o variable que se quiere asignar en la variable de tipo2
+	 * @param tipo2 Tipo de la variable a la que se quiere asignar un valor
+	 */
+	private void errorTiposNoCompatibles(String tipo1,String tipo2) {
+		if (!tipo1.equals("ERROR") && !tipo2.equals("ERROR")) {
+			System.out.println("Error (línea " + tActual.getLinea() + "): " 
+						+ "Tipo: "+tipo1+", no compatible con Tipo: "+tipo2+".");
+		}
+	}
+	
+	/**
+	 * Muestra un mensaje de error concreto referente a tratar de asignar un valor a una constante.
+	 * @param id Nombre de la constante que se trata de modificar
+	 */
+	private void errorAsignacionAConstante(String id) {
+		System.out.println("Error (línea " + tActual.getLinea() + "): " 
+				   + "Se trató se asignar un valor a la constante: "+id);
+	}
+	
+	/**
+	 * Muestra un mensaje de error debido a que se ha leído una variable que no ha sido declarada
+	 * @param id Nombre de la variable que no ha sido declarada.
+	 */
+	private void errorVariableDesconocida(String id) {
+		System.out.println("Error (línea " + tActual.getLinea() + "): " 
+				   + "Variable desconocida: "+id);	
 	}
 
 	/** Método para análisis de la expresión:
@@ -353,6 +402,8 @@ public class AnSintactico
 			}
 			else
 			{
+				if (tablafun.constainsId(nomconst)) 
+					errorVariableYaDeclarada(nomconst);
 				tablafun.addCte(nomconst, new Integer(0), new Error(), nivel + 1);
 				reconoce(tActual.getTipo());
 				error = true;
@@ -360,7 +411,7 @@ public class AnSintactico
 	}
 		else
 		{
-			String tipoaux = tActual.getLexema();
+			/*String tipoaux = tActual.getLexema();
 			Tipo tipo = null;
 			if (tipoaux.equals("INT")) {
 				tipo = new Int();
@@ -384,6 +435,9 @@ public class AnSintactico
 					error = true;
 				}	
 			}
+			*/
+			Tipo tipo = tipo(tablafun, nivel);
+			boolean err1 = (tipo ==null);
 			error = Ids(tipo, tablafun, nivel); //Hace el reconoce ID (ver si en el caso de tipos construidos deberia hacerse de otra forma)
 			
 		}
@@ -407,6 +461,7 @@ public class AnSintactico
 		}
 		else
 		{
+			errorVariableYaDeclarada(id);
 			tablafun.addVar(id, new Error(), nivel + 1);
 			error1 = true;
 		}
@@ -431,6 +486,7 @@ public class AnSintactico
 				tablafun.addVar(id, tipo, 0);
 			else
 			{
+				errorVariableYaDeclarada(id);
 				tablafun.addVar(id, new Error(), 0);
 				error1 = true;
 			}
@@ -1116,8 +1172,10 @@ public class AnSintactico
 			reconoce("ID");
 			if (tablafun.getToken(id).getInstanciada() == 1)
 				tipo = RDesc(tablafun.getToken(id).getTipo()/*,id*/, tablafun, nivel);
-			else //error
+			else {//error
+				//mostrarInfoVariableNoInstanciada();
 				return new Error();
+			}
 		}
 		return tipo;
 	}
