@@ -3,10 +3,7 @@ package MaquinaVirtual;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -52,7 +49,7 @@ public class MaquinaVirtual
 	Number datos2;	
 
 	/**
-	 * Tabla hash que ralaciona un valor d etipo Integer, con un valor de tipo Number.
+	 * Tabla hash que ralaciona un valor de tipo Integer, con un valor de tipo Number.
 	 * Equivale formalente a la memoria del programa, donde la variable
 	 * de tipo integer, clave de la tabla Hash representa la direccion y la variable de 
 	 * tipo Number representa el contenido.
@@ -98,8 +95,7 @@ public class MaquinaVirtual
 	private int B;
 	
 	/**
-	 * Registro que apunta a la cima de la pila de la pila de registros de activacion,
-	 * en un principio, de la memoria.
+	 * Registro que apunta a la cima de la pila de la memoria.
 	 */
 	private int C;
 
