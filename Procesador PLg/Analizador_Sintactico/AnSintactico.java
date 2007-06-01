@@ -10,6 +10,7 @@ import tSimbolos.TokenCte;
 import tSimbolos.TokenFun;
 import tSimbolos.TokenTipo;
 import tSimbolos.Tipo.Bool;
+import tSimbolos.Tipo.Campo;
 import tSimbolos.Tipo.Error;
 import tSimbolos.Tipo.Int;
 import tSimbolos.Tipo.ListaCampos;
@@ -1148,23 +1149,24 @@ public class AnSintactico
 			{
 				reconoce("PUNTO");
 				
-				String idCampo = tActual.getLexema(); //Cambio BY Nacho Es: AUNQUE creo que no está acabado, y por tanto tener cuidado pero tal vez no afecte, lo que pasa que debía cambiar el nombre.
-				reconoce("ID");
-				/*if (!tipo.equals("REGISTRO")) //No se si es puntero o pointer.
-					return new Error();
-				else*/
+				if (tipo!=null && tipo instanceof Record)
 				{
-					int desplazamiento = 1;//tipo.buscar(id);
-					//Tipo tipocampo = tipo.getTipo(desplazamiento);
-					if (desplazamiento >= 0)
-					{
-						traductor.emiteInstruccion("apila",desplazamiento);
-						traductor.emiteInstruccion("suma");
-						//tiporet = RDesc(tipocampo);
-					} 
-					else 
+					String idCampo = tActual.getLexema(); //Cambio BY Nacho Es: AUNQUE creo que no está acabado, y por tanto tener cuidado pero tal vez no afecte, lo que pasa que debía cambiar el nombre.
+					reconoce("ID");
+					
+					Campo c = ((Record)tipo).getListaCampos().getCampo(idCampo);
+					if (c == null)
 						return new Error();
+					else
+					{
+						int offset = c.getOffset();
+						traductor.emiteInstruccion("apila",offset);
+						traductor.emiteInstruccion("suma");
+						tiporet = RDesc(c.getTipoCampo(),/*,id*/ tablafun, nivel);
+					}
 				}
+				else
+					return new Error();
 			}
 		traductor.emiteInstruccion("apila", 0); //Aqui iría la diferencia de niveles.
 		return tiporet;

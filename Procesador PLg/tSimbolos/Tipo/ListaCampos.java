@@ -62,7 +62,7 @@ public class ListaCampos
 		{
 			actual = ids.get(0);
 			ids.remove(0);
-			if (existe(actual))
+			if (getCampo(actual) != null)
 				error = true;
 			else
 			{
@@ -75,7 +75,7 @@ public class ListaCampos
 		return error;
 	}
 
-	private boolean existe(String actual) 
+	public Campo getCampo(String actual) 
 	{
 		Iterator<Campo> it = lista.iterator();
 		Campo c;
@@ -83,8 +83,8 @@ public class ListaCampos
 		{
 			c = it.next();
 			if (c.getLexema().equals(actual))
-				return true;
+				return c;
 		}
-		return false;
+		return null;
 	}
 }
