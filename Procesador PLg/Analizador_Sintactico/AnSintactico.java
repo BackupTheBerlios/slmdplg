@@ -1190,14 +1190,12 @@ public class AnSintactico
 	 */	
 	private boolean RTips(TablaSimbolos tablafun, int nivel) {
 		if (!tActual.getTipo().equals("FTYPE"))
-			{
-			if (tActual.getTipo().equals("FRECORD")){
-				reconoce("FRECORD");
-			}else reconoce("PYC");
-				boolean error1 = decTipo(tablafun, nivel);
-				boolean error2 = RTips(tablafun, nivel);
-				return (error1 || error2);
-			}
+		{
+			reconoce("PYC");
+			boolean error1 = decTipo(tablafun, nivel);
+			boolean error2 = RTips(tablafun, nivel);
+			return (error1 || error2);
+		}
 		return false;
 	}
 	

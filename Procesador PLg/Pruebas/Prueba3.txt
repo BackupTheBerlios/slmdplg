@@ -1,12 +1,18 @@
 TYPE registro : RECORD
 		x, y : INT;
 		z : BOOL
+		FRECORD ;
+		
+		registro2 : RECORD
+		x2, y2 : INT;
+		z2 : BOOL
 		FRECORD
 FTYPE
 	
 registro reg;
-INT i
+registro2 reg2
 
 BEGIN
-	i = 0
+	reg.z = FALSE;
+	reg2.y2 = 6
 END 7
