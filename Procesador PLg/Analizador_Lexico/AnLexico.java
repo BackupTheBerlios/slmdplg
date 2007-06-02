@@ -1282,8 +1282,12 @@ public class AnLexico {
 			{
 				if (buf=='D')
 				{
-					estado=52;
-					transita();
+					//estado=52;
+					//transita();
+					token.setLexema("FRECORD");
+					token.setLinea(linea);
+					token.setTipo("FRECORD");
+					return(token);
 				}
 				else errorLex();
 			}break;
