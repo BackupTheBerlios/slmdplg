@@ -1272,7 +1272,8 @@ public class AnSintactico
 			int j;
 			j = 5;
 		}*/
-		tablafun.addTipo(nombreTipo,tipoRetorno);
+		if (!err1)
+			tablafun.addTipo(nombreTipo,tipoRetorno);
 		//reconoce("PYC");
 		return err1;
 	}
@@ -1343,9 +1344,14 @@ public class AnSintactico
 		LIdent(tablafun, nivel, ids);
 		reconoce("PP");
 		TipoAux tipo = tipo(tablafun, nivel);
-		listacampos.añadeIdentificadores(ids, tipo);
-		boolean err = RLCampos(tablafun, nivel, listacampos);
-		return err;
+		if (tipo != null)
+		{
+			boolean err1 = listacampos.añadeIdentificadores(ids, tipo);
+			boolean err2 = RLCampos(tablafun, nivel, listacampos);
+			return (err1 || err2);
+		}
+		else
+			return true;
 	}
 	
 	
