@@ -252,8 +252,7 @@ public class MaquinaVirtual
 		}
 		else if (funcion.equals("ir-a")){
 			ejecutaIrA(datos1);
-		}
-		
+		}		
 		else if (funcion.equals("ir-v")){
 			ejecutaIrV(datos1);			
 		}
@@ -283,6 +282,10 @@ public class MaquinaVirtual
 		}
 		else if (funcion.equals("retorno")){
 			ejecutaRetorno();
+		}
+		else if (funcion.equals("Stop")){
+			estadoMaquina = 1; //Pasa a parada
+			System.out.println("Máquina pasa a estado parada");
 		}
 		else {
 			estadoMaquina=2; //Pasa a error
