@@ -26,6 +26,11 @@ public class MaquinaVirtual
 	public static final int InicioH = 5000;
 	
 	/**
+	 * Define el tamaño de la memoria de datos
+	 */
+	public static final int TamanoMem = 10000;
+	
+	/**
 	 * Archivo de texto del que se leerán las instrucciones generadas por el compilador.
 	 */
 	private FileReader lector;
@@ -54,7 +59,7 @@ public class MaquinaVirtual
 	 * de tipo integer, clave de la tabla Hash representa la direccion y la variable de 
 	 * tipo Number representa el contenido.
 	 */
-	private ArrayList<Number> mem_datos;
+	private Number[] mem_datos;
 
 	/**
 	 * Vector que almacena todas las instrucciones en un formato más eficiente para la gestión de la
@@ -114,7 +119,9 @@ public class MaquinaVirtual
 		C = 0;
 		B = 0;
 		H = InicioH;
-		mem_datos = new ArrayList<Number>();
+		mem_datos =  new Number[TamanoMem];
+		mem_datos [B] = 0;
+		mem_datos [H] = 0;
 		mem_instrucciones = new Vector<Instruccion>();
 		program_counter = 0;
 		estadoMaquina=0;
@@ -170,14 +177,14 @@ public class MaquinaVirtual
 	private void mostrarEstadoVariables() 
 	{
 		System.out.println("Estado de las variables: ");
-		Iterator<Number> iter = mem_datos.iterator();
-		int i = 0;
-		while (iter.hasNext())
-		{
-			Number var = iter.next();
+		for (int i=0;i<C;i++){
 			System.out.print("   Direccion de memoria: " + i++ + " -> ");
-			System.out.println("Valor: " + var.intValue() + ".");
+			System.out.println("Valor: " + mem_datos[i].intValue() + ".");
 		}
+		for (int i=InicioH;i<H;i++){
+			System.out.print("   Direccion de memoria: " + i++ + " -> ");
+			System.out.println("Valor: " + mem_datos[i].intValue() + ".");
+		}		
 		System.out.println("NOTA: Las variables que no aparecen no tienen asignado ningún valor.");
 	}
 
@@ -281,7 +288,7 @@ public class MaquinaVirtual
 			ejecutaLLamada();
 		}
 		else if (funcion.equals("retorno")){
-			ejecutaRetorno();
+			ejecutaRet();
 		}
 		else if (funcion.equals("Stop")){
 			estadoMaquina = 1; //Pasa a parada
@@ -292,18 +299,6 @@ public class MaquinaVirtual
 			System.out.println("Máquina pasa a estado error");
 		}
 
-	}
-
-	private void ejecutaRetorno() throws Exception 
-	{
-		int base = B;
-		int baux = mem_datos.get(new Integer(B+1)).intValue();
-		int caux = base;
-		int basemod = base + 2;
-		program_counter = mem_datos.get(new Integer(basemod)).intValue();
-		ejecutaIncrementaC(B - C);
-		B = baux;
-		C = caux;
 	}
 
 	/**
@@ -348,9 +343,9 @@ public class MaquinaVirtual
 		int EE = extraeDirBase(fnp.intValue());
 		
 		// Almacenamos los datos en las posiciones de memoria correspondientes
-		mem_datos.add(C,EE); 
-		mem_datos.add(C+1,ED);
-		mem_datos.add(C+2,IS);
+		mem_datos[C] = EE;
+		mem_datos[C+1] = ED;
+		mem_datos[C+2] = IS;
 						
 		// Actualizamos el registro B, y el contador de programa
 		B=C;
@@ -392,8 +387,7 @@ public class MaquinaVirtual
 			int fnv = pop().intValue();
 			int offset = pop().intValue();
 			int dir = extraeDirBase(fnv) + offset;
-			mem_datos.remove(dir);
-			mem_datos.add(dir,dato);				
+			mem_datos[dir] = dato;				
 		}		
 	}
 
@@ -409,12 +403,12 @@ public class MaquinaVirtual
 			int fnv = pop().intValue();
 			int offset = pop().intValue();
 			int dir = extraeDirBase(fnv) + offset;
-			if (mem_datos.size() < dir || dir < 0) {
+			if (mem_datos[dir] == null) {
 				System.out.println("No encuentra posicion en la mem_datos, en apila-ind\n");
 				push(0);
 			}
 			else
-				push(mem_datos.get(dir));				
+				push(mem_datos[dir]);				
 		}			
 	}
 
@@ -426,8 +420,8 @@ public class MaquinaVirtual
 	 */
 	private void ejecutaRet() {		
 		C = B;
-		B= mem_datos.get(C+1).intValue();
-		program_counter = mem_datos.get(C+2).intValue();
+		B= mem_datos[C+1].intValue();
+		program_counter = mem_datos[C+2].intValue();
 	}
 
 	/**
@@ -448,12 +442,12 @@ public class MaquinaVirtual
 	 */
 	private void ejecutaApilaDir(Number fnv,Number offset) throws Exception {
 		int dir = extraeDirBase(fnv.intValue()) + offset.intValue();		
-		if (mem_datos.size() < dir || dir < 0) {
+		if (mem_datos[dir]==null) {
 			System.out.println("No encuentra posicion en la mem_datos, en apila-dir\n");
 			push(0);
 		}
 		else
-			push(mem_datos.get(dir));
+			push(mem_datos[dir]);
 	}
 
 	/**
@@ -484,7 +478,7 @@ public class MaquinaVirtual
 		else {			
 			int dir = extraeDirBase(fnv.intValue()) + param.intValue();
 			Number value = pop();
-			mem_datos.add(dir, value);	
+			mem_datos[dir] = value;	
 		}		
 	}
 
@@ -920,7 +914,7 @@ public class MaquinaVirtual
 	private int extraeDirBase(int niveles){
 		int base = B;
 		for(;niveles > 0;niveles --){
-			base = mem_datos.get(base).intValue();
+			base = mem_datos[base].intValue();
 		}
 		return base;
 	}
@@ -934,7 +928,7 @@ public class MaquinaVirtual
 	 * @param param Valor que se colocará en la cima de la pila.
 	 */
 	private void push(Number param){
-		mem_datos.add(C,param);
+		mem_datos[C] = param;
 		C++;
 	}
 	
@@ -947,8 +941,7 @@ public class MaquinaVirtual
 	 */
 	private Number pop(){
 		C--;
-		Number n = mem_datos.get(C);
-		mem_datos.remove(C);
+		Number n = mem_datos[C];
 		return n;
 	}
 	
