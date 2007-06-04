@@ -428,7 +428,7 @@ public class AnSintactico
 			}
 			*/
 			Tipo tipo = tipo(tablafun, nivel);
-			boolean err1 = (tipo ==null);
+			boolean err1 = (tipo == null);
 			error = Ids(tipo, tablafun, nivel); //Hace el reconoce ID (ver si en el caso de tipos construidos deberia hacerse de otra forma)
 			
 		}
@@ -1168,6 +1168,7 @@ public class AnSintactico
 				return new Error();
 			}
 		}
+		traductor.emiteInstruccion("apila", 0); //Aqui iría la diferencia de niveles.
 		return tipo;
 	}
 
@@ -1217,7 +1218,6 @@ public class AnSintactico
 				else
 					return new Error();
 			}
-		traductor.emiteInstruccion("apila", 0); //Aqui iría la diferencia de niveles.
 		return tiporet;
 	}
 	

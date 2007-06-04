@@ -13,6 +13,14 @@ registro reg;
 registro2 reg2
 
 BEGIN
-	reg.z = FALSE;
-	reg2.y2.z = TRUE
+	reg.z = TRUE;
+	reg.x = 123;
+	reg.y = 456;
+	reg2.x2.x = 10;
+	reg2.x2.y = 20;
+	reg2.x2.z = TRUE;
+	reg2.y2.x = 40;
+	reg2.y2.y = 50;
+	reg2.y2.z = TRUE;
+	reg2.z2 = TRUE
 END 7

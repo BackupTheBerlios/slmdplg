@@ -52,7 +52,12 @@ public class TablaSimbolos {
 	 */
     public Token addVar(String id, Tipo tipo, int nivel){
     	if (id == null) return null;
-    	else return tabla.put(id, new TokenVar(id, direccion++, tipo, nivel));
+    	else 
+    	{
+    		int diraux = direccion;
+    		direccion += tipo.getTamaño();
+    		return tabla.put(id, new TokenVar(id, diraux, tipo, nivel));
+    	}
 	}
 
 	/**
