@@ -2,8 +2,6 @@ package MaquinaVirtual;
 
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -143,6 +141,10 @@ public class MaquinaVirtual
 			divide(lectura);
 			mem_instrucciones.add(new Instruccion(funcion, datos1,datos2));
 		}
+		
+		divide(lectura);
+		mem_instrucciones.add(new Instruccion(funcion, datos1,datos2));
+		
 		while (program_counter < mem_instrucciones.size() && estadoMaquina==0)
 		{		
 			funcion = mem_instrucciones.get(program_counter).getOperacion();
@@ -161,12 +163,14 @@ public class MaquinaVirtual
 			}
 		}
 		if (estadoMaquina == 2) System.out.println("La maquina ha finalizado con un error");
-		else System.out.println("Lectura y Ejecución finalizadas.\n");
+		
+		if (estadoMaquina == 1) System.out.println("Lectura y Ejecución finalizadas con éxito.\n");
+		
 		if (estadoMaquina == 0) System.out.println("La maquina ha finalizado " +
 				"debido a no disponer de más instrucciones, pero no ha encontrado " +
 				"instruccion de parada.");
 		System.out.println("Estado final de las variables");
-		//mostrarEstadoVariables();
+		mostrarEstadoVariables();
 
 	}
 
@@ -487,8 +491,7 @@ public class MaquinaVirtual
 	 * @throws Exception
 	 */
 	private void ejecutaStop() throws Exception{
-		estadoMaquina=1; //Pasa a parada, luego dar más información.
-		System.out.println("Máquina pasa a estado de parada");
+		estadoMaquina=1; //Pasa a parada, luego dar más información.		
 	}
 
 	/**
