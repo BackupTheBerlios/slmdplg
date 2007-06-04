@@ -178,11 +178,11 @@ public class MaquinaVirtual
 	{
 		System.out.println("Estado de las variables: ");
 		for (int i=0;i<C;i++){
-			System.out.print("   Direccion de memoria: " + i++ + " -> ");
+			System.out.print("   Direccion de memoria: " + i + " -> ");
 			System.out.println("Valor: " + mem_datos[i].intValue() + ".");
 		}
 		for (int i=InicioH;i<H;i++){
-			System.out.print("   Direccion de memoria: " + i++ + " -> ");
+			System.out.print("   Direccion de memoria: " + i + " -> ");
 			System.out.println("Valor: " + mem_datos[i].intValue() + ".");
 		}		
 		System.out.println("NOTA: Las variables que no aparecen no tienen asignado ningún valor.");

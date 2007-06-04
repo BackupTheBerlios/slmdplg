@@ -80,10 +80,8 @@ public class AnSintactico
 		
 		//Añadida sección de funciones. Al igual que los tipos, también es opcional;
 		boolean errorF = false;
-		if (tActual.getTipo().equals("FUNCTION"))
-		{
-			errorF = Functions(ts, 0);
-		}
+		errorF = Functions(ts, 0);
+		
 		reconoce("BEGIN");
 		traductor.parchea(instruccion_comienzo, traductor.getEtiqueta());
 		
@@ -110,18 +108,11 @@ public class AnSintactico
 
 	private boolean Functions(TablaSimbolos ts_padre, int nivel) 
 	{
-		boolean err1 = function(ts_padre, nivel + 1);
-		boolean err2 = RFuncs(ts_padre, nivel + 1);
-		return (err1 || err2);
-	}
-
-	private boolean RFuncs(TablaSimbolos ts_padre, int nivel) 
-	{
 		if (tActual.getTipo().equals("FUNCTION"))
 		{
-			boolean err1 = function(ts_padre, nivel);
-			boolean err2 = RFuncs(ts_padre, nivel);
-			return err1 || err2;
+			boolean err1 = function(ts_padre, nivel + 1);
+			boolean err2 = Functions(ts_padre, nivel);
+			return (err1 || err2);
 		}
 		return false;
 	}
