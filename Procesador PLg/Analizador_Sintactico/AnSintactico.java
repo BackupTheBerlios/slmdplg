@@ -312,6 +312,11 @@ public class AnSintactico
 		System.out.println("Error (línea " + tActual.getLinea() + "): " 
 				   + "Variable desconocida: "+id);	
 	}
+	
+	private void mostrarInfoVariableNoInstanciada(String id) {
+		System.out.println("Error (línea " + tActual.getLinea() + "): " 
+				   + "La variable que se quiere utilizar no está instanciada: "+id);	
+	}
 
 	/** Método para análisis de la expresión:
 	 * 		Decs -> Dec RDecs  
@@ -1164,7 +1169,7 @@ public class AnSintactico
 			if (tablafun.getToken(id).getInstanciada() == 1)
 				tipo = RDesc(tablafun.getToken(id).getTipo()/*,id*/, tablafun, nivel);
 			else {//error
-				//mostrarInfoVariableNoInstanciada();
+				mostrarInfoVariableNoInstanciada(id);
 				return new Error();
 			}
 		}
@@ -1398,11 +1403,12 @@ public class AnSintactico
 			
 			//Generar código (en proceso)
 			traductor.emiteInstruccion("apila",tSint.getDireccion());
+			traductor.emiteInstruccion("apila",0);
 			traductor.emiteInstruccion("apilaH");
-			traductor.emiteInstruccion("desapila_ind");
+			traductor.emiteInstruccion("desapila-ind");
 			//Aclarar entre estas 2.
 			//traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipo().getTamaño());
-			traductor.emiteInstruccion("incrementaH("+tSint.getTipo().getTamaño()+")");
+			traductor.emiteInstruccion("incrementaH("+tSint.getTipo().getTamañoTotal()+")");
 			tSint.instancia();
 			return error1;
 		}
