@@ -1,0 +1,35 @@
+INT r, aux
+
+FUNCTION mayor(INT a, INT b) : INT
+	INT m
+		
+	BEGIN
+		IF (a > b) THEN
+			BEGIN
+				m = a
+			END;
+		ELSE
+			BEGIN
+				m = b
+			END
+		RETURN m
+	END
+	
+FUNCTION factorial(INT n) : INT
+	INT resultado, i
+	
+	BEGIN
+		resultado = 1;
+		i = 1;
+		WHILE (i <= n) DO
+			BEGIN
+				resultado = resultado * i;
+				i = i + 1
+			END
+		RETURN resultado
+	END
+
+BEGIN
+	aux = factorial(10);
+	r = (aux + aux) * mayor(20,100)
+END 7
