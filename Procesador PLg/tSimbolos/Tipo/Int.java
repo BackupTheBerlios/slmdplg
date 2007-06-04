@@ -21,5 +21,10 @@ public class Int extends TipoAux implements Tipo {
 		//return t instanceof Int;
 		return lexema.equals(t.getLexema());
 	}
+	
+	public int getTamañoTotal() 
+	{
+		return 1;
+	}
 
 }

@@ -7,4 +7,6 @@ public interface Tipo
 	public int getTamaño();
 	
 	public boolean equals(Tipo t);
+	
+	public int getTamañoTotal();
 }

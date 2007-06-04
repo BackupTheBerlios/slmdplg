@@ -34,4 +34,8 @@ public class Record extends TipoAux implements Tipo {
 	public void setTamaño(int tamaño) {
 		this.tamaño = tamaño;
 	}
+	
+	public int getTamañoTotal() {
+		return tamaño;
+	}
 }

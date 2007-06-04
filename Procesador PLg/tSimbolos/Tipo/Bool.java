@@ -21,5 +21,10 @@ public class Bool extends TipoAux implements Tipo {
 		//return t instanceof Bool;
 		return lexema.equals(t.getLexema());
 	}
+	
+	public int getTamañoTotal() 
+	{
+		return 1;
+	}
 
 }

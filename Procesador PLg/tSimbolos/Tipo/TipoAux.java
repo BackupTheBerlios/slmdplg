@@ -24,5 +24,10 @@ public class TipoAux implements Tipo{
 	public boolean equals(Tipo t) { 
 		return lexema.equals(t.getLexema());
 	}
+	
+	public int getTamañoTotal() 
+	{
+		return 1;
+	}
 
 }

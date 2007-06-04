@@ -23,4 +23,8 @@ public class Error extends TipoAux implements Tipo {
 	
 	//Hereda el equals por defecto de TipoAux (no hace falta redefinirlo)
 
+	public int getTamañoTotal() 
+	{
+		return Integer.MAX_VALUE; //Devuelve un valor que no se utilizará.
+	}
 }

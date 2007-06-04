@@ -17,7 +17,7 @@ public class Pointer extends TipoAux implements Tipo
 
 	public int getTamaño() 
 	{
-		return 1+apuntado.getTamaño();
+		return 1;
 	}
 
 	public TipoAux getTipoApuntado()
@@ -35,5 +35,9 @@ public class Pointer extends TipoAux implements Tipo
 		}
 		else
 			return false;
+	}
+	
+	public int getTamañoTotal() {
+		return 1+apuntado.getTamañoTotal();
 	}
 }
