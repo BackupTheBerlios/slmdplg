@@ -290,7 +290,7 @@ public class MaquinaVirtual
 		else if (funcion.equals("retorno")){
 			ejecutaRet();
 		}
-		else if (funcion.equals("Stop")){
+		else if (funcion.equals("end")){
 			estadoMaquina = 1; //Pasa a parada
 			System.out.println("Máquina pasa a estado parada");
 		}
