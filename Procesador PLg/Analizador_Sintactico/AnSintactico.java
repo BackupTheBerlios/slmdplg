@@ -1084,11 +1084,11 @@ public class AnSintactico
 			reconoce("PYC");
 			reconoce("ELSE");
 			//Aquí ya conocemos la dirección para parchear el "ir-f" (else)
-			traductor.parchea(etiquetaI0,traductor.getEtiqueta()+1);
+			traductor.parchea(etiquetaI0,traductor.getEtiqueta());
 			//Generamos el código de I(1). Lo reconocemos como bloque BEGIN-END.
 			error2 = IComp(tablafun, nivel);
 			//Aquí ya conocemos la dirección para parchear el "ir-a" (fin de if)
-			traductor.parchea(etiquetaI1,traductor.getEtiqueta()+1);
+			traductor.parchea(etiquetaI1,traductor.getEtiqueta());
 		} else {
 			return true;
 		}
