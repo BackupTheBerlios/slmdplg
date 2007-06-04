@@ -556,7 +556,7 @@ public class MaquinaVirtual
 		else {
 			Number oper2=(Number) pop(); 
 			Number oper1=(Number) pop();
-			Boolean r= (oper1.floatValue() <= oper2.floatValue());
+			Boolean r= (oper1.intValue() <= oper2.intValue());
 			Number resul=convertirBooleanoaEntero(r);
 			push(resul);
 		}
@@ -575,7 +575,7 @@ public class MaquinaVirtual
 		else {
 			Number oper2=(Number) pop(); 
 			Number oper1=(Number) pop();
-			Boolean r= (oper1.floatValue() >= oper2.floatValue());
+			Boolean r= (oper1.intValue() >= oper2.intValue());
 			Number resul=convertirBooleanoaEntero(r);
 			push(resul);
 		}
@@ -594,7 +594,7 @@ public class MaquinaVirtual
 		else {
 			Number oper2=(Number) pop(); 
 			Number oper1=(Number) pop();
-			Boolean r= (oper1.floatValue() < oper2.floatValue());
+			Boolean r= (oper1.intValue() < oper2.intValue());
 			Number resul=convertirBooleanoaEntero(r);
 			push(resul);
 		}
@@ -613,7 +613,7 @@ public class MaquinaVirtual
 		else {
 			Number oper2=(Number) pop(); 
 			Number oper1=(Number) pop();
-			Boolean r= (oper1.floatValue() > oper2.floatValue());
+			Boolean r= (oper1.intValue() > oper2.intValue());
 			Number resul=convertirBooleanoaEntero(r);
 			push(resul);
 		}
@@ -632,7 +632,7 @@ public class MaquinaVirtual
 		else {
 			Number oper2=(Integer) pop(); 
 			Number oper1=(Integer) pop();
-			Boolean r= (oper1.floatValue() != oper2.floatValue());
+			Boolean r= (oper1.intValue() != oper2.intValue());
 			Number resul=convertirBooleanoaEntero(r);
 
 			push(resul);
@@ -652,7 +652,7 @@ public class MaquinaVirtual
 		else {
 			Number oper2=(Number) pop(); 
 			Number oper1=(Number) pop();
-			Boolean r= (oper1.floatValue() == oper2.floatValue());
+			Boolean r= (oper1.intValue() == oper2.intValue());
 			Number resul=convertirBooleanoaEntero(r);
 
 			push(resul);
@@ -974,6 +974,7 @@ public class MaquinaVirtual
 		Stack<Number> pilaEjecucionAux = new Stack<Number>();
 		System.out.println("B = " + B);
 		System.out.println("C = " + C);
+		System.out.println("H = " + H);
 		String pilaInfo="Número de operandos en la pila de ejecución: ";
 		int pilanum=(tamanoPila());
 		pilaInfo= pilaInfo.concat(""+pilanum);
