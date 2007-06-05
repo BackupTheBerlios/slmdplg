@@ -235,10 +235,7 @@ public class AnSintactico
 	private void reconoce(String tipo)
 	{
 		if (tActual.getTipo().equals(tipo))
-	//		if (!tActual.getTipo().equals("END"))
 				tActual = anLex.analizador();
-	/*		else
-				tActual = null;*/
 		else
 		{
 			System.out.println("Error (línea " + tActual.getLinea() + "): " + "Token \"" + tActual.getLexema() + "\" inesperado: Se esperaba un token de tipo \"" + tipo + "\".");
@@ -252,11 +249,6 @@ public class AnSintactico
 	 * @return Devuelve un booleano que informa si son compatibles o no.*/
 	private boolean compatibles (Tipo tipo1, Tipo tipo2)
 	{	
-		/*return ((tipo1.getLexema().equals(tipo2.getLexema())) || 
-				(tipo1.getLexema().equals("INT") && tipo2.getLexema().equals("NUM")) || 
-				(tipo2.getLexema().equals("INT") && tipo1.getLexema().equals("NUM")));*/
-		//Redefinido con equals apra soportar comparación de tipos construidos (lo que deriva en que se 
-		//evalúan las 2 expresiones de tipos y se comparan sus contenidos (recursivamente).
 		if (tipo1.getLexema().equals("INT") && tipo2.getLexema().equals("NUM") ||
 			tipo1.getLexema().equals("NUM") && tipo2.getLexema().equals("INT") )
 				return true;
@@ -378,7 +370,6 @@ public class AnSintactico
 					reconoce("ID");
 				} else {
 					error = true;
-					//reconoce("Error");
 				}	
 			}
 			String nomconst = tActual.getLexema();
@@ -407,31 +398,6 @@ public class AnSintactico
 	}
 		else
 		{
-			/*String tipoaux = tActual.getLexema();
-			Tipo tipo = null;
-			if (tipoaux.equals("INT")) {
-				tipo = new Int();
-				reconoce("TIPO");
-			}
-			else if (tipoaux.equals("BOOL")) {
-				tipo = new Bool();
-				reconoce("TIPO");
-			}
-			//Aquí se tratan los tipos construidos
-			else {
-				//Se trata de un tipo construido, es decir, de un TokenTipo que debe aparecer en la tabla de símbolos
-				
-				// Ver si hace falta hacer aquí alguna comprobación más de error.
-				
-				tSimbolos.Token t = tablafun.getToken(tipoaux);
-				if (t!= null && t instanceof TokenTipo) {
-					tipo = ((TokenTipo)t).getTipoExpresionTipos();
-					reconoce("ID");
-				} else {
-					error = true;
-				}	
-			}
-			*/
 			Tipo tipo = tipo(tablafun, nivel);
 			boolean err1 = (tipo == null);
 			error = Ids(tipo, tablafun, nivel); //Hace el reconoce ID (ver si en el caso de tipos construidos deberia hacerse de otra forma)
@@ -772,8 +738,6 @@ public class AnSintactico
 				traductor.emiteInstruccion("suma");
 			else if (lexema.equals("-"))
 				traductor.emiteInstruccion("resta");
-				/*else if (lexema.equals("||"))
-					traductor.emiteInstruccion("or");*/
 			tipo2 = RExp2(tipo22, tablafun, nivel);
 			return tipo2;
 		}
@@ -833,8 +797,6 @@ public class AnSintactico
 				}
 				else if (lexema.equals("MOD"))
 				traductor.emiteInstruccion("modulo");
-					/*else if (lexema.equals("&&"))
-						traductor.emiteInstruccion("and");*/
 			tipo2 = RExp3(tipo22, tablafun, nivel);
 			return tipo2;
 		}
@@ -924,7 +886,6 @@ public class AnSintactico
 				bool = 0;
 			traductor.emiteInstruccion("apila", bool);
 			reconoce("BOOL");
-			//tipo = new Bool();
 			if (tablafun.constainsId(tActual.getLexema())) {
 				tSimbolos.Token aux = tablafun.getToken(tActual.getLexema());
 				tipo = aux.getTipo();
@@ -932,15 +893,12 @@ public class AnSintactico
 			}
 			else
 				tipo = new Bool();
-			//Reconoce símbolos posteriores?
 		}
 		else if (tActual.getTipo().equals("NUM")) //El valor de Fact es un número. 
 		{
 			traductor.emiteInstruccion("apila", Integer.parseInt(tActual.getLexema()));
 			reconoce("NUM");
 			tipo = new Int();
-			//tipo = RDesc();
-			//Reconoce símbolos posteriores?
 		}
 		else if (tActual.getTipo().equals("ID")) // El valor de Fact viene determinado por una variable o constante.
 		{
@@ -1005,30 +963,6 @@ public class AnSintactico
 					traductor.emiteInstruccion("apila-ind");
 				}
 			}
-			/*String id = tActual.getLexema();
-			if (!ts.constainsId(id))
-				tipo = new Error();
-			else
-			{
-				if (ts.getToken(id) instanceof TokenVar) // id representa una variable.
-				{
-					traductor.emiteInstruccion("apila-dir", ts.getToken(id).getDireccion());
-					etiqueta++;
-				}
-				else  //id representa una constante.
-				{
-					if (ts.getToken(id).getTipo().equals(new Bool()))
-						if (ts.getToken(id).getValor().equals("TRUE"))
-							traductor.emiteInstruccion("apila", 1);
-						else
-							traductor.emiteInstruccion("apila", 0);
-					else
-						traductor.emiteInstruccion("apila", ts.getToken(id).getValor());
-					etiqueta++;
-				}
-				tipo = ts.getToken(id).getTipo();
-				reconoce("ID");
-			}*/
 		}
 		else if (tActual.getTipo().equals("PAA")) //El valor de Fact viene dado por una espresión parentizada.
 		{
@@ -1177,24 +1111,17 @@ public class AnSintactico
 		return tipo;
 	}
 
-	private Tipo RDesc(Tipo tipo/*,String lexema*/,TablaSimbolos tablafun, int nivel) 
+	private Tipo RDesc(Tipo tipo,TablaSimbolos tablafun, int nivel) 
 	{
 		Tipo tiporet = tipo;
-		//String id = lexema;
 		if (tActual.getTipo().equals("PUNTERO")) //Es un puntero.
 		{
-			//String id = tActual.getLexema();
-			//tSimbolos.Token tk = ts.getToken(id);
 			reconoce("PUNTERO");
-			//if (tk == null || !tk.getTipo().equals("PUNTERO")) //No se si es puntero o pointer.
-			//	return new Error();
-			//else
 			if (tipo!=null && tipo instanceof Pointer)
 			{
 				traductor.emiteInstruccion("apila-ind");
 				tiporet = RDesc(((Pointer)tipo).getTipoApuntado()/*,id*/, tablafun, nivel);
-				//tiporet = RDesc(tk.getTipo()/*.getTipoApuntado()*/,id); 
-			}
+				}
 			else
 				return new Error();
 			
@@ -1264,13 +1191,8 @@ public class AnSintactico
 		reconoce("PP");
 		TipoAux tipoRetorno = tipo(tablafun, nivel);
 		boolean err1 = (tipoRetorno ==null);
-		/*if (ts==null) {
-			int j;
-			j = 5;
-		}*/
 		if (!err1)
 			tablafun.addTipo(nombreTipo,tipoRetorno);
-		//reconoce("PYC");
 		return err1;
 	}
 	
@@ -1407,7 +1329,6 @@ public class AnSintactico
 			traductor.emiteInstruccion("apilaH");
 			traductor.emiteInstruccion("desapila-ind");
 			//Aclarar entre estas 2.
-			//traductor.emiteInstruccion("incrementaH"+((TokenTipo)tSint).getTipo().getTamaño());
 			traductor.emiteInstruccion("incrementaH("+tSint.getTipo().getTamañoTotal()+")");
 			tSint.instancia();
 			return error1;

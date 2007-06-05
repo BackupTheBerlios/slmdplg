@@ -2,7 +2,7 @@ package tSimbolos.Tipo;
 
 public class Int extends TipoAux implements Tipo {
 	
-	public Int(/*String lex*/) {
+	public Int() {
 		super("INT");
 	}
 

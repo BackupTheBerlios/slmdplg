@@ -2,7 +2,7 @@ package tSimbolos.Tipo;
 
 public class Error extends TipoAux implements Tipo {
 
-	public Error(/*String lex*/) {
+	public Error() {
 		super("ERROR");
 		// TODO Auto-generated constructor stub
 	}

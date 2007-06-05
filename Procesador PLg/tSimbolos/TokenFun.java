@@ -45,19 +45,13 @@ public class TokenFun extends Token
 		this.clase = VARIABLE;
 	}
 	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
+	
 	public String toString() {
 		return new String ("TOKEN DE CLASE VARIABLE.\nTipo de datos: " + tipo +
 				"\nDireccion: " + direccion + ".\n");
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
-	@Override
+	
 	protected Object clone() throws CloneNotSupportedException {
 		return (new TokenFun(this));
 	}

@@ -38,10 +38,6 @@ public class TokenCte extends Token {
 		this.clase = tkn.clase;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
 	public String toString() {
 		String str = new String ("TOKEN DE CLASE CONSTANTE.\nTipo de datos: " + tipo +
 				"\nValor: ");
@@ -52,10 +48,6 @@ public class TokenCte extends Token {
 		return str;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#clone()
-	 */
-	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		return (new TokenCte(this));
 	}

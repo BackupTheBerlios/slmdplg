@@ -8,7 +8,6 @@ public class Principal
 {
 	public static void main(String[] args)
 	{
-		//Token tActual=new Token();
 		FileReader ficheroFuente;
 		try
 		{

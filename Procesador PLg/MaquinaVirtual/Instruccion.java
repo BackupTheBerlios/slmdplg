@@ -85,16 +85,6 @@ public class Instruccion
 	 */
 	public String toString() {
 		return new String(operacion);		
-		/*
-		String s;
-		if (operacion.equals("apila") 
-				|| operacion.equals("apila-dir") 
-				|| operacion.equals("desapila-dir") )
-			s=new String(""+operacion+"("+parametros.intValue()+")");
-		else 
-			s=new String(""+operacion+"()");
-		return s;
-		*/
 	}
 	
 }

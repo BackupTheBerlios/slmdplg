@@ -13,19 +13,12 @@ public class TokenTipo extends Token {
 	 * @param tipo Almacena el tipo de datos que contendra el token
 	 */
 	public TokenTipo(String id, TipoAux expresionTipos) {
-		//this.valor = valor;
 		this.id = id;
 		this.tipo = expresionTipos; //No debería hacer falta, pero puesto en principio por si es más facil que funcione así.
 		this.clase = TIPO;
 		this.tipoExpresionTipos = expresionTipos;
 	}
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 
-	}
 	
 	public TipoAux getTipoExpresionTipos() {
 		return tipoExpresionTipos;
