@@ -1,0 +1,30 @@
+16
+0 0 0 0 20 10 110 110 20
+0 0 0 1 -60 -60 30 30 -60
+0 0 1 0 10 20 110 110 10
+0 0 1 1 10 10 120 110 10
+0 1 0 0 10 20 110 110 10
+0 1 0 1 -20 120 110 110 -10
+0 1 1 0 10 10 120 110 10
+0 1 1 1 10 10 110 120 10
+1 0 0 0 10 20 110 110 10
+1 0 0 1 10 10 120 110 10
+1 0 1 0 10 10 120 110 10
+1 0 1 1 0 0 110 110 10
+1 1 0 0 10 10 120 110 10
+1 1 0 1 10 10 100 110 10
+1 1 1 0 10 20 110 120 10
+1 1 1 1 0 10 110 110 10
+# todas las filas que empiezan por # son comentarios
+# códigos jugador
+# 0 = delantero
+# 1 = defensa
+# formato:
+# 
+# <numero de lineas>
+# <codjugador1> <codjugador2> <codjugador3> <codjugador4> <victorias_marcaje_MARCAJECC0Z4> ... sigue
+# ... <victorias_marcaje_MARCAJECC1Z3> <victorias_marcaje_MARCAJECC2Z2> <victorias_marcaje_MARCAJECC3Z1> ... sigue
+# ... <victorias_marcaje_MARCAJECC4Z0>
+# <codjugador1> <codjugador2> <codjugador3> <codjugador4> <victorias_marcaje_MARCAJECC0Z4> ... sigue
+# ... <victorias_marcaje_MARCAJECC1Z3> <victorias_marcaje_MARCAJECC2Z2> <victorias_marcaje_MARCAJECC3Z1> ... sigue
+# ... <victorias_marcaje_MARCAJECC4Z0>
