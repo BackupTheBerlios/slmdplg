@@ -11,7 +11,7 @@ import	EDU.gatech.cc.is.abstractrobot.*;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 
@@ -92,6 +92,9 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		companeros = abstract_robot.getTeammates(curr_time);
 		balon = abstract_robot.getBall(curr_time);
 		
+		//System.out.println(abstract_robot.getOpponents(curr_time).toString());
+		showDatos();
+		
 		if (abstract_robot.getPlayerNumber(curr_time) == 0)
 		{
 			boolean pos = calcularPosesion();
@@ -106,13 +109,13 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 				System.out.println("PIERDO");
 			}
 		}
-		else
-		{
+		//else
+		//{
 			if (miPosesion)
 				atacar();
 			else if (!miPosesion)
 				defender();
-		}
+		//}
 		
 
 		// tell the parent we're OK
@@ -122,6 +125,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	private void defender() 
 	{
+		//Incluso comentando esto se ve más gráfico, con el portero cubriendo también.
 		if (abstract_robot.getPlayerNumber(curr_time) != 0)
 		{
 			cubrir(abstract_robot.getPlayerNumber(curr_time));
@@ -132,17 +136,38 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	private void cubrir(int i) 
 	{
-		if (oponentes.length > i)
+		//Nunca entendido, de hecho he peusto ahora >= para que cubra también el jugador 4.
+		if (oponentes.length >= i)
 		{
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
 			vOponenteBalon.setx(vOponenteBalon.x - oponentes[i].x);
 			vOponenteBalon.sety(vOponenteBalon.y - oponentes[i].y);
 			
+			//System.out.println("La medida de 2*Radius es = " + (2*SocSmall.RADIUS));
+			
+			//Sí, multiplicar, porque lo que quieres es una parte del vector, para hacer la corrección.
 			double pX = (2*SocSmall.RADIUS)*vOponenteBalon.x;
 			double pY = (2*SocSmall.RADIUS)*vOponenteBalon.y;
 			Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
-			Vec2 vJugadorPosicion = new Vec2((pX - posicionJugador.x),(pY - posicionJugador.y));
-			abstract_robot.setSteerHeading(curr_time, vJugadorPosicion.t);
+			//Antes
+				//Vec2 vJugadorPosicion = new Vec2((pX - posicionJugador.x),(pY - posicionJugador.y));
+			//Ahora
+			
+			//No vale, prueba inicial..
+			//Vec2 vJugadorPosicion = new Vec2((pX + posicionJugador.x),(pY + posicionJugador.y));
+			
+			//Yendo a la bola, pero con corrección de ir "por donde vaya el rival" (poco útil) 
+			//Vec2 vJugadorPosicion = new Vec2((pX + balon.x),(pY + balon.y));
+
+			//Directamente al jugador rival (bloqueas más):
+			//Vec2 vJugadorPosicion = new Vec2(oponentes[i].x,oponentes[i].y);
+			
+			//Entre la bola y el jugador:
+			Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
+
+			//Como siempre
+				abstract_robot.setSteerHeading(curr_time, vJugadorPosicion.t);
+			
 			abstract_robot.setSpeed(curr_time, 1.0);
 		}
 	}
@@ -163,5 +188,31 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 				abstract_robot.kick(curr_time);
 		}
 		
+	}
+	
+	public void showDatos() {
+		if (abstract_robot.getPlayerNumber(curr_time) == 0) {
+			long curr_timeAux = abstract_robot.getTime();
+			Vec2[] oponentesAux = abstract_robot.getOpponents(curr_time);
+			Vec2[] companerosAux = abstract_robot.getTeammates(curr_time);
+			Vec2 balonAux = abstract_robot.getBall(curr_time);
+			
+			System.out.println("Listado de datos disponibles, desde jugador: " + (abstract_robot.getPlayerNumber(curr_time)) + ".");
+			System.out.println("Compañeros:");
+			printVectorVec2(companerosAux);
+			System.out.println("Oponentes");
+			printVectorVec2(oponentesAux);
+			System.out.println("Posicion del balón:");
+			System.out.println("Vector/Posicion Balón: (" +balonAux.x + "," + balonAux.y + "). R=" + balonAux.r + " . T=" + balonAux.t + ". ");			
+			System.out.println("__________________________________________________________________________");
+		}
+	}
+	
+	public void printVectorVec2(Vec2[] vector) {
+		for (int i=0; i< vector.length; i++)		
+		{
+			System.out.println("Vector Op[" + i + "] --> (" +vector[i].x + "," + vector[i].y + "). R=" + vector[i].r + " . T=" + vector[i].t + ". ");
+		}
+		//System.out.println("__________________________________________________________________________");
 	}
 }
