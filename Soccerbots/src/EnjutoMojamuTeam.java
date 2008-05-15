@@ -11,7 +11,7 @@ import	EDU.gatech.cc.is.abstractrobot.*;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 
@@ -24,9 +24,11 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	*/
 	private boolean miPosesion;
 	private Vec2[] oponentes, companeros;
-	private Vec2 balon;
+	private Vec2 balon, ourGoal, oponentGoal;
 	private long curr_time;
 	
+	//Prueba para defender.
+	private int numNiCaso;
 	
 	public void Configure()
 	{
@@ -41,6 +43,8 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			abstract_robot.setDisplayString("Raúl");
 		else if (numRobot == 4)
 			abstract_robot.setDisplayString("Guti.Haz");
+		
+		numNiCaso = 0;
 	}
 		
 	
@@ -91,6 +95,8 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		oponentes = abstract_robot.getOpponents(curr_time);
 		companeros = abstract_robot.getTeammates(curr_time);
 		balon = abstract_robot.getBall(curr_time);
+		ourGoal = abstract_robot.getOurGoal(curr_time);
+		oponentGoal = abstract_robot.getOpponentsGoal(curr_time);
 		
 		//System.out.println(abstract_robot.getOpponents(curr_time).toString());
 		showDatos();
@@ -98,6 +104,9 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		if (abstract_robot.getPlayerNumber(curr_time) == 0)
 		{
 			boolean pos = calcularPosesion();
+			
+			actuarPortero();
+			
 			if (!miPosesion && pos)
 			{
 				miPosesion = pos;
@@ -109,13 +118,13 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 				System.out.println("PIERDO");
 			}
 		}
-		//else
-		//{
+		else
+		{
 			if (miPosesion)
 				atacar();
 			else if (!miPosesion)
 				defender();
-		//}
+		}
 		
 
 		// tell the parent we're OK
@@ -123,11 +132,45 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		}
 
 
+	private void actuarPortero() {
+	
+		if (ourGoal.y > 0.25 || ourGoal.y <-0.25 || ourGoal.x < -0.25) {
+			// set heading towards it
+			abstract_robot.setSteerHeading(curr_time, ourGoal.t);
+	
+			// set speed at maximum
+			abstract_robot.setSpeed(curr_time, 1.0);
+		} else if (balon.x < 0.25) {
+			//ToDo
+			//balon.normalize(1.0);
+			abstract_robot.setSteerHeading(curr_time, balon.t);
+			abstract_robot.setSpeed(curr_time, 0.75);					
+		}
+		else {
+			abstract_robot.setSteerHeading(curr_time, ourGoal.t);
+			abstract_robot.setSpeed(curr_time, 0.5);			
+		}
+	}
+
+
 	private void defender() 
 	{
+		
 		//Incluso comentando esto se ve más gráfico, con el portero cubriendo también.
 		if (abstract_robot.getPlayerNumber(curr_time) != 0)
 		{
+			//Variante: Solo cubrir a su jugador más ofensivo.
+/*			if ( calcularOponenteMasOfensivo(oponentes) == abstract_robot.getPlayerNumber(curr_time)) {
+				numNiCaso = abstract_robot.getPlayerNumber(curr_time);
+				System.out.println("Orden recibida: Voy a por su jugador más ofensivo: " + numNiCaso + ".");
+				cubrir(abstract_robot.getPlayerNumber(curr_time));
+			}
+			else {
+				if (numNiCaso!=abstract_robot.getPlayerNumber(curr_time)) {
+					abstract_robot.setSteerHeading(curr_time, balon.t);
+					abstract_robot.setSpeed(curr_time, 0.8);
+				}
+			}*/
 			cubrir(abstract_robot.getPlayerNumber(curr_time));
 		}
 		
@@ -177,8 +220,8 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	private void atacar() 
 	{
-		if (abstract_robot.getPlayerNumber(curr_time) != 0)
-		{
+	//	if (abstract_robot.getPlayerNumber(curr_time) != 0)
+	//	{
 			// set heading towards it
 			abstract_robot.setSteerHeading(curr_time, balon.t);
 	
@@ -188,12 +231,12 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			// kick it if we can
 			if (abstract_robot.canKick(curr_time))
 				abstract_robot.kick(curr_time);
-		}
+	//	}
 		
 	}
 	
 	public void showDatos() {
-		if (abstract_robot.getPlayerNumber(curr_time) == 0) {
+//		if (abstract_robot.getPlayerNumber(curr_time) == 0) {
 			long curr_timeAux = abstract_robot.getTime();
 			Vec2[] oponentesAux = abstract_robot.getOpponents(curr_time);
 			Vec2[] companerosAux = abstract_robot.getTeammates(curr_time);
@@ -204,10 +247,14 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			printVectorVec2(companerosAux);
 			System.out.println("Oponentes");
 			printVectorVec2(oponentesAux);
-			System.out.println("Posicion del balón:");
-			System.out.println("Vector/Posicion Balón: (" +balonAux.x + "," + balonAux.y + "). R=" + balonAux.r + " . T=" + balonAux.t + ". ");			
+			System.out.println("Posicion del balón: (" +balonAux.x + "," + balonAux.y + "). R=" + balonAux.r + " . T=" + balonAux.t + ". ");			
+			System.out.println("Jugador más defensivo de nuestro equipo: "+calcularCompaneroMasDefensivo(companerosAux));
+			System.out.println("Jugador más ofensivo de nuestro equipo: "+calcularCompaneroMasOfensivo(companerosAux));
+			System.out.println("Jugador más defensivo del oponente: "+calcularOponenteMasDefensivo(oponentesAux));
+			System.out.println("Jugador más ofensivo del oponente: "+calcularOponenteMasOfensivo(oponentesAux));
 			System.out.println("__________________________________________________________________________");
-		}
+
+//		}
 	}
 	
 	public void printVectorVec2(Vec2[] vector) {
@@ -217,4 +264,100 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		}
 		//System.out.println("__________________________________________________________________________");
 	}
+	
+	/**
+	 * Devuelve el jugador de EnjutoMojamuteam que está más atrás en el campo (el que haría las veces de portero).
+	 */
+	public int calcularCompaneroMasDefensivo(Vec2[] vectorCompaneros) {
+		int masDefensivo=-1; //-1 se considera uno mismo.
+		double valorMasDefensivo=0;
+		for (int i=0; i< vectorCompaneros.length; i++) {
+			if (vectorCompaneros[i].x < valorMasDefensivo) {
+				masDefensivo=i;
+				valorMasDefensivo = vectorCompaneros[i].x;
+			}
+		}
+		return masDefensivo;
+	}
+	
+	/**
+	 * Devuelve el jugador de EnjutoMojamuteam que está más adelantado en el campo (el que haría las veces de delantero).
+	 */
+	public int calcularCompaneroMasOfensivo(Vec2[] vectorCompaneros) {
+		int masOfensivo=-1; //-1 se considera uno mismo.
+		double valorMasOfensivo=0;
+		for (int i=0; i< vectorCompaneros.length; i++) {
+			if (vectorCompaneros[i].x > valorMasOfensivo) {
+				masOfensivo=i;
+				valorMasOfensivo = vectorCompaneros[i].x;
+			}
+		}
+		return masOfensivo;		
+	}
+	
+	/**
+	 * Devuelve el jugador de EnjutoMojamuteam que está más atrás en el campo (el que haría las veces de portero).
+	 */
+	public int calcularOponenteMasDefensivo(Vec2[] vectorOponentes) {
+		int masDefensivo=0; //Se inicia a 0 el más defensivo, y se comapra respecto al resto.
+		double valorMasDefensivo = 0;
+		if (vectorOponentes.length>0) {
+			valorMasDefensivo=vectorOponentes[0].x;
+		}
+		for (int i=0; i< vectorOponentes.length; i++) {
+			if (vectorOponentes[i].x < valorMasDefensivo) {
+				masDefensivo=i;
+				valorMasDefensivo = vectorOponentes[i].x;
+			}
+		}
+		return masDefensivo;	
+	}
+	
+	/**
+	 * Devuelve el jugador del equipo rival que está más adelantado en el campo (el que haría las veces de delantero).
+	 */
+	public int calcularOponenteMasOfensivo(Vec2[] vectorOponentes) {
+		int masOfensivo=0; //Se inicia a 0 el más defensivo, y se comapra respecto al resto.
+		double valorMasOfensivo = 0;
+		if (vectorOponentes.length>0) {
+			valorMasOfensivo=vectorOponentes[0].x;
+		}
+		for (int i=0; i< vectorOponentes.length; i++) {
+			if (vectorOponentes[i].x > valorMasOfensivo) {
+				masOfensivo=i;
+				valorMasOfensivo = vectorOponentes[i].x;
+			}
+		}
+		return masOfensivo;	
+	}
+	
+	/**
+	 * Devuelve el jugador de EnjutoMojamuteam que está más atrás en el campo (el que haría las veces de portero).
+	 */
+	/*public int calcularMasDefensivo(Vec2[] vector) {
+		int masDefensivo=-1; //-1 se considera uno mismo.
+		double valorMasDefensivo=0;
+		for (int i=0; i< vector.length; i++) {
+			if (vector[i].x < valorMasDefensivo) {
+				masDefensivo=i;
+				valorMasDefensivo = vector[i].x;
+			}
+		}
+		return masDefensivo;
+	}*/
+	
+	/**
+	 * Devuelve el jugador del equipo rival que está más adelantado en el campo (el que haría las veces de delantero).
+	 */
+	/*public int calcularMasOfensivo(Vec2[] vector) {
+		int masOfensivo=-1; //-1 se considera uno mismo.
+		double valorMasOfensivo=0;
+		for (int i=0; i< vector.length; i++) {
+			if (vector[i].x > valorMasOfensivo) {
+				masOfensivo=i;
+				valorMasOfensivo = vector[i].x;
+			}
+		}
+		return masOfensivo;	
+	}*/
 }
