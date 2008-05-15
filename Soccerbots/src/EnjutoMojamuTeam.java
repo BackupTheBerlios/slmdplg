@@ -11,7 +11,7 @@ import	EDU.gatech.cc.is.abstractrobot.*;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  */
 
 
@@ -136,12 +136,14 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	private void cubrir(int i) 
 	{
-		//Nunca entendido, de hecho he peusto ahora >= para que cubra también el jugador 4.
+		//Nunca entendido, de hecho he puesto ahora >= para que cubra también el jugador 4.
 		if (oponentes.length >= i)
 		{
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
 			vOponenteBalon.setx(vOponenteBalon.x - oponentes[i].x);
 			vOponenteBalon.sety(vOponenteBalon.y - oponentes[i].y);
+			//Hacemos que el vector sea unitario, porque se multiplicará después por el 2*radio (Menuda diferencia!!).
+			vOponenteBalon.normalize(1.0);
 			
 			//System.out.println("La medida de 2*Radius es = " + (2*SocSmall.RADIUS));
 			
