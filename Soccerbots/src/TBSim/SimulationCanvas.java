@@ -27,7 +27,7 @@ import EDU.cmu.cs.coral.simulation.*;
  * (c)1998 Tucker Balch and Carnegie Mellon University
  *
  * @author Tucker Balch
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 public class SimulationCanvas extends Canvas implements Runnable
@@ -1028,7 +1028,7 @@ public class SimulationCanvas extends Canvas implements Runnable
                         simulated_objects);   
                 startrun += timestep;
                 sim_time += timestep;
-                System.out.println("isbc:time:"+sim_time);
+                //System.out.println("isbc:time:"+sim_time);
             }
          
 
@@ -1446,6 +1446,9 @@ public class SimulationCanvas extends Canvas implements Runnable
 	}
 /*
 $Log: SimulationCanvas.java,v $
+Revision 1.2  2008/05/20 21:42:54  alcror
+*** empty log message ***
+
 Revision 1.1  2008/05/12 17:51:27  alcror
 *** empty log message ***
 

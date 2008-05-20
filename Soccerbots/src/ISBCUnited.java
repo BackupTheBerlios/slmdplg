@@ -501,7 +501,7 @@ public class ISBCUnited extends ControlSystemSS {
        resultado.sett(this.buscarCamino(posChute));
        resultado.setr(1.0);
        avoidcollision(resultado);
-       abstract_robot.setSteerHeading(tiempo,resultado.t );
+       abstract_robot.setSteerHeading(tiempo,resultado.t);
        abstract_robot.setSpeed(tiempo, 1.0);
      }
      

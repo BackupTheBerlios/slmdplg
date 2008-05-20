@@ -1,8 +1,9 @@
 
 
-import	EDU.gatech.cc.is.util.Vec2;
-import	EDU.gatech.cc.is.abstractrobot.*;
-//Clay not used
+import EDU.gatech.cc.is.abstractrobot.ControlSystemSS;
+import EDU.gatech.cc.is.abstractrobot.SocSmall;
+import EDU.gatech.cc.is.communication.Message;
+import EDU.gatech.cc.is.util.Vec2;
 
 /**
  * This is about the simplest possible soccer strategy, just go to the ball.
@@ -11,12 +12,16 @@ import	EDU.gatech.cc.is.abstractrobot.*;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 
 public class EnjutoMojamuTeam extends ControlSystemSS
-	{
+{
+	  static final int PORTERO = 0;
+	  static final int DEFENSA = 1;
+	  static final int CENTRO = 2;
+	  static final int DELANTERO = 3;
 	/**
 	Configure the Avoid control system.  This method is
 	called once at initialization time.  You can use it
@@ -26,6 +31,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	private Vec2[] oponentes, companeros;
 	private Vec2 balon, ourGoal, oponentGoal;
 	private long curr_time;
+	private int[] roles;
 	
 	//Prueba para defender.
 	private int numNiCaso;
@@ -45,6 +51,13 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			abstract_robot.setDisplayString("Guti.Haz");
 		
 		numNiCaso = 0;
+		
+		roles = new int[5];
+		roles[0] = PORTERO;
+		roles[1] = DEFENSA;
+		roles[2] = DEFENSA;
+		roles[3] = CENTRO;
+		roles[4] = DELANTERO;
 	}
 		
 	
@@ -77,11 +90,9 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	private double calcularDistancia(Vec2 posBalon, Vec2 vec2) 
 	{
-		double x = posBalon.x - vec2.x;
-		double y = posBalon.y - vec2.y;
-		
-		double modulo = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
-		return modulo;
+		Vec2 v = (Vec2)posBalon.clone();
+		v.sub(vec2);
+		return v.r;
 	}
 
 
@@ -92,21 +103,19 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	public int TakeStep()
 	{
 		curr_time = abstract_robot.getTime();
-		oponentes = abstract_robot.getOpponents(curr_time);
 		companeros = abstract_robot.getTeammates(curr_time);
 		balon = abstract_robot.getBall(curr_time);
 		ourGoal = abstract_robot.getOurGoal(curr_time);
 		oponentGoal = abstract_robot.getOpponentsGoal(curr_time);
-		
-		//System.out.println(abstract_robot.getOpponents(curr_time).toString());
-		showDatos();
-		
-		if (abstract_robot.getPlayerNumber(curr_time) == 0)
-		{
-			boolean pos = calcularPosesion();
+		oponentes = abstract_robot.getOpponents(curr_time);
+		if (oponentes.length == 5) //Ya están los 5 oponentes creados.
+			ordenarOponentes();
 			
+		if (abstract_robot.getPlayerNumber(curr_time)==0)
+		{
 			actuarPortero();
 			
+			boolean pos = calcularPosesion();
 			if (!miPosesion && pos)
 			{
 				miPosesion = pos;
@@ -126,30 +135,65 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 				defender();
 		}
 		
-
+		//System.out.println(abstract_robot.getOpponents(curr_time).toString());
+		//showDatos();
 		// tell the parent we're OK
 		return(CSSTAT_OK);
+	}
+
+	/**
+	 * Ordena el vector de oponentes desde 
+	 * el más lejano a nuestra portería, al más cercano.
+	 */
+	private void ordenarOponentes() 
+	{
+		Vec2[] opOrdenados = new Vec2[5];
+		boolean[] asignados = {false, false, false, false, false};
+		double distancias[] = new double[5];
+		
+		for (int i=0; i < 5; i++)
+			distancias[i] = calcularDistancia(ourGoal, oponentes[i]);
+		
+		for (int i = 0; i<5; i++)
+		{
+			double maxNoAsig = -1.0;
+			int maxID = -1;;
+			for (int j=0; j<5; j++)
+				if (!asignados[j] && distancias[j]>maxNoAsig)
+				{
+					maxNoAsig = distancias[j];
+					maxID = j;
+				}
+			asignados[maxID] = true;
+			opOrdenados[i]=oponentes[maxID];
 		}
+		oponentes = opOrdenados;
+	}
 
 
 	private void actuarPortero() {
 	
-		if (ourGoal.y > 0.25 || ourGoal.y <-0.25 || ourGoal.x < -0.25) {
+		if (ourGoal.y > 0.25 || ourGoal.y <-0.25 || ourGoal.x < -0.25)
+		{
 			// set heading towards it
 			abstract_robot.setSteerHeading(curr_time, ourGoal.t);
 	
 			// set speed at maximum
 			abstract_robot.setSpeed(curr_time, 1.0);
-		} else if (balon.x < 0.25) {
-			//ToDo
-			//balon.normalize(1.0);
-			abstract_robot.setSteerHeading(curr_time, balon.t);
-			abstract_robot.setSpeed(curr_time, 0.75);					
-		}
-		else {
-			abstract_robot.setSteerHeading(curr_time, ourGoal.t);
-			abstract_robot.setSpeed(curr_time, 0.5);			
-		}
+		} 
+		else 
+			if (balon.x < 0.25)
+			{
+				//ToDo
+				//balon.normalize(1.0);
+				abstract_robot.setSteerHeading(curr_time, balon.t);
+				abstract_robot.setSpeed(curr_time, 0.75);					
+			}
+			else
+			{
+				abstract_robot.setSteerHeading(curr_time, ourGoal.t);
+				abstract_robot.setSpeed(curr_time, 0.5);
+			}
 	}
 
 
@@ -157,8 +201,6 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	{
 		
 		//Incluso comentando esto se ve más gráfico, con el portero cubriendo también.
-		if (abstract_robot.getPlayerNumber(curr_time) != 0)
-		{
 			//Variante: Solo cubrir a su jugador más ofensivo.
 /*			if ( calcularOponenteMasOfensivo(oponentes) == abstract_robot.getPlayerNumber(curr_time)) {
 				numNiCaso = abstract_robot.getPlayerNumber(curr_time);
@@ -171,17 +213,35 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 					abstract_robot.setSpeed(curr_time, 0.8);
 				}
 			}*/
-			cubrir(abstract_robot.getPlayerNumber(curr_time));
+
+		int playerNumber = abstract_robot.getPlayerNumber(curr_time);
+		int rol = roles[playerNumber];
+		if (rol == DEFENSA)
+		{
+			int jugadorACubrir = 4;
+			for (int i = 0; i < playerNumber; i++)
+				if (roles[i] == DEFENSA)
+					jugadorACubrir--;
+			cubrir(jugadorACubrir);
 		}
-		
+		else if (rol == CENTRO)
+		{
+			
+		}
+		else if (rol == DELANTERO)
+		{
+			
+		}
 	}
 
 
-	private void cubrir(int i) 
+	private void cubrir(int i)
 	{
 		//Nunca entendido, de hecho he puesto ahora >= para que cubra también el jugador 4.
 		if (oponentes.length >= i)
 		{
+			//Vec2 oponente = dameOponenteID(i);
+		
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
 			vOponenteBalon.setx(vOponenteBalon.x - oponentes[i].x);
 			vOponenteBalon.sety(vOponenteBalon.y - oponentes[i].y);
@@ -210,29 +270,42 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			//Entre la bola y el jugador:
 			Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
 
-			//Como siempre
+			//Como siempre.
+			double distanciaJugPos = vJugadorPosicion.r;
+			if (distanciaJugPos > 0.5*SocSmall.RADIUS)
+			{
+				abstract_robot.setSpeed(curr_time, 0.5);
 				abstract_robot.setSteerHeading(curr_time, vJugadorPosicion.t);
-			
-			abstract_robot.setSpeed(curr_time, 1.0);
+				abstract_robot.setSpeed(curr_time, 1.0);
+			}
+			else
+			{
+				abstract_robot.setSteerHeading(curr_time, balon.t);
+				abstract_robot.setSpeed(curr_time, 0.0);
+			}
 		}
 	}
 
 
 	private void atacar() 
 	{
-	//	if (abstract_robot.getPlayerNumber(curr_time) != 0)
-	//	{
+		if (abstract_robot.getPlayerNumber(curr_time) != 1)
+		{
 			// set heading towards it
 			abstract_robot.setSteerHeading(curr_time, balon.t);
-	
+
 			// set speed at maximum
 			abstract_robot.setSpeed(curr_time, 1.0);
-	
+
 			// kick it if we can
-			if (abstract_robot.canKick(curr_time))
+			double distancia = calcularDistancia(balon, oponentGoal);
+			if (abstract_robot.canKick(curr_time) && distancia < 0.5)
 				abstract_robot.kick(curr_time);
-	//	}
-		
+		}
+		else
+		{
+			cubrir(4);
+		}
 	}
 	
 	public void showDatos() {
