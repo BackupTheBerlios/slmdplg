@@ -164,14 +164,14 @@ robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeam
 
 //======EAST TEAM======
 eastname EastTeam
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 1.2  0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .5   0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .15  .5   0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .15  0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .15  -.5  0 xFF0000 x0000FF 2
 

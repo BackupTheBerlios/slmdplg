@@ -11,7 +11,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 
 
@@ -32,7 +32,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	to do whatever you like.
 	*/
 	private boolean miPosesion;
-	private Vec2[] oponentes, companeros;
+	private Vec2[] oponentes, oponentesAncho, companeros;
 	private Vec2 balon, ourGoal, oponentGoal;
 	private long curr_time;
 	private int[] roles;
@@ -62,6 +62,8 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		roles[2] = DEFENSA;
 		roles[3] = DEFENSA;
 		roles[4] = DEFENSA;
+		
+		oponentesAncho = new Vec2[5];
 	}
 		
 	
@@ -170,6 +172,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	{
 		Vec2[] opOrdenados = new Vec2[5];
 		boolean[] asignados = {false, false, false, false, false};
+		//boolean[] asignadosAncho = {false, false, false, false, false};
 		double distancias[] = new double[5];
 		
 		for (int i=0; i < 5; i++)
@@ -178,15 +181,27 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		for (int i = 0; i<5; i++)
 		{
 			double maxNoAsig = -1.0;
-			int maxID = -1;;
+			//double maxNoAsigAncho = -1.0;
+			int maxID = -1;
+			//int maxIDAncho = -1;
 			for (int j=0; j<5; j++)
+			{
 				if (!asignados[j] && distancias[j]>maxNoAsig)
 				{
 					maxNoAsig = distancias[j];
 					maxID = j;
 				}
+//				if (!asignadosAncho[j] && oponentes[j].y>maxNoAsigAncho)
+//				{
+//					maxNoAsigAncho = distancias[j];
+//					maxIDAncho = j;
+//				}
+			}
 			asignados[maxID] = true;
 			opOrdenados[i]=oponentes[maxID];
+
+//			asignadosAncho[maxIDAncho] = true;
+//			oponentesAncho[i]=oponentes[maxIDAncho];
 		}
 		oponentes = opOrdenados;
 	}
@@ -238,13 +253,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		int playerNumber = abstract_robot.getPlayerNumber(curr_time);
 		int rol = roles[playerNumber];
 		if (rol == DEFENSA)
-		{
-			int jugadorACubrir = 4;
-			for (int i = 0; i < playerNumber; i++)
-				if (roles[i] == DEFENSA)
-					jugadorACubrir--;
-			cubrir(jugadorACubrir);
-		}
+			cubrir(calcularJugadorACubrir());
 		else if (rol == CENTRO)
 		{
 			
@@ -256,8 +265,54 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	}
 
 
+	private int calcularJugadorACubrir() 
+	{	
+		int numDefensas = 0;
+		int masAltos = 0;
+		Vec2 vCentroCompanero;
+		for (int i = 0; i < 5; i++)
+			if (roles[i] == DEFENSA)
+			{
+				numDefensas++;
+				if (i < 4 && companeros[i].y>0)
+					masAltos++;
+			}
+		Vec2[] candidatos = new Vec2[numDefensas];
+		int[] numerosVectorIni = new int[numDefensas];
+		int[] numerosVectorFin = new int[numDefensas];
+		for (int i = 0; i < numDefensas; i++)
+		{
+			candidatos[i] = oponentes[4-i]; //Candidatos queda ordenado por cercanía a la portería.
+			numerosVectorIni[i] = 4-i;
+		}
+		Vec2[] porAltura = new Vec2[candidatos.length];
+		boolean[] asignados = new boolean[candidatos.length];
+		for (int i = 0; i < candidatos.length; i++)
+			asignados[i] = false;
+		for (int i = 0; i < candidatos.length; i++)
+		{
+			double minAncho = -9999.9;
+			int minID = -1;
+			for (int j=0; j<candidatos.length; j++)
+			{
+				if (!asignados[j] && candidatos[j].y > minAncho)
+				{
+					minAncho = candidatos[j].y;
+					minID = j;
+				}
+			}
+			asignados[minID] = true;
+			porAltura[i]=candidatos[minID];
+			numerosVectorFin[i]=numerosVectorIni[minID];
+		}
+		
+		return numerosVectorFin[masAltos];
+	}
+
+
 	private void cubrir(int i)
 	{
+		abstract_robot.setDisplayString("al " + i);
 		//Nunca entendido, de hecho he puesto ahora >= para que cubra también el jugador 4.
 		if (oponentes.length >= i)
 		{
