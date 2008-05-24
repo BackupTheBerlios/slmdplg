@@ -2,7 +2,6 @@
 
 import EDU.gatech.cc.is.abstractrobot.ControlSystemSS;
 import EDU.gatech.cc.is.abstractrobot.SocSmall;
-import EDU.gatech.cc.is.communication.Message;
 import EDU.gatech.cc.is.util.Vec2;
 
 /**
@@ -12,7 +11,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 
@@ -22,6 +21,11 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	  static final int DEFENSA = 1;
 	  static final int CENTRO = 2;
 	  static final int DELANTERO = 3;
+	  
+	  static final int SINPOSESION = 0;
+	  static final int POSESION = 1;
+	  static final int BALONSUELTO = 2;
+	  
 	/**
 	Configure the Avoid control system.  This method is
 	called once at initialization time.  You can use it
@@ -56,8 +60,8 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		roles[0] = PORTERO;
 		roles[1] = DEFENSA;
 		roles[2] = DEFENSA;
-		roles[3] = CENTRO;
-		roles[4] = DELANTERO;
+		roles[3] = DEFENSA;
+		roles[4] = DEFENSA;
 	}
 		
 	
@@ -66,11 +70,15 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		double distanciaOponenteMasCercanoBalon = 99999;
 		Vec2 posBalon = abstract_robot.getBall(curr_time);
 		double distanciaOponenteBalon;
+		int oponenteMasCercano = -1;
 		for (int i=0; i< oponentes.length; i++)
 		{
 			distanciaOponenteBalon = calcularDistancia(posBalon, oponentes[i]);
 			if (distanciaOponenteBalon < distanciaOponenteMasCercanoBalon)
+			{
 				distanciaOponenteMasCercanoBalon = distanciaOponenteBalon;
+				oponenteMasCercano = i;
+			}
 		}
 		
 		double distanciaJugadorMasCercanoBalon = calcularDistancia(posBalon, abstract_robot.getPosition(curr_time));
@@ -81,10 +89,14 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			if (distanciaCompaneroBalon < distanciaJugadorMasCercanoBalon)
 				distanciaJugadorMasCercanoBalon = distanciaCompaneroBalon;
 		}
+		boolean balonSuelto = (distanciaJugadorMasCercanoBalon < abstract_robot.RADIUS*4) && (calcularDistancia(oponentes[oponenteMasCercano], balon)<abstract_robot.RADIUS*3);
 		if (distanciaJugadorMasCercanoBalon < distanciaOponenteMasCercanoBalon)
 			return true;
 		else
-			return false;
+			if (balonSuelto)
+				return true;
+			else
+				return false;
 	}
 
 
@@ -111,7 +123,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		if (oponentes.length == 5) //Ya están los 5 oponentes creados.
 			ordenarOponentes();
 			
-		if (abstract_robot.getPlayerNumber(curr_time)==0)
+		if (roles[abstract_robot.getPlayerNumber(curr_time)] == PORTERO)
 		{
 			actuarPortero();
 			
@@ -129,6 +141,15 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		}
 		else
 		{
+			boolean pos = calcularPosesion();
+			if (!miPosesion && pos)
+			{
+				miPosesion = pos;
+			}
+			else if (miPosesion && !pos)
+			{
+				miPosesion = pos;
+			}
 			if (miPosesion)
 				atacar();
 			else if (!miPosesion)
@@ -291,16 +312,31 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	{
 		if (abstract_robot.getPlayerNumber(curr_time) != 1)
 		{
+			double radio = balon.r;
+			double robot = 1.2*abstract_robot.RADIUS;
+			if (radio > robot)
+			{
 			// set heading towards it
-			abstract_robot.setSteerHeading(curr_time, balon.t);
-
+				abstract_robot.setSpeed(curr_time, 1.0);
+				abstract_robot.setSteerHeading(curr_time, balon.t);
+			}
+			else
+			{
+				abstract_robot.setSpeed(curr_time, 0.7);
+				abstract_robot.setSteerHeading(curr_time, oponentGoal.t);
+				abstract_robot.setSpeed(curr_time, 1.0);
+				System.out.println("GIRA!!");
+			}
 			// set speed at maximum
 			abstract_robot.setSpeed(curr_time, 1.0);
 
 			// kick it if we can
 			double distancia = calcularDistancia(balon, oponentGoal);
 			if (abstract_robot.canKick(curr_time) && distancia < 0.5)
+			{
 				abstract_robot.kick(curr_time);
+				System.out.print("TIRA!!");
+			}
 		}
 		else
 		{
