@@ -1,5 +1,7 @@
 
 
+import java.util.Random;
+
 import EDU.gatech.cc.is.abstractrobot.ControlSystemSS;
 import EDU.gatech.cc.is.abstractrobot.SocSmall;
 import EDU.gatech.cc.is.util.Vec2;
@@ -11,7 +13,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 
@@ -50,7 +52,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		else if (numRobot == 2)
 			abstract_robot.setDisplayString("Pajares");
 		else if (numRobot == 3)
-			abstract_robot.setDisplayString("Raúl");
+			abstract_robot.setDisplayString("Raï¿½l");
 		else if (numRobot == 4)
 			abstract_robot.setDisplayString("Guti.Haz");
 		
@@ -61,7 +63,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		roles[1] = DEFENSA;
 		roles[2] = DEFENSA;
 		roles[3] = DEFENSA;
-		roles[4] = DEFENSA;
+		roles[4] = DELANTERO;
 		
 		oponentesAncho = new Vec2[5];
 	}
@@ -122,7 +124,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		ourGoal = abstract_robot.getOurGoal(curr_time);
 		oponentGoal = abstract_robot.getOpponentsGoal(curr_time);
 		oponentes = abstract_robot.getOpponents(curr_time);
-		if (oponentes.length == 5) //Ya están los 5 oponentes creados.
+		if (oponentes.length == 5) //Ya estï¿½n los 5 oponentes creados.
 			ordenarOponentes();
 			
 		if (roles[abstract_robot.getPlayerNumber(curr_time)] == PORTERO)
@@ -166,7 +168,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	/**
 	 * Ordena el vector de oponentes desde 
-	 * el más lejano a nuestra portería, al más cercano.
+	 * el mï¿½s lejano a nuestra porterï¿½a, al mï¿½s cercano.
 	 */
 	private void ordenarOponentes() 
 	{
@@ -235,12 +237,12 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	private void defender() 
 	{
-		
-		//Incluso comentando esto se ve más gráfico, con el portero cubriendo también.
-			//Variante: Solo cubrir a su jugador más ofensivo.
+		//System.out.println("defiendo");
+		//Incluso comentando esto se ve mï¿½s grï¿½fico, con el portero cubriendo tambiï¿½n.
+			//Variante: Solo cubrir a su jugador mï¿½s ofensivo.
 /*			if ( calcularOponenteMasOfensivo(oponentes) == abstract_robot.getPlayerNumber(curr_time)) {
 				numNiCaso = abstract_robot.getPlayerNumber(curr_time);
-				System.out.println("Orden recibida: Voy a por su jugador más ofensivo: " + numNiCaso + ".");
+				System.out.println("Orden recibida: Voy a por su jugador mï¿½s ofensivo: " + numNiCaso + ".");
 				cubrir(abstract_robot.getPlayerNumber(curr_time));
 			}
 			else {
@@ -282,7 +284,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 		int[] numerosVectorFin = new int[numDefensas];
 		for (int i = 0; i < numDefensas; i++)
 		{
-			candidatos[i] = oponentes[4-i]; //Candidatos queda ordenado por cercanía a la portería.
+			candidatos[i] = oponentes[4-i]; //Candidatos queda ordenado por cercanï¿½a a la porterï¿½a.
 			numerosVectorIni[i] = 4-i;
 		}
 		Vec2[] porAltura = new Vec2[candidatos.length];
@@ -305,7 +307,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			porAltura[i]=candidatos[minID];
 			numerosVectorFin[i]=numerosVectorIni[minID];
 		}
-		
+
 		return numerosVectorFin[masAltos];
 	}
 
@@ -313,7 +315,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	private void cubrir(int i)
 	{
 		abstract_robot.setDisplayString("al " + i);
-		//Nunca entendido, de hecho he puesto ahora >= para que cubra también el jugador 4.
+		//Nunca entendido, de hecho he puesto ahora >= para que cubra tambiï¿½n el jugador 4.
 		if (oponentes.length >= i)
 		{
 			//Vec2 oponente = dameOponenteID(i);
@@ -321,12 +323,12 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
 			vOponenteBalon.setx(vOponenteBalon.x - oponentes[i].x);
 			vOponenteBalon.sety(vOponenteBalon.y - oponentes[i].y);
-			//Hacemos que el vector sea unitario, porque se multiplicará después por el 2*radio (Menuda diferencia!!).
+			//Hacemos que el vector sea unitario, porque se multiplicarï¿½ despuï¿½s por el 2*radio (Menuda diferencia!!).
 			vOponenteBalon.normalize(1.0);
 			
 			//System.out.println("La medida de 2*Radius es = " + (2*SocSmall.RADIUS));
 			
-			//Sí, multiplicar, porque lo que quieres es una parte del vector, para hacer la corrección.
+			//Sï¿½, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciï¿½n.
 			double pX = (2*SocSmall.RADIUS)*vOponenteBalon.x;
 			double pY = (2*SocSmall.RADIUS)*vOponenteBalon.y;
 			Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
@@ -337,10 +339,10 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			//No vale, prueba inicial..
 			//Vec2 vJugadorPosicion = new Vec2((pX + posicionJugador.x),(pY + posicionJugador.y));
 			
-			//Yendo a la bola, pero con corrección de ir "por donde vaya el rival" (poco útil) 
+			//Yendo a la bola, pero con correcciï¿½n de ir "por donde vaya el rival" (poco ï¿½til) 
 			//Vec2 vJugadorPosicion = new Vec2((pX + balon.x),(pY + balon.y));
 
-			//Directamente al jugador rival (bloqueas más):
+			//Directamente al jugador rival (bloqueas mï¿½s):
 			//Vec2 vJugadorPosicion = new Vec2(oponentes[i].x,oponentes[i].y);
 			
 			//Entre la bola y el jugador:
@@ -365,37 +367,123 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 
 	private void atacar() 
 	{
+		//System.out.println("atacooo");
+		
+		
+		
 		if (abstract_robot.getPlayerNumber(curr_time) != 1)
 		{
 			double radio = balon.r;
 			double robot = 1.2*abstract_robot.RADIUS;
-			if (radio > robot)
-			{
-			// set heading towards it
+			
+			Vec2 posicionCentroPorteria = new Vec2(balon.x, balon.y);
+			posicionCentroPorteria.sub(oponentGoal);
+			posicionCentroPorteria.setr(abstract_robot.RADIUS);
+			posicionCentroPorteria.add(balon);
+			
+			Vec2 posicionArribaPorteria = new Vec2(balon.x, balon.y);
+			Vec2 parteArribaPorteria = new Vec2(oponentGoal.x,oponentGoal.y + abstract_robot.RADIUS*3);
+			posicionArribaPorteria.sub(parteArribaPorteria);
+			posicionArribaPorteria.setr(abstract_robot.RADIUS);
+			posicionArribaPorteria.add(balon);
+			
+			Vec2 posicionAbajoPorteria = new Vec2(balon.x, balon.y);
+			Vec2 parteAbajoPorteria = new Vec2(oponentGoal.x,oponentGoal.y - abstract_robot.RADIUS*3);			
+			posicionAbajoPorteria.sub(parteAbajoPorteria);
+			posicionAbajoPorteria.setr(abstract_robot.RADIUS);
+			posicionAbajoPorteria.add(balon);
+			
+			
+			int playerNumber = abstract_robot.getPlayerNumber(curr_time);
+			int rol = roles[playerNumber];
+			
+			//If the player is "DELANTERO", he goes behind the ball and tries to score.
+			if (rol == DELANTERO) {
+			
+				if (radio > robot)
+				{
+					// set heading behind ball
+					abstract_robot.setSpeed(curr_time, 1.0);
+					abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t);
+					
+				}
+				else
+				{
+					
+					abstract_robot.setSpeed(curr_time, 0.7);
+					
+					Random random = new Random();
+					int aDonde = random.nextInt(3);
+					System.out.println("A donde: " + aDonde);
+					switch (aDonde){
+					case 0: abstract_robot.setSteerHeading(curr_time, posicionArribaPorteria.t);
+						break;
+					case 1: abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t);
+						break;
+					case 2: abstract_robot.setSteerHeading(curr_time, posicionAbajoPorteria.t);
+						break;
+					default: abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t);
+						break;
+						
+					}
+					
+					abstract_robot.setSpeed(curr_time, 1.0);
+					//System.out.println("GIRA!!");
+				}
+				// set speed at maximum
 				abstract_robot.setSpeed(curr_time, 1.0);
-				abstract_robot.setSteerHeading(curr_time, balon.t);
-			}
-			else
-			{
-				abstract_robot.setSpeed(curr_time, 0.7);
-				abstract_robot.setSteerHeading(curr_time, oponentGoal.t);
-				abstract_robot.setSpeed(curr_time, 1.0);
-				System.out.println("GIRA!!");
-			}
-			// set speed at maximum
-			abstract_robot.setSpeed(curr_time, 1.0);
-
-			// kick it if we can
-			double distancia = calcularDistancia(balon, oponentGoal);
-			if (abstract_robot.canKick(curr_time) && distancia < 0.5)
-			{
-				abstract_robot.kick(curr_time);
-				System.out.print("TIRA!!");
+	
+				// kick it if we can
+				double distancia = calcularDistancia(balon, oponentGoal);
+				if (abstract_robot.canKick(curr_time) && distancia < 0.5)
+				{
+					abstract_robot.kick(curr_time);
+					System.out.print("TIRA!!");
+				}
+			//If the player is not DELANTERO, he will support the attack
+			} else {
+				Vec2 posicion = abstract_robot.getPosition(curr_time);
+				
+				
+				if (radio > robot) {
+					if (playerNumber%2 == 0 && posicion.x < 0.8){
+						abstract_robot.setDisplayString("ARRIBA");
+						//System.out.println("Posicion X:" + posicion.x + " , posicion Y:" + posicion.y);
+						// set heading 20 meters over the ball position
+						abstract_robot.setSpeed(curr_time, 1.0);
+						abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t + abstract_robot.RADIUS*8);
+					} else {
+						abstract_robot.setDisplayString("ABAJO");
+						// set heading bellow the ball position
+						abstract_robot.setSpeed(curr_time, 1.0);
+						abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t - abstract_robot.RADIUS*8);
+					}
+					
+					
+					
+				} else {
+					abstract_robot.setDisplayString("PUSHING");
+					abstract_robot.setSpeed(curr_time, 0.7);
+					abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t);
+					abstract_robot.setSpeed(curr_time, 1.0);
+					//System.out.println("GIRA!!");
+				}
+				
+				// kick it if we can
+				double distancia = calcularDistancia(balon, oponentGoal);
+				if (abstract_robot.canKick(curr_time) && distancia < 0.5)
+				{
+					abstract_robot.kick(curr_time);
+					System.out.print("TIRA!!");
+				}
 			}
 		}
 		else
 		{
-			cubrir(4);
+			int enemigoMasPeligroso = calcularOponenteMasOfensivo(this.oponentes);
+			if (oponentes.length == 5){
+				cubrir(enemigoMasPeligroso);
+			}
 		}
 	}
 	
@@ -407,15 +495,15 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 			Vec2 balonAux = abstract_robot.getBall(curr_time);
 			
 			System.out.println("Listado de datos disponibles, desde jugador: " + (abstract_robot.getPlayerNumber(curr_time)) + ".");
-			System.out.println("Compañeros:");
+			System.out.println("Compaï¿½eros:");
 			printVectorVec2(companerosAux);
 			System.out.println("Oponentes");
 			printVectorVec2(oponentesAux);
-			System.out.println("Posicion del balón: (" +balonAux.x + "," + balonAux.y + "). R=" + balonAux.r + " . T=" + balonAux.t + ". ");			
-			System.out.println("Jugador más defensivo de nuestro equipo: "+calcularCompaneroMasDefensivo(companerosAux));
-			System.out.println("Jugador más ofensivo de nuestro equipo: "+calcularCompaneroMasOfensivo(companerosAux));
-			System.out.println("Jugador más defensivo del oponente: "+calcularOponenteMasDefensivo(oponentesAux));
-			System.out.println("Jugador más ofensivo del oponente: "+calcularOponenteMasOfensivo(oponentesAux));
+			System.out.println("Posicion del balï¿½n: (" +balonAux.x + "," + balonAux.y + "). R=" + balonAux.r + " . T=" + balonAux.t + ". ");			
+			System.out.println("Jugador mï¿½s defensivo de nuestro equipo: "+calcularCompaneroMasDefensivo(companerosAux));
+			System.out.println("Jugador mï¿½s ofensivo de nuestro equipo: "+calcularCompaneroMasOfensivo(companerosAux));
+			System.out.println("Jugador mï¿½s defensivo del oponente: "+calcularOponenteMasDefensivo(oponentesAux));
+			System.out.println("Jugador mï¿½s ofensivo del oponente: "+calcularOponenteMasOfensivo(oponentesAux));
 			System.out.println("__________________________________________________________________________");
 
 //		}
@@ -430,7 +518,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que está más atrás en el campo (el que haría las veces de portero).
+	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s atrï¿½s en el campo (el que harï¿½a las veces de portero).
 	 */
 	public int calcularCompaneroMasDefensivo(Vec2[] vectorCompaneros) {
 		int masDefensivo=-1; //-1 se considera uno mismo.
@@ -445,7 +533,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que está más adelantado en el campo (el que haría las veces de delantero).
+	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s adelantado en el campo (el que harï¿½a las veces de delantero).
 	 */
 	public int calcularCompaneroMasOfensivo(Vec2[] vectorCompaneros) {
 		int masOfensivo=-1; //-1 se considera uno mismo.
@@ -460,10 +548,10 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que está más atrás en el campo (el que haría las veces de portero).
+	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s atrï¿½s en el campo (el que harï¿½a las veces de portero).
 	 */
 	public int calcularOponenteMasDefensivo(Vec2[] vectorOponentes) {
-		int masDefensivo=0; //Se inicia a 0 el más defensivo, y se comapra respecto al resto.
+		int masDefensivo=0; //Se inicia a 0 el mï¿½s defensivo, y se comapra respecto al resto.
 		double valorMasDefensivo = 0;
 		if (vectorOponentes.length>0) {
 			valorMasDefensivo=vectorOponentes[0].x;
@@ -478,10 +566,10 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador del equipo rival que está más adelantado en el campo (el que haría las veces de delantero).
+	 * Devuelve el jugador del equipo rival que estï¿½ mï¿½s adelantado en el campo (el que harï¿½a las veces de delantero).
 	 */
 	public int calcularOponenteMasOfensivo(Vec2[] vectorOponentes) {
-		int masOfensivo=0; //Se inicia a 0 el más defensivo, y se comapra respecto al resto.
+		int masOfensivo=0; //Se inicia a 0 el mï¿½s defensivo, y se comapra respecto al resto.
 		double valorMasOfensivo = 0;
 		if (vectorOponentes.length>0) {
 			valorMasOfensivo=vectorOponentes[0].x;
@@ -496,7 +584,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que está más atrás en el campo (el que haría las veces de portero).
+	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s atrï¿½s en el campo (el que harï¿½a las veces de portero).
 	 */
 	/*public int calcularMasDefensivo(Vec2[] vector) {
 		int masDefensivo=-1; //-1 se considera uno mismo.
@@ -511,7 +599,7 @@ public class EnjutoMojamuTeam extends ControlSystemSS
 	}*/
 	
 	/**
-	 * Devuelve el jugador del equipo rival que está más adelantado en el campo (el que haría las veces de delantero).
+	 * Devuelve el jugador del equipo rival que estï¿½ mï¿½s adelantado en el campo (el que harï¿½a las veces de delantero).
 	 */
 	/*public int calcularMasOfensivo(Vec2[] vector) {
 		int masOfensivo=-1; //-1 se considera uno mismo.
