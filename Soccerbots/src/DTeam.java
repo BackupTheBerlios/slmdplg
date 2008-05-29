@@ -8,7 +8,7 @@ import	java.lang.Math;
  * A reflexive, heuristic, heterogenous soccer team.
  *
  * @author David H. Johnson
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 
@@ -406,7 +406,6 @@ public class DTeam extends ControlSystemSS
 			move.sety( -closest_opp.y);
 			move.setr( 1.0);
 		}
-
 	}
 
 
