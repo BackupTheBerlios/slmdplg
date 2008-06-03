@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 
@@ -292,12 +292,12 @@ public class EnjutoMojamuTeamNacho extends ControlSystemSS
 			
 			if (miPosesion) {
 				estadoNuevo = "atacando";
-				roles[1] = PALOMERO;
-				roles[3] = DEFENSAPRUDENTE;
+//				roles[1] = PALOMERO;
+//				roles[3] = DEFENSAPRUDENTE;
 			} else {
 				estadoNuevo = "defendiendo";
-				roles[1] = DEFENSA;
-				roles[3] = DEFENSA;
+//				roles[1] = DEFENSA;
+//				roles[3] = DEFENSA;
 			}
 			
 			if (estadoNuevo.compareTo(ultimoEstado) != 0) {
@@ -534,6 +534,7 @@ public class EnjutoMojamuTeamNacho extends ControlSystemSS
 				cubrir(calcularJugadorACubrir());
 				break;
 			case CENTRO:
+				cubrir(calcularJugadorACubrir());
 				break;
 			case CENTROCAMPISTAAPROVECHADORDEBLOQUEOS:
 				actuarCentrocampistaAprovechadorDeBloqueos();
