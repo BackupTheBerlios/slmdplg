@@ -13,7 +13,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 
@@ -396,9 +396,8 @@ public class EnjutoMojamuTeamEnsayoAlex2 extends ControlSystemSS
 
 	private int calcularJugadorACubrir() 
 	{	
-		int numDefensas = 0;
+		/*int numDefensas = 0;
 		int masAltos = 0;
-		Vec2 vCentroCompanero;
 		for (int i = 0; i < 5; i++)
 			if (roles[i] == DEFENSA)
 			{
@@ -435,7 +434,13 @@ public class EnjutoMojamuTeamEnsayoAlex2 extends ControlSystemSS
 			numerosVectorFin[i]=numerosVectorIni[minID];
 		}
 		masAltos = 0;
-		return numerosVectorFin[masAltos];
+		return numerosVectorFin[masAltos];*/
+		int elegido = 4; //Inicialmente el más ofensivo de los oponentes.
+		int numJugador = abstract_robot.getPlayerNumber(curr_time);
+		for (int i = 0; i < numJugador; i++)
+			if (roles[i] == DEFENSA)
+				elegido--;
+		return elegido;
 	}
 
 
@@ -448,38 +453,57 @@ public class EnjutoMojamuTeamEnsayoAlex2 extends ControlSystemSS
 			//Vec2 oponente = dameOponenteID(i);
 		
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
-			vOponenteBalon.setx(vOponenteBalon.x - oponentes[i].x);
-			vOponenteBalon.sety(vOponenteBalon.y - oponentes[i].y);
-			//Hacemos que el vector sea unitario, porque se multiplicarï¿½ despuï¿½s por el 2*radio (Menuda diferencia!!).
-			vOponenteBalon.normalize(1.0);
-			
-			//System.out.println("La medida de 2*Radius es = " + (2*SocSmall.RADIUS));
-			
-			//Sï¿½, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciï¿½n.
-			double pX = (2*SocSmall.RADIUS)*vOponenteBalon.x;
-			double pY = (2*SocSmall.RADIUS)*vOponenteBalon.y;
-			Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
-			//Antes
-				//Vec2 vJugadorPosicion = new Vec2((pX - posicionJugador.x),(pY - posicionJugador.y));
-			//Ahora
-			
-			//No vale, prueba inicial..
-			//Vec2 vJugadorPosicion = new Vec2((pX + posicionJugador.x),(pY + posicionJugador.y));
-			
-			//Yendo a la bola, pero con correcciï¿½n de ir "por donde vaya el rival" (poco ï¿½til) 
-			//Vec2 vJugadorPosicion = new Vec2((pX + balon.x),(pY + balon.y));
-
-			//Directamente al jugador rival (bloqueas mï¿½s):
-			//Vec2 vJugadorPosicion = new Vec2(oponentes[i].x,oponentes[i].y);
-			
-			//Entre la bola y el jugador:
-			Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
-
+			vOponenteBalon.sub(oponentes[i]);
+			double pX, pY;
+			Vec2 vJugadorPosicion;
+//			Vec2 vOponentePorteria = (Vec2)ourGoal.clone(); 
+//			vOponentePorteria.sub(oponentes[i]);
+//			boolean masCercaPorteria = ourGoal.r >= vOponentePorteria.r; //Indica si el oponente está mas cerca que nosotros de nuestra portería.
+//			if (vOponenteBalon.r > 1.5*SocSmall.RADIUS || !masCercaPorteria) //Si no lleva el balón o no está mas cerca de la portería que nosotros...
+//			{
+				//Hacemos que el vector sea unitario, porque se multiplicarï¿½ despuï¿½s por el 2*radio (Menuda diferencia!!).
+				vOponenteBalon.normalize(1.0);
+				
+				//System.out.println("La medida de 2*Radius es = " + (2*SocSmall.RADIUS));
+				
+				//Sï¿½, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciï¿½n.
+				pX = (2*SocSmall.RADIUS)*vOponenteBalon.x;
+				pY = (2*SocSmall.RADIUS)*vOponenteBalon.y;
+	//			Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
+				//Antes
+					//Vec2 vJugadorPosicion = new Vec2((pX - posicionJugador.x),(pY - posicionJugador.y));
+				//Ahora
+				
+				//No vale, prueba inicial..
+				//Vec2 vJugadorPosicion = new Vec2((pX + posicionJugador.x),(pY + posicionJugador.y));
+				
+				//Yendo a la bola, pero con correcciï¿½n de ir "por donde vaya el rival" (poco ï¿½til) 
+				//Vec2 vJugadorPosicion = new Vec2((pX + balon.x),(pY + balon.y));
+	
+				//Directamente al jugador rival (bloqueas mï¿½s):
+				//Vec2 vJugadorPosicion = new Vec2(oponentes[i].x,oponentes[i].y);
+				
+				//Entre la bola y el jugador:
+				vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
+//			}
+//			else
+//			{
+//				double radio = vOponentePorteria.r/2; //Iremos al punto medio entre el jugador y la portería.
+//				vOponentePorteria.normalize(radio);
+//				pX = radio*vOponentePorteria.x;
+//				pY = radio*vOponentePorteria.y;
+//				vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
+//				vJugadorPosicion = (Vec2)vOponentePorteria.clone();
+//				vJugadorPosicion.add(oponentes[i]);
+//				vJugadorPosicion = (Vec2)ourGoal.clone();			
+//				int d = 0;
+//				d+=3;
+//			}
 			//Como siempre.
 			double distanciaJugPos = vJugadorPosicion.r;
 			if (distanciaJugPos > 0.5*SocSmall.RADIUS)
 			{
-				abstract_robot.setSpeed(curr_time, 0.5);
+				abstract_robot.setSpeed(curr_time, 0.3);
 				abstract_robot.setSteerHeading(curr_time, vJugadorPosicion.t);
 				abstract_robot.setSpeed(curr_time, 1.0);
 			}
@@ -495,7 +519,6 @@ public class EnjutoMojamuTeamEnsayoAlex2 extends ControlSystemSS
 	private void atacar() 
 	{
 		//System.out.println("atacooo");
-		
 		
 		//Todos menos el primer jugador
 		if (abstract_robot.getPlayerNumber(curr_time) != 1)
