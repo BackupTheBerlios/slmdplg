@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 
 
@@ -94,46 +94,32 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	public void Configure()
 	{
 		int numRobot = abstract_robot.getPlayerNumber(abstract_robot.getTime());
-		if (numRobot == 0) {
+		if (numRobot == 0) 
+		{
 			abstract_robot.setDisplayString("Casillas");
-
 			this.rol = new EnjutoRolPortero(this, this.abstract_robot);
 			ultimoRol = PORTERO;
-
-			this.rol = new EnjutoRolPortero(this, this.abstract_robot);
-
 		}
-		else if (numRobot == 1) {
-
-			abstract_robot.setDisplayString("S.Ramos");
-			this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
-			ultimoRol = DEFENSA;
-
+		else if (numRobot == 1)
+		{
 			abstract_robot.setDisplayString("Ramos");
 			this.rol = new EnjutoRolDefensaCierre(this, this.abstract_robot);
-
+			ultimoRol = DEFENSACIERRE;
 		}
-		else if (numRobot == 2) {
-
-			abstract_robot.setDisplayString("Pajares");
-			this.rol = new EnjutoRolPalomero(this, this.abstract_robot);
-			ultimoRol = PALOMERO;
-
+		else if (numRobot == 2) 
+		{
 			abstract_robot.setDisplayString("Pepe");
 			this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
-
+			ultimoRol = DEFENSA;
 		}
-		else if (numRobot == 3) {
-
-			abstract_robot.setDisplayString("Raul");
-			this.rol = new EnjutoRolPalomero(this, this.abstract_robot);
-			ultimoRol = PALOMERO;
-
+		else if (numRobot == 3)
+		{
 			abstract_robot.setDisplayString("Guti");
 			this.rol = new EnjutoRolCentrocampistaBloqueador(this, this.abstract_robot);
-
+			ultimoRol = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
 		}
-		else if (numRobot == 4) {
+		else if (numRobot == 4) 
+		{
 			abstract_robot.setDisplayString("Raul");
 			this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
 			ultimoRol = DELANTERO;
