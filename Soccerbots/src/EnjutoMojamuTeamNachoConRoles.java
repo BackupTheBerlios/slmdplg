@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  */
 
 
@@ -628,9 +628,9 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				double distanciaJugPos = vJugadorPosicion.r;
 				if (distanciaJugPos > 0.5*SocSmall.RADIUS)
 				{
-					abstract_robot.setSpeed(curr_time, 0.2);
+					abstract_robot.setSpeed(curr_time, 0.0);
 					abstract_robot.setSteerHeading(curr_time, vJugadorPosicion.t);
-					abstract_robot.setSpeed(curr_time, 1.0);
+					abstract_robot.setSpeed(curr_time, 0.5);
 				}
 				else
 				{
@@ -646,7 +646,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				{
 					abstract_robot.setSpeed(curr_time, 0.2);
 					abstract_robot.setSteerHeading(curr_time, balon.t);
-					abstract_robot.setSpeed(curr_time, 1.0);
+					abstract_robot.setSpeed(curr_time, 0.8);
 				}
 				else
 					cubrirPase(i);
