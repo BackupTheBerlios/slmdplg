@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  */
 
 
@@ -900,7 +900,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		return masAdelantado;
 	}
 	
-	private void goToBall() {
+	public void goToBall() {
 		abstract_robot.setSteerHeading(curr_time, balon.t);
 		abstract_robot.setSpeed(curr_time, 1.0);
 
@@ -940,6 +940,18 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		return masOfensivo;	
 	}*/
 	
+	public int devolverDefensaMasDefensivoNoBloqueado() {
+		//De momento beta, devuelve el primer delantero que encuentre.
+		//int deMomentoPlayer=-1;
+		//int deMomentoDistancia=1000;
+		for (int i=0;i<5;i++) {
+			if (roles[i] == DEFENSA) {
+				return i;
+			}
+		}
+		return -1; //Si sale del for devolver -1, no encontrado
+	}
+	
 	public Vec2 evitarColision(boolean evitarOponentes )
 	{
 		//Comprobamos cercanía a nuestros compañeros y actualizamos.
@@ -970,7 +982,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			else return null;
 	}
 
-	private Vec2 calcularMasCercano(Vec2 posicion, Vec2[] candidatos) 
+	public Vec2 calcularMasCercano(Vec2 posicion, Vec2[] candidatos) 
 	{
 		double dist = 9999;
 		Vec2 result = new Vec2(0, 0);
@@ -993,7 +1005,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	//Aï¿½adido por Nach
 	
-	private void tacticaAbsurda() {
+	public void tacticaAbsurda() {
 		//Go to corner.
 
 		// set heading towards it
@@ -1026,20 +1038,36 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			return false;
 	}
 
-	//Derecha = Abajo (si fuera siempre Este) en otras funciones.
+	//Derecha = Abajo (si fuera siempre Oeste) en otras funciones.
 	public boolean estasEnBandaDerecha() {
-		if ( ourGoal.y > 0.35)
-			return true;
-		else
-			return false;
+		if (SIDE==-1) {
+			if ( ourGoal.y > 0.35)
+				return true;
+			else
+				return false;
+		}
+		else {
+			if ( ourGoal.y < -0.35)
+				return true;
+			else
+				return false;			
+		}
 	}
 	
 	//Izquierda = Arriba (si fuera siempre Este) en otras funciones.
 	public boolean estasEnBandaIzquierda() {
-		if ( ourGoal.y < -0.35)
-			return true;
-		else
-			return false;
+		if (SIDE==-1) {
+			if ( ourGoal.y < -0.35) 
+				return true;
+			else
+				return false;
+		}
+		else {
+			if ( ourGoal.y > 0.35)
+				return true;
+			else
+				return false;			
+		}
 	}
 	
 	public boolean estasMuyEnBanda() {
@@ -1051,12 +1079,45 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	//Comprobar que funcione para este y oeste.
 	public boolean balonCercaAreaPropia() {
-//		if (balon.x < 0.25) {
-		if (ballMenosOurGoal.x < 0.35) {
-			return true;
+		if (SIDE==-1) {
+			// if (balon.x < 0.25) {
+			if (ballMenosOurGoal.x < 0.65) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		else {
-			return false;
+			// if (balon.x < -0.25) {
+			if (ballMenosOurGoal.x < -0.65) {
+				return true;
+			}
+			else {
+				return false;
+			}			
+		}
+	}
+	
+	//Para este y oeste.
+	public boolean balonMuyCercaAreaPropia() {
+		if (SIDE==-1) {
+			// if (balon.x < 0.25) {
+			if (ballMenosOurGoal.x < 0.35) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			// if (balon.x < -0.25) {
+			if (ballMenosOurGoal.x < -0.35) {
+				return true;
+			}
+			else {
+				return false;
+			}			
 		}
 	}
 
@@ -1115,7 +1176,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		}
 	}
 	
-	private Vec2 getVectorResta(Vec2 vector1, Vec2 vector2) 
+	public Vec2 getVectorResta(Vec2 vector1, Vec2 vector2) 
 	{
 		Vec2 v = (Vec2)vector1.clone();
 		v.sub(vector2);
@@ -1133,11 +1194,22 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 	
 	public boolean estasBajoPalosEnX() {
-		if (ourGoal.x<-0.15) {
-			return true;
+		if (SIDE==-1) {
+			//Cambiado
+			if (ourGoal.x > -0.15) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		else {
-			return false;
+			if (ourGoal.x < 0.15) {
+				return true;
+			}
+			else {
+				return false;
+			}			
 		}
 	}
 
@@ -1174,20 +1246,38 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 	
 	public boolean estaEnVector(Vec2 vector) {
+		//Tanto para este como para oeste.
 		if (vector.r <0.07)
+			return true;
+		else
+			return false;
+	}
+
+	public boolean estaCercaDeVector(Vec2 vector) {
+		//Tanto para este como para oeste.
+		if (vector.r <0.17)
 			return true;
 		else
 			return false;
 	}
 	
 	public boolean tienesBalonPorDelanteYCerca() {
-		//>0... o >-0.05 cuando estï¿½ casi.
-		if (balon.x>-0.05 && balon.r<0.22)
-			return true;
-		else
-			return false;
+		//Tanto para este como para oeste.
+		if (SIDE==-1) {
+			//>0... o >-0.05 cuando esté casi.
+			if (balon.x > -0.05 && balon.r < 0.22)
+				return true;
+			else
+				return false;
+		}
+		else {
+			//>0... o >-0.05 cuando esté casi.
+			if (balon.x < 0.05 && balon.r < 0.22)
+				return true;
+			else
+				return false;
+		}
 	}
-	
 	
 	
 	public int devolverDelanteroMenosOfensivo() {
@@ -1222,6 +1312,25 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			break;
 			
 		
+		}
+	}
+	
+
+	
+	//Más funciones Nacho/Portero
+	public boolean demasiadoAdelantado() {
+		System.out.println(ourGoal.toString());
+		if (SIDE==-1) {
+			if (ourGoal.x<-0.15)
+				return true;
+			else 
+				return false;
+		}
+		else {
+			if (ourGoal.x>0.15)
+				return true;
+			else 
+				return false;		
 		}
 	}
 	
