@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  */
 
 
@@ -582,8 +582,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				//Sï¿½, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciï¿½n.
 				double pX = mitadDistancia*vOponentePorteria.x;
 				double pY = mitadDistancia*vOponentePorteria.y;
-				System.out.println("umbral: " + ANCHO_CAMPO/2);
-				System.out.println("mitad distancia: " + mitadDistancia);
 
 				//Entre la bola y el jugador:
 				Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
@@ -592,7 +590,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				double distanciaJugPos = vJugadorPosicion.r;
 				if (distanciaJugPos > 0.5*SocSmall.RADIUS)
 				{
-					abstract_robot.setSpeed(curr_time, 0.5);
+					abstract_robot.setSpeed(curr_time, 0.2);
 					abstract_robot.setSteerHeading(curr_time, vJugadorPosicion.t);
 					abstract_robot.setSpeed(curr_time, 1.0);
 				}
@@ -606,8 +604,9 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			{
 				Vec2 vOponenteBalon = (Vec2)balon.clone();
 				vOponenteBalon.sub(oponentes[i]);
-				if (vOponenteBalon.r < 1.1*SocSmall.RADIUS)
+				if (vOponenteBalon.r < 1.5*SocSmall.RADIUS) //Al que hay que cubrir, lleva el balón (o casi).
 				{
+					abstract_robot.setSpeed(curr_time, 0.2);
 					abstract_robot.setSteerHeading(curr_time, balon.t);
 					abstract_robot.setSpeed(curr_time, 1.0);
 				}
