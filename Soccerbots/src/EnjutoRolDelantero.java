@@ -18,7 +18,7 @@ public class EnjutoRolDelantero extends EnjutoRol {
 	
 	public EnjutoRolDelantero(EnjutoMojamuTeamNachoConRoles jugador, SocSmall robot){
 		this.jugador = jugador;
-		this.identificadorRol = 0;
+		this.identificadorRol = 3;
 		this.abstract_robot = robot;
 	}
 	
@@ -26,12 +26,15 @@ public class EnjutoRolDelantero extends EnjutoRol {
 		//!\ Ahora está configurado para que haga lo mismo tanto atacando como defendiendo.
 		
 		if (estadoAtaqueODefensa == jugador.ATACAR){
+			abstract_robot.setDisplayString("Delantero ataca");
 			inicializaVariablesAtaque();
 			actuarDelantero();
 		} else {
 			if (estadoAtaqueODefensa == jugador.DEFENDER){
 				//jugador.cubrir(jugador.calcularJugadorACubrir());
-				
+				abstract_robot.setDisplayString("Delantero defiende =");
+				inicializaVariablesAtaque();
+				actuarDelantero();
 			}
 		}
 	}
@@ -109,11 +112,13 @@ public class EnjutoRolDelantero extends EnjutoRol {
 
 		// kick it if we can
 		double distancia = jugador.calcularDistancia(balon, jugador.oponentGoal);
-		double distanciaTiro = 0.5;
+		double distanciaTiro = 1;
 		if (abstract_robot.canKick(curr_time) && distancia < distanciaTiro)
 		{
 			abstract_robot.kick(curr_time);
+			abstract_robot.setSpeed(curr_time, 0.0);
 			System.out.print("TIRA!!");
+			//abstract_robot.setSteerHeading(curr_time, jugador.ourGoal.t);
 		}
 	}
 	

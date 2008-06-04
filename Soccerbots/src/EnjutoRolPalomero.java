@@ -13,7 +13,7 @@ public class EnjutoRolPalomero extends EnjutoRol {
 	
 	public EnjutoRolPalomero(EnjutoMojamuTeamNachoConRoles jugador, SocSmall robot){
 		this.jugador = jugador;
-		this.identificadorRol = 0;
+		this.identificadorRol = 6;
 		this.abstract_robot = robot;
 	}
 	
@@ -21,10 +21,13 @@ public class EnjutoRolPalomero extends EnjutoRol {
 		//!\ Ahora está configurado para que haga lo mismo tanto atacando como defendiendo.
 		
 		if (estadoAtaqueODefensa == jugador.ATACAR){
-			
+			abstract_robot.setDisplayString("Palomero Ataca!");			
+			inicializaVariablesAtaque();
+			actuarPalomero();
 		} else {
 			if (estadoAtaqueODefensa == jugador.DEFENDER){
 				//jugador.cubrir(jugador.calcularJugadorACubrir());
+				this.jugador.cambiarRol(jugador.DEFENSA);
 			}
 		}
 	}
@@ -97,12 +100,18 @@ public class EnjutoRolPalomero extends EnjutoRol {
 			}
 		}
 		
+		//Modificador de la velocidad en base a la posición del balón en el eje X
+		Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
+		if ( (posicionJugador.x - balon.x)*jugador.SIDE > 0 ) {
+			
+		}
+		
 		
 		//Independiente a la colocación
 		double robotApoyo;
 		
 		if (palomero) {
-			robotApoyo = 2*abstract_robot.RADIUS;
+			robotApoyo = 4*abstract_robot.RADIUS;
 		} else {
 			robotApoyo = 3*abstract_robot.RADIUS;
 		}
