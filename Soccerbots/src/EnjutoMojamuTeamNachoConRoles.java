@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  */
 
 
@@ -171,13 +171,24 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		balon = abstract_robot.getBall(curr_time);
 		ourGoal = abstract_robot.getOurGoal(curr_time);
 		oponentGoal = abstract_robot.getOpponentsGoal(curr_time);
-		oponentes = abstract_robot.getOpponents(curr_time);	
-		theirLeftPost = new Vec2(oponentGoal.x,oponentGoal.y+ANCHO_PORTERIA/2);
-	    theirRightPost = new Vec2(oponentGoal.x,oponentGoal.y-ANCHO_PORTERIA/2);
-	    ourLeftPost = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/2);
-	    ourRightPost = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/2);
-	    ourGoalCenterLeft = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/4);
-	    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);    
+		oponentes = abstract_robot.getOpponents(curr_time);
+		
+		if (SIDE==-1) {
+			theirLeftPost = new Vec2(oponentGoal.x,oponentGoal.y-ANCHO_PORTERIA/2);
+		    theirRightPost = new Vec2(oponentGoal.x,oponentGoal.y+ANCHO_PORTERIA/2);
+		    ourLeftPost = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/2);
+		    ourRightPost = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/2);
+		    ourGoalCenterLeft = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/4);
+		    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);
+		}
+		else {
+			theirLeftPost = new Vec2(oponentGoal.x,oponentGoal.y+ANCHO_PORTERIA/2);
+		    theirRightPost = new Vec2(oponentGoal.x,oponentGoal.y-ANCHO_PORTERIA/2);
+		    ourLeftPost = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/2);
+		    ourRightPost = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/2);
+		    ourGoalCenterLeft = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);
+		    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/4);			
+		}
 	}
 		
 	
@@ -258,8 +269,9 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			cercaCentroDelCampoOeste = new Vec2(ourGoal.x+(LONGITUD_CAMPO/2)-0.14,ourGoal.y);
 	    } else {
 	    	ourGoalAdelantado = new Vec2(ourGoal.x-0.10,ourGoal.y);
-			cercaCentroDelCampoEste = new Vec2(ourGoal.x-(LONGITUD_CAMPO/2)-0.14,ourGoal.y);
-			cercaCentroDelCampoOeste = new Vec2(ourGoal.x-(LONGITUD_CAMPO/2)+0.14,ourGoal.y);
+	    	
+			cercaCentroDelCampoEste = new Vec2(ourGoal.x-(LONGITUD_CAMPO/2)+0.14,ourGoal.y);
+			cercaCentroDelCampoOeste = new Vec2(ourGoal.x-(LONGITUD_CAMPO/2)-0.14,ourGoal.y);
 	    }
 	 
 	    //Partes que solo hay que calcular 1 vez (solo se calcular�n para el jugador 0).

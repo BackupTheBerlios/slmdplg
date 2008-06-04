@@ -115,7 +115,14 @@ public class EnjutoRolDelantero extends EnjutoRol {
 		double distanciaTiro = 1;
 		if (abstract_robot.canKick(curr_time) && distancia < distanciaTiro)
 		{
+			abstract_robot.setSpeed(curr_time, 1.0);
+			jugador.theirLeftPost.normalize(5);
+			jugador.theirLeftPost.setr(1);
+			
+			abstract_robot.setSteerHeading(curr_time,jugador.theirLeftPost.t);
 			abstract_robot.kick(curr_time);
+			
+			//Nuevo:
 			abstract_robot.setSpeed(curr_time, 0.0);
 			System.out.print("TIRA!!");
 			//abstract_robot.setSteerHeading(curr_time, jugador.ourGoal.t);
