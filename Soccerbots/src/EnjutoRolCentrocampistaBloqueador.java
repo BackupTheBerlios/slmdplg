@@ -14,6 +14,7 @@ public class EnjutoRolCentrocampistaBloqueador extends EnjutoRol {
 	}
 	
 	public void actuarRol(int estadoAtaqueODefensa){
+		abstract_robot.setDisplayString("Centro Campista!");
 		actuarCentrocampistaAprovechadorDeBloqueos();
 	}
 	
