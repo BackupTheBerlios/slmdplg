@@ -7,7 +7,7 @@ import EDU.gatech.cc.is.util.Vec2;
 
 public class EnjutoRolPortero extends EnjutoRol {
 	
-	private int porteroBloqueado;
+	private static int porteroBloqueado;
 	private int estadoPortero;
 	private int maxCiclosSeguirY;
 	
@@ -400,23 +400,39 @@ public class EnjutoRolPortero extends EnjutoRol {
 		if( oponenteMasCercano.r < SocSmall.RADIUS*1.1)
 		{
 			porteroBloqueado++;
-			if (porteroBloqueado<=125 && !jugador.estasEnBanda()) {
+			if (porteroBloqueado<=225 && !jugador.estasEnBanda()) {
 				return false;
 			}
 			else {
+				System.out.println("**********\n\n\nPortero BLOQUEADO!!!\n\n\n****");
 				porteroBloqueado=0;
 				int defensa = jugador.devolverDefensaMasDefensivoNoBloqueado();
-				if (defensa>=0) { 
-					jugador.roles[abstract_robot.getPlayerNumber(jugador.curr_time)] = jugador.DEFENSA;
+				int defensaCierre = jugador.devolverDefensaCierreMasDefensivoNoBloqueado();		
+				if (defensa>=0 || defensaCierre>=0) { 
+					
 					//roles[delantero] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
 					//Se le manda a todos que este rol va a ser delantero. 
-					Message m1 = new StringMessage("YO DEFENSA");
-					m1.sender = abstract_robot.getPlayerNumber(jugador.curr_time);
-					abstract_robot.broadcast(m1);
+					Message m1;
+					int[] ids=new int[1];
+					if (defensaCierre>=0) {
+						m1 = new StringMessage("YO DEFENSACIERRE");
+						m1.sender = abstract_robot.getPlayerNumber(jugador.curr_time);
+						abstract_robot.broadcast(m1);
+						ids[0] = defensaCierre;
+						System.out.println("Cambio de Rol: DefensaCierre "+defensaCierre+" por Portero "+abstract_robot.getPlayerNumber(jugador.curr_time));
+						jugador.roles[abstract_robot.getPlayerNumber(jugador.curr_time)] = jugador.DEFENSACIERRE;
+						jugador.cambiarRol(jugador.DEFENSACIERRE);
+					} else {
+						m1 = new StringMessage("YO DEFENSA");
+						m1.sender = abstract_robot.getPlayerNumber(jugador.curr_time);
+						abstract_robot.broadcast(m1);
+						ids[0] = defensa;
+						System.out.println("Cambio de Rol: Defensa "+defensa+" por Portero "+abstract_robot.getPlayerNumber(jugador.curr_time));
+						jugador.roles[abstract_robot.getPlayerNumber(jugador.curr_time)] = jugador.DEFENSA;
+						jugador.cambiarRol(jugador.DEFENSA);
+					}
 					Message m2 = new StringMessage("TU PORTERO");
 					m2.sender = abstract_robot.getPlayerNumber(jugador.curr_time);
-					int[] ids=new int[1];
-					ids[0] = defensa;
 					try {
 						//Se le manda únicamente al delantero que va a pasar a ser centrocampistaAprovechadorDeBloqueos, y ya será ese el que comunique al resto los cambios.
 						abstract_robot.multicast(ids, m2);
@@ -425,7 +441,6 @@ public class EnjutoRolPortero extends EnjutoRol {
 					}
 					//if (roles[delantero] == CENTROCAMPISTAAPROVECHADORDEBLOQUEOS)
 					//	System.out.println("Menos mal");
-					System.out.println("Cambio de Rol: Defensa "+defensa+" por Portero "+abstract_robot.getPlayerNumber(jugador.curr_time));
 				}
 				return true;
 			}
