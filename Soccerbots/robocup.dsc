@@ -146,32 +146,32 @@ object EDU.gatech.cc.is.simulation.GolfBallNoiseSim 0 0 0 0.02
 
 //======WEST TEAM======
 westname WestTeam
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNacho
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
 //------------your control system name goes here ^^^^^^^^
 	-1.2  0    0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNacho
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
 //------------your control system name goes here ^^^^^^^^
 	-.5   0    0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNacho
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
 //------------your control system name goes here ^^^^^^^^
 	-.15  .5   0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNacho
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
 //------------your control system name goes here ^^^^^^^^
 	-.15  0    0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNacho
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
 //------------your control system name goes here ^^^^^^^^
 	-.15  -.5  0 xEAEA00 xFFFFFF 1
 
 //======EAST TEAM======
 eastname EastTeam
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 1.2  0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .5   0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .15  .5   0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .15  0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim JuventusDeTuring
 	 .15  -.5  0 xFF0000 x0000FF 2
 

@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 
 
@@ -146,11 +146,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	    ourLeftPost = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/2);
 	    ourRightPost = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/2);
 	    ourGoalCenterLeft = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/4);
-	    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);
-	    
-
-	    
-	    
+	    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);    
 	}
 		
 	
@@ -268,17 +264,8 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		
 		
 		
-		if (!miPosesion && pos)
-		{			
+		if ((!miPosesion && pos) || (miPosesion && !pos))	//Ha habido cambio de posesión.	
 			miPosesion = pos;
-		}
-		else if (miPosesion && !pos)
-		{
-			miPosesion = pos;
-		}
-		
-		
-		
 		
 		int estadoNuevo = -1;
 		
@@ -300,25 +287,19 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 					System.out.println("CAMBIO DE ESTRATEGIA!!");
 				}*/
 				contadorCambioEstado = CICLOSPARACAMBIAR;
-				evitaColision = realizarEstrategia(estadoNuevo);
+				evitaColision = evitarColision(estadoNuevo);
 				encasillado = false;
 				this.ultimoEstado = estadoNuevo;
 				estadoAtaqueODefensa = estadoNuevo;
 			} else {
-				evitaColision = realizarEstrategia(ultimoEstado);
+				evitaColision = evitarColision(ultimoEstado);
 				estadoAtaqueODefensa = ultimoEstado;
 			}
 		} else {
-			evitaColision = realizarEstrategia(ultimoEstado);
+			evitaColision = evitarColision(ultimoEstado);
 			contadorCambioEstado = CICLOSPARACAMBIAR;
 			this.ultimoEstado = estadoNuevo;
 			estadoAtaqueODefensa = ultimoEstado;
-		}
-		
-		if (evitaColision != null)
-		{
-			abstract_robot.setSteerHeading(curr_time, evitaColision.t);
-			abstract_robot.setSpeed(curr_time, evitaColision.r);
 		}
 				
 		/*--- Comprobando si tengo mensajes sin leer de mis compaï¿½eros ---*/
@@ -370,7 +351,13 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		}
 		
 		rol.actuarRol(estadoAtaqueODefensa);
-		
+
+		//Se hace después de actuar, si no no se evita la colisión.
+		if (evitaColision != null)
+		{
+			abstract_robot.setSteerHeading(curr_time, evitaColision.t);
+			abstract_robot.setSpeed(curr_time, evitaColision.r);
+		}
 		
 		return(CSSTAT_OK);
 	}
@@ -381,7 +368,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 
 
-	private Vec2 realizarEstrategia(int estrategia){
+	private Vec2 evitarColision(int estrategia){
 		if (estrategia == ATACAR){
 			//atacar();
 			return evitarColision(true); //Tambiï¿½n evitamos colisiones con los oponentes.
