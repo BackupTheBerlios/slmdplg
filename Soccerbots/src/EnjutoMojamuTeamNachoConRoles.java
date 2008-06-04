@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  */
 
 
@@ -45,7 +45,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	  // Dimensiones del campo y de las porter�as (Del equipo PROFES1, comprobar, porque alguno utiliza otros valores porque tal vez interese)
 	  static final double ANCHO_CAMPO = 1.525;
 	  static final double LONGITUD_CAMPO = 2.74;
-	  static final double ANCHO_PORTERIA = 0.45; //En teor�a 0.5, peor tal vez nos interese esta distancia.
+	  static final double ANCHO_PORTERIA = 0.48; //En teor�a 0.5, peor tal vez nos interese esta distancia.
 
 	  static int golesMarcados;
 	  static int golesEncajados;
