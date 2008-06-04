@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  */
 
 
@@ -28,6 +28,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	  static final int CENTRO = 2;
 	  static final int DELANTERO = 3;
 	  static final int CENTROCAMPISTAAPROVECHADORDEBLOQUEOS = 4;
+	  static final int DEFENSACIERRE = 5;
 	  
 	  static final int SINPOSESION = 0;
 	  static final int POSESION = 1;
@@ -90,22 +91,22 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		int numRobot = abstract_robot.getPlayerNumber(abstract_robot.getTime());
 		if (numRobot == 0) {
 			abstract_robot.setDisplayString("Casillas");
-			this.rol = new EnjutoRolCentrocampistaBloqueador(this, this.abstract_robot);
-		}
-		else if (numRobot == 1) {
-			abstract_robot.setDisplayString("S.Ramos");
-			this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
-		}
-		else if (numRobot == 2) {
-			abstract_robot.setDisplayString("Pajares");
 			this.rol = new EnjutoRolPortero(this, this.abstract_robot);
 		}
-		else if (numRobot == 3) {
-			abstract_robot.setDisplayString("Raul");
+		else if (numRobot == 1) {
+			abstract_robot.setDisplayString("Ramos");
+			this.rol = new EnjutoRolDefensaCierre(this, this.abstract_robot);
+		}
+		else if (numRobot == 2) {
+			abstract_robot.setDisplayString("Pepe");
 			this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
 		}
+		else if (numRobot == 3) {
+			abstract_robot.setDisplayString("Guti");
+			this.rol = new EnjutoRolCentrocampistaBloqueador(this, this.abstract_robot);
+		}
 		else if (numRobot == 4) {
-			abstract_robot.setDisplayString("Guti.Haz.Algo");
+			abstract_robot.setDisplayString("Raul");
 			this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
 		}
 			
@@ -115,10 +116,10 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		
 		//Gracias a este vector conozco que roles desempe√±an mis compa√±eros.
 		roles = new int[5];
-		roles[0] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
-		roles[1] = DEFENSA;
-		roles[2] = PORTERO;
-		roles[3] = DEFENSA;
+		roles[0] = PORTERO;
+		roles[1] = DEFENSACIERRE;
+		roles[2] = DEFENSA;
+		roles[3] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
 		roles[4] = DELANTERO;
 		
 		oponentesAncho = new Vec2[5];
@@ -475,7 +476,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 
 	public int calcularJugadorACubrir() 
 	{	
-		int numDefensas = 0;
+		/*int numDefensas = 0;
 		int masAltos = 0;
 		for (int i = 0; i < 5; i++)
 			if (roles[i] == DEFENSA)
@@ -513,43 +514,32 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			numerosVectorFin[i]=numerosVectorIni[minID];
 		}
 		masAltos = 0;
-		return numerosVectorFin[masAltos];
+		return numerosVectorFin[masAltos];*/
+		int elegido = 4; //Inicialmente el m·s ofensivo de los oponentes.
+		
+		int numJugador = abstract_robot.getPlayerNumber(curr_time);
+		for (int i = 0; i < numJugador; i++)
+			if ((roles[i] == DEFENSA) || (roles[i] == DEFENSACIERRE))
+				elegido--;
+		return elegido;
 	}
 
 
-	public void cubrir(int i)
+	public void cubrirPase(int i)
 	{
-		abstract_robot.setDisplayString("al " + i);
 		//Nunca entendido, de hecho he puesto ahora >= para que cubra tambiÔøΩn el jugador 4.
 		if (oponentes.length >= i)
 		{
-			//Vec2 oponente = dameOponenteID(i);
-		
+			abstract_robot.setDisplayString("CPase " + i);
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
-			vOponenteBalon.setx(vOponenteBalon.x - oponentes[i].x);
-			vOponenteBalon.sety(vOponenteBalon.y - oponentes[i].y);
+			vOponenteBalon.sub(oponentes[i]);
 			//Hacemos que el vector sea unitario, porque se multiplicarÔøΩ despuÔøΩs por el 2*radio (Menuda diferencia!!).
 			vOponenteBalon.normalize(1.0);
-			
-			//System.out.println("La medida de 2*Radius es = " + (2*SocSmall.RADIUS));
-			
+
 			//SÔøΩ, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciÔøΩn.
 			double pX = (2*SocSmall.RADIUS)*vOponenteBalon.x;
 			double pY = (2*SocSmall.RADIUS)*vOponenteBalon.y;
-			Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
-			//Antes
-				//Vec2 vJugadorPosicion = new Vec2((pX - posicionJugador.x),(pY - posicionJugador.y));
-			//Ahora
-			
-			//No vale, prueba inicial..
-			//Vec2 vJugadorPosicion = new Vec2((pX + posicionJugador.x),(pY + posicionJugador.y));
-			
-			//Yendo a la bola, pero con correcciÔøΩn de ir "por donde vaya el rival" (poco ÔøΩtil) 
-			//Vec2 vJugadorPosicion = new Vec2((pX + balon.x),(pY + balon.y));
 
-			//Directamente al jugador rival (bloqueas mÔøΩs):
-			//Vec2 vJugadorPosicion = new Vec2(oponentes[i].x,oponentes[i].y);
-			
 			//Entre la bola y el jugador:
 			Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
 
@@ -565,6 +555,64 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			{
 				abstract_robot.setSteerHeading(curr_time, balon.t);
 				abstract_robot.setSpeed(curr_time, 0.0);
+			}
+		}
+	}
+	
+	public void cubrirContra(int i)
+	{
+		//Nunca entendido, de hecho he puesto ahora >= para que cubra tambiÔøΩn el jugador 4.
+		if (oponentes.length >= i)
+		{
+			abstract_robot.setDisplayString("CContra " + i);
+
+			Vec2 vOponentePorteria = (Vec2)ourGoal.clone(); 
+			vOponentePorteria.sub(oponentes[i]);
+			boolean estaLejosDePorteria = vOponentePorteria.r > ANCHO_CAMPO/2;
+			boolean oponenteALaDerecha = oponentes[i].x > 0;
+			boolean estoyEntreOponentePorteria = ((SIDE == -1 && oponenteALaDerecha) || (SIDE == 1 && !oponenteALaDerecha));
+
+			if (estaLejosDePorteria || !estoyEntreOponentePorteria) //Recular al punto medio entre el oponente y la porterÌa.
+			{
+//				abstract_robot.setDisplayString("DF " + estaLejosDePorteria + estoyEntreOponentePorteria);
+				//Hacemos que el vector sea unitario, porque se multiplicarÔøΩ despuÔøΩs por el 2*radio (Menuda diferencia!!).
+				double mitadDistancia = vOponentePorteria.r/2;
+				vOponentePorteria.normalize(1.0);
+
+				//SÔøΩ, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciÔøΩn.
+				double pX = mitadDistancia*vOponentePorteria.x;
+				double pY = mitadDistancia*vOponentePorteria.y;
+				System.out.println("umbral: " + ANCHO_CAMPO/2);
+				System.out.println("mitad distancia: " + mitadDistancia);
+
+				//Entre la bola y el jugador:
+				Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
+
+				//Como siempre.
+				double distanciaJugPos = vJugadorPosicion.r;
+				if (distanciaJugPos > 0.5*SocSmall.RADIUS)
+				{
+					abstract_robot.setSpeed(curr_time, 0.5);
+					abstract_robot.setSteerHeading(curr_time, vJugadorPosicion.t);
+					abstract_robot.setSpeed(curr_time, 1.0);
+				}
+				else
+				{
+					abstract_robot.setSteerHeading(curr_time, balon.t);
+					abstract_robot.setSpeed(curr_time, 0.0);
+				}
+			}
+			else //Est· cerca y yo entre Èl y la porterÌa.
+			{
+				Vec2 vOponenteBalon = (Vec2)balon.clone();
+				vOponenteBalon.sub(oponentes[i]);
+				if (vOponenteBalon.r < 1.1*SocSmall.RADIUS)
+				{
+					abstract_robot.setSteerHeading(curr_time, balon.t);
+					abstract_robot.setSpeed(curr_time, 1.0);
+				}
+				else
+					cubrirPase(i);
 			}
 		}
 	}

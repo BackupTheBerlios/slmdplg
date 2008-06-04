@@ -41,7 +41,7 @@ public class EnjutoRolUltimoDefensa extends EnjutoRol {
 				abstract_robot.setSteerHeading(curr_time, cercaDeMiCampo.t);
 			} else {
 				abstract_robot.setDisplayString("Mi CAMPO");
-				jugador.cubrir(enemigoMasPeligroso);
+				jugador.cubrirPase(enemigoMasPeligroso);
 			}
 			
 			
