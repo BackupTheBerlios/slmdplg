@@ -504,7 +504,6 @@ public class ISBCUnited extends ControlSystemSS {
        abstract_robot.setSteerHeading(tiempo,resultado.t);
        abstract_robot.setSpeed(tiempo, 1.0);
      }
-     
   }
          
  public double buscarCamino(Vec2 posicion) {

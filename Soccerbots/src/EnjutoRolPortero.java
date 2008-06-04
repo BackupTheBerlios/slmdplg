@@ -191,7 +191,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 		}
 		else if (!jugador.balonCercaAreaPropia() && jugador.estasEnElCentroVerticalDelCampo() && !jugador.demasiadoAdelantado()) {
 			//System.out.println("PORTERO: !balonCercaAreaPropia() && estasEnElCentroVerticalDelCampo()");
-			System.out.println("Portero Parado");
+//			System.out.println("Portero Parado");
 			if (estadoPortero!=423)
 				abstract_robot.setSpeed(curr_time, 0);
 			abstract_robot.setSteerHeading(curr_time, balon.t);

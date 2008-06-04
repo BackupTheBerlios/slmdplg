@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 
 
@@ -1445,6 +1445,28 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		}
 	}
 	
-	//M�todo a mejorar.}
+	public void conducirBalon()
+	{    
+		System.out.println("Conduciendo: " + abstract_robot.getPlayerNumber(curr_time));
+	     Vec2 trayectoria;
+	     trayectoria = new Vec2(balon);
+	     trayectoria.sub(oponentGoal);
+	     trayectoria.setr(0.054);
+	     trayectoria.add(balon);
+	            
+	     trayectoria.normalize(1.0);
+	     abstract_robot.setSteerHeading(curr_time, trayectoria.t);
+	     
+	     if(!abstract_robot.canKick(curr_time))
+	     {
+	       Vec2 resultado = new Vec2();
+//	       resultado.sett(this.buscarCamino(posChute));
+//	       resultado.setr(1.0);
+	       Vec2 result = evitarColision(true);
+	       if (result != null)
+	    	   abstract_robot.setSteerHeading(curr_time,resultado.t);
+	       abstract_robot.setSpeed(curr_time, 1.0);
+	     }
+	  }
 
 }
