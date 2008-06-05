@@ -65,7 +65,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 			estadoPortero = 1;
 		}
 		else if ( jugador.estasEnBandaDerecha() ) {
-			System.out.println("PORTERO: estas en banda derecha");
+			//System.out.println("PORTERO: estas en banda derecha");
 			// set speed at minimum
 			if (estadoPortero != 11)
 				abstract_robot.setSpeed(jugador.curr_time, 0);
@@ -76,7 +76,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 			estadoPortero = 11;
 		}
 		else if ( jugador.estasEnBandaIzquierda() ) {
-			System.out.println("PORTERO: estas en banda izquierda");
+			//System.out.println("PORTERO: estas en banda izquierda");
 			// set speed at minimum
 			if (estadoPortero != 111)
 				abstract_robot.setSpeed(curr_time, 0);
@@ -107,7 +107,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 			abstract_robot.setSteerHeading(curr_time, balonConCorreccionOfensiva.t);
 			abstract_robot.setSpeed(curr_time, 0.9); //Antes 0.75	
 			if (balon.x>0 && abstract_robot.canKick(curr_time)) {
-				System.out.println("Portero: ¡¡Despejo!!");
+				//System.out.println("Portero: ¡¡Despejo!!");
 				abstract_robot.kick(curr_time);
 			}
 			else {
@@ -173,7 +173,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 		//Añadido ultimamente el balonDemasiadoLejosDeAreaPropia
 		else if (!jugador.balonCercaAreaPropia() && jugador.balonDemasiadoLejosDeAreaPropia() && !jugador.estasEnElCentroVerticalDelCampo()) {
 			//System.out.println("PORTERO: !balonCercaAreaPropia() && !estasEnElCentroVerticalDelCampo()");
-			System.out.println("Mirando a OurGoal");
+			//System.out.println("Mirando a OurGoal");
 			if (estadoPortero!=4)
 				abstract_robot.setSpeed(curr_time, 0);
 			abstract_robot.setSteerHeading(curr_time, ourGoal.t);
@@ -182,7 +182,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 		}
 		else if (!jugador.balonCercaAreaPropia() && jugador.estasEnElCentroVerticalDelCampo() && jugador.demasiadoAdelantado()) {
 			//System.out.println("PORTERO: !balonCercaAreaPropia() && estasEnElCentroVerticalDelCampo()");
-			System.out.println("OUR GOAL ADELANTADO");
+			//System.out.println("OUR GOAL ADELANTADO");
 			if (estadoPortero!=423)
 				abstract_robot.setSpeed(curr_time, 0);
 			abstract_robot.setSteerHeading(curr_time, jugador.ourGoalAdelantado.t);
@@ -191,7 +191,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 		}
 		else if (!jugador.balonCercaAreaPropia() && jugador.estasEnElCentroVerticalDelCampo() && !jugador.demasiadoAdelantado()) {
 			//System.out.println("PORTERO: !balonCercaAreaPropia() && estasEnElCentroVerticalDelCampo()");
-//			System.out.println("Portero Parado");
+			//System.out.println("Portero Parado");
 			if (estadoPortero!=423)
 				abstract_robot.setSpeed(curr_time, 0);
 			abstract_robot.setSteerHeading(curr_time, balon.t);
@@ -225,7 +225,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 		
 		else if (jugador.balonCercaAreaPropia() && jugador.balonAvanzandoEscoradoBandaAbajo()) {
 			//System.out.println("PORTERO: balonCercaAreaPropia y balón avanzando escorado banda abajo");
-			System.out.println("AUN ACTIVO!!!!!!!!!!!!!!!!!!!!!");
+			//System.out.println("AUN ACTIVO!!!!!!!!!!!!!!!!!!!!!");
 			if (estadoPortero!=4)
 				abstract_robot.setSpeed(curr_time, 0);
 			abstract_robot.setSteerHeading(curr_time, jugador.ourRightPost.t);
@@ -351,16 +351,16 @@ public class EnjutoRolPortero extends EnjutoRol {
 			//abstract_robot.setSpeed(curr_time, 0);
 			abstract_robot.setSteerHeading(curr_time, balon.t);
 			if (balon.x>0 && abstract_robot.canKick(curr_time)) {
-				System.out.println("Portero: ¡¡Despejo!!");
+				//System.out.println("Portero: ¡¡Despejo!!");
 				abstract_robot.kick(curr_time);
 			}
 			else {
-				System.out.println("CUIDADO CON GOL EN PROPIA");
+				//System.out.println("CUIDADO CON GOL EN PROPIA");
 			}
 			estadoPortero=926;
 		}
 		else {
-			System.out.println("\nºDEFAULT\n\n\n");
+			//System.out.println("\nºDEFAULT\n\n\n");
 			//System.out.println("PORTERO: default: ir a tu portería...");
 			if (estadoPortero!=10000)
 				abstract_robot.setSpeed(curr_time, 0);
@@ -389,7 +389,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 		boolean bloqueado = detectarPorteroBloqueadoPorRival();
 		
 		if (bloqueado) {
-			System.out.println("Atención: Portero BLOQUEADO. Actuar!!");
+		//	System.out.println("Atención: Portero BLOQUEADO. Actuar!!");
 		}
 		
 	}
@@ -404,7 +404,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 				return false;
 			}
 			else {
-				System.out.println("**********\n\n\nPortero BLOQUEADO!!!\n\n\n****");
+				//System.out.println("**********\n\n\nPortero BLOQUEADO!!!\n\n\n****");
 				porteroBloqueado=0;
 				int defensa = jugador.devolverDefensaMasDefensivoNoBloqueado();
 				int defensaCierre = jugador.devolverDefensaCierreMasDefensivoNoBloqueado();		
