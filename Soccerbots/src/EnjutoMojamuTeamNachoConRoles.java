@@ -13,7 +13,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 
 
@@ -525,7 +525,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				{
 					double angulo = abstract_robot.getSteerHeading(curr_time);
 					boolean mirandoAIzquierda = angulo > Math.PI/4 && angulo < 3*Math.PI/4;
-					if (abstract_robot.canKick(curr_time) && !mirandoAIzquierda)
+					if (abstract_robot.canKick(curr_time) && ((!mirandoAIzquierda && SIDE == -1) || (mirandoAIzquierda && SIDE == 1)))
 						abstract_robot.kick(curr_time);
 					else
 					{
