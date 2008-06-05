@@ -17,7 +17,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  */
 
 
@@ -678,145 +678,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		}
 	}
 
-
-/*	private void atacar() 
-	{
-		//System.out.println("atacooo");
-		
-		
-		
-		if (abstract_robot.getPlayerNumber(curr_time) != 1)
-		{
-			double radio = balon.r;
-			double robot = 1.2*abstract_robot.RADIUS;
-			
-			Vec2 posicionCentroPorteria = new Vec2(balon.x, balon.y);
-			posicionCentroPorteria.sub(oponentGoal);
-			posicionCentroPorteria.setr(abstract_robot.RADIUS);
-			posicionCentroPorteria.add(balon);
-			
-			Vec2 posicionArribaPorteria = new Vec2(balon.x, balon.y);
-			Vec2 parteArribaPorteria = new Vec2(oponentGoal.x,oponentGoal.y + abstract_robot.RADIUS*3);
-			posicionArribaPorteria.sub(parteArribaPorteria);
-			posicionArribaPorteria.setr(abstract_robot.RADIUS);
-			posicionArribaPorteria.add(balon);
-			
-			Vec2 posicionAbajoPorteria = new Vec2(balon.x, balon.y);
-			Vec2 parteAbajoPorteria = new Vec2(oponentGoal.x,oponentGoal.y - abstract_robot.RADIUS*3);			
-			posicionAbajoPorteria.sub(parteAbajoPorteria);
-			posicionAbajoPorteria.setr(abstract_robot.RADIUS);
-			posicionAbajoPorteria.add(balon);
-			
-			
-			int playerNumber = abstract_robot.getPlayerNumber(curr_time);
-			int rol = roles[playerNumber];
-			
-			//If the player is "DELANTERO", he goes behind the ball and tries to score.
-			if (rol == DELANTERO) {
-			
-				if (radio > robot)
-				{
-					// set heading behind ball
-					abstract_robot.setSpeed(curr_time, 1.0);
-					abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t);
-					
-				}
-				else
-				{
-					
-					abstract_robot.setSpeed(curr_time, 0.7);
-					int aDonde = encasillarAtaque;
-					
-					if (encasillado == false) {
-						Random random = new Random();
-						aDonde = random.nextInt(3);
-						encasillarAtaque = aDonde;
-						encasillado = true;
-					}
-					
-					//System.out.println("A donde: " + aDonde);
-					switch (aDonde){
-						case 0: abstract_robot.setSteerHeading(curr_time, posicionArribaPorteria.t);
-						abstract_robot.setDisplayString("D - Up");
-						break;
-						case 1: abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t);
-						abstract_robot.setDisplayString("D - Centro");
-						break;
-						case 2: abstract_robot.setSteerHeading(curr_time, posicionAbajoPorteria.t);
-						abstract_robot.setDisplayString("D - Down");
-						break;
-						default: abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t);
-						abstract_robot.setDisplayString("D - Centro");
-						break;
-						
-					}
-					
-					abstract_robot.setSpeed(curr_time, 1.0);
-					//System.out.println("GIRA!!");
-				}
-				// set speed at maximum
-				abstract_robot.setSpeed(curr_time, 1.0);
-	
-				// kick it if we can
-				double distancia = calcularDistancia(balon, oponentGoal);
-				double distanciaTiro = 1.0;
-				if (abstract_robot.canKick(curr_time) && distancia < distanciaTiro)
-				{
-					abstract_robot.kick(curr_time);
-					System.out.print("TIRA!!");
-				}
-			//If the player is not DELANTERO, he will support the attack
-			//A�adido
-			} else if (rol != CENTROCAMPISTAAPROVECHADORDEBLOQUEOS && rol != PORTERO){
-				Vec2 posicion = abstract_robot.getPosition(curr_time);
-				
-				
-				if (radio > robot) {
-					if (playerNumber%2 == 0 && posicion.x < 0.8){
-						abstract_robot.setDisplayString("ARRIBA");
-						//System.out.println("Posicion X:" + posicion.x + " , posicion Y:" + posicion.y);
-						// set heading 20 meters over the ball position
-						abstract_robot.setSpeed(curr_time, 1.0);
-						abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t + abstract_robot.RADIUS*15);
-					} else {
-						abstract_robot.setDisplayString("ABAJO");
-						// set heading bellow the ball position
-						abstract_robot.setSpeed(curr_time, 1.0);
-						abstract_robot.setSteerHeading(curr_time, posicionCentroPorteria.t - abstract_robot.RADIUS*15);
-					}
-					
-					
-					
-				} else {
-					abstract_robot.setDisplayString("PUSHING");
-					abstract_robot.setSpeed(curr_time, 0.7);
-					if (playerNumber%2 == 0) {
-						abstract_robot.setSteerHeading(curr_time, posicionArribaPorteria.t);
-					} else {
-						abstract_robot.setSteerHeading(curr_time, posicionAbajoPorteria.t);
-					}
-					abstract_robot.setSpeed(curr_time, 1.0);
-					//System.out.println("GIRA!!");
-				}
-				
-				// kick it if we can
-				double distancia = calcularDistancia(balon, oponentGoal);
-				if (abstract_robot.canKick(curr_time) && distancia < 0.5)
-				{
-					abstract_robot.kick(curr_time);
-					System.out.print("TIRA!!");
-				}
-			}
-		}
-		else
-		{
-			int enemigoMasPeligroso = calcularOponenteMasAdelantado(this.oponentes);
-			//int enemigoMasPeligroso = calcularOponenteMasOfensivo(this.oponentes);
-			if (oponentes.length == 5){
-				cubrir(enemigoMasPeligroso);
-			}
-		}
-	}*/
 	
 //	private void atacar() 
 //	{
@@ -1195,12 +1056,23 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 
 	public boolean balonDemasiadoLejosDeAreaPropia() {
-//		if (balon.x < 0.25) {
-		if (ballMenosOurGoal.x < 2.05) {
-			return false;
+		if (SIDE==-1) {
+			// if (balon.x < 0.25) {
+			if (ballMenosOurGoal.x < 2.05) {
+				return false;
+			}
+			else {
+				return true;
+			}
 		}
 		else {
-			return true;
+			// if (balon.x < -0.25) {
+			if (ballMenosOurGoal.x < -2.05) {
+				return false;
+			}
+			else {
+				return true;
+			}			
 		}
 	}
 	
@@ -1216,35 +1088,49 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	public boolean balonAvanzandoEscoradoBandaAbajo() {
 //		if (balon.y < -0.25) {
-		if (ballMenosOurGoal.y < -0.25) {
-			return true;
+		if (SIDE==-1) {
+			if (ballMenosOurGoal.y < -0.25) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		else {
-			return false;
+			if (ballMenosOurGoal.y > 0.25) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 	}
 	
 	public boolean balonAvanzandoEscoradoBandaArriba() {
-//		if (balon.y > 0.25) {
-		if (ballMenosOurGoal.y > 0.25) {
-			return true;
+		if (SIDE==-1) {
+			if (ballMenosOurGoal.y > 0.25) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		else {
-			return false;
+			if (ballMenosOurGoal.y < -0.25) {
+				return true;
+			}
+			else {
+				return false;
+			}			
 		}
 	}
 	
 	public boolean balonAvanzandoCentrado() {
-		/*if (balon.y < 0.25 || balon.y > -0.25) {
-			return true;
-		}*/
-		//Vec2 ballMenosOurGoal = getVectorResta(balon,ourGoal);
+		// Vale para Este y Oeste.
 		if (ballMenosOurGoal.y < 0.25 && ballMenosOurGoal.y > -0.25) {
-			//System.out.println("Avanzando centrado, con y = " + ballMenosOurGoal.y);
 			return true;
 		}
 		else {
-			//System.out.println("Avanzando escorado, con y = " + ballMenosOurGoal.y);
 			return false;
 		}
 	}
