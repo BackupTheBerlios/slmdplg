@@ -13,7 +13,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  */
 
 
@@ -458,7 +458,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	{
 		if (oponentes.length >= i)
 		{
-			abstract_robot.setDisplayString("CPase " + i);
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
 			vOponenteBalon.sub(oponentes[i]);
 			
@@ -488,11 +487,9 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	{
 		if (oponentes.length >= i)
 		{
-			abstract_robot.setDisplayString("CContra " + i);
-
 			Vec2 vOponentePorteria = (Vec2)ourGoal.clone(); 
 			vOponentePorteria.sub(oponentes[i]);
-			boolean estaLejosDePorteria = vOponentePorteria.r > ANCHO_CAMPO/2;
+			boolean estaLejosDePorteria = vOponentePorteria.r > 2*ANCHO_CAMPO/3;
 			boolean oponenteALaDerecha = oponentes[i].x > 0;
 			boolean estoyEntreOponentePorteria = ((SIDE == -1 && oponenteALaDerecha) || (SIDE == 1 && !oponenteALaDerecha));
 
@@ -526,9 +523,16 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				vOponenteBalon.sub(oponentes[i]);
 				if (vOponenteBalon.r < 1.5*SocSmall.RADIUS) //Al que hay que cubrir, lleva el balón (o casi).
 				{
-					abstract_robot.setSpeed(curr_time, 0.2);
-					abstract_robot.setSteerHeading(curr_time, balon.t);
-					abstract_robot.setSpeed(curr_time, 0.8);
+					double angulo = abstract_robot.getSteerHeading(curr_time);
+					boolean mirandoAIzquierda = angulo > Math.PI/4 && angulo < 3*Math.PI/4;
+					if (abstract_robot.canKick(curr_time) && !mirandoAIzquierda)
+						abstract_robot.kick(curr_time);
+					else
+					{
+						abstract_robot.setSpeed(curr_time, 0.2);
+						abstract_robot.setSteerHeading(curr_time, balon.t);
+						abstract_robot.setSpeed(curr_time, 0.7);
+					}
 				}
 				else
 					cubrirPase(i);
