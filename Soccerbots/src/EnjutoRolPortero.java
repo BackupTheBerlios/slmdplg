@@ -38,8 +38,8 @@ public class EnjutoRolPortero extends EnjutoRol {
 		//Permitirle salir del area, si el equipo rival está muy defensivo.
 		
 		//En mano a mano no ir directamente a la bola, sin ir a la bola sin perder de vista la portería.
-
-		if (jugador.curr_time<1800) {
+		
+		if (jugador.curr_time<1000) {
 			if (estadoPortero != 0)
 				abstract_robot.setSpeed(jugador.curr_time, 0);
 			abstract_robot.setSteerHeading(jugador.curr_time, jugador.ourGoal.t);
@@ -75,7 +75,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 				balonConCorreccionOfensiva.sety(balon.y);
 			}
 			else {
-				balonConCorreccionOfensiva.setx(balon.x+0.2*balon.x);
+				balonConCorreccionOfensiva.setx(balon.x+0.02*balon.x);
 				balonConCorreccionOfensiva.sety(balon.y);
 			}
 			if (estadoPortero != 2)
@@ -94,7 +94,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 				balonConCorreccionOfensiva.sety(balon.y);
 			}
 			else {
-				balonConCorreccionOfensiva.setx(balon.x+0.33*balon.x);
+				balonConCorreccionOfensiva.setx(balon.x+0.50*balon.x);
 				balonConCorreccionOfensiva.sety(balon.y);
 			}
 			if (estadoPortero!=3)
@@ -117,11 +117,11 @@ public class EnjutoRolPortero extends EnjutoRol {
 			}
 			else {
 				if (balon.y >0.2) {
-					balonConCorreccionOfensiva.setx(balon.x+0.45*balon.x);
+					balonConCorreccionOfensiva.setx(balon.x+0.48*balon.x);
 					balonConCorreccionOfensiva.sety(balon.y);					
 				}
 				else {
-					balonConCorreccionOfensiva.setx(balon.x+0.33*balon.x);
+					balonConCorreccionOfensiva.setx(balon.x+0.38*balon.x);
 					balonConCorreccionOfensiva.sety(balon.y);
 				}
 			}
@@ -267,7 +267,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 		}
 		
 		detectarPorteroBloqueadoPorRival();
-		
+
 		
 	}
 	
