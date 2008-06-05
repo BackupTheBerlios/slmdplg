@@ -13,7 +13,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  */
 
 
@@ -86,62 +86,129 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	public void Configure()
 	{
-		int numRobot = abstract_robot.getPlayerNumber(abstract_robot.getTime());
-		if (numRobot == 0) 
-		{
-			abstract_robot.setDisplayString("Casillas");
-			this.rol = new EnjutoRolPortero(this, this.abstract_robot);
-			ultimoRol = PORTERO;
-		}
-		else if (numRobot == 1)
-		{
-			abstract_robot.setDisplayString("Ramos");
-			this.rol = new EnjutoRolDefensaCierre(this, this.abstract_robot);
-			ultimoRol = DEFENSACIERRE;
-			//this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
-			//ultimoRol = DEFENSA;			
-			//abstract_robot.setDisplayString("Raul");
-			//this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
-			//ultimoRol = DELANTERO;
-		}
-		else if (numRobot == 2) 
-		{
-			//abstract_robot.setDisplayString("Pepe");
-			//this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
-			//ultimoRol = DEFENSA;
-			abstract_robot.setDisplayString("Raul");
-			this.rol = new EnjutoRolPalomero(this, this.abstract_robot);
-			ultimoRol = PALOMERO;
-		}
-		else if (numRobot == 3)
-		{
-			abstract_robot.setDisplayString("Guti");
-			this.rol = new EnjutoRolCentrocampistaBloqueador(this, this.abstract_robot);
-			ultimoRol = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
-		}
-		else if (numRobot == 4) 
-		{
-			abstract_robot.setDisplayString("Raul");
-			this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
-			ultimoRol = DELANTERO;
-		}
-			
-		mensajesRecibidos = abstract_robot.getReceiveChannel();//COMMUNICATION
+		if( abstract_robot.getOurGoal(curr_time).x < 0)
+			SIDE = -1;
+		else
+			SIDE = 1;
 		
-		//Gracias a este vector conozco que roles desempeñan mis compañeros.
-		roles = new int[5];
+		if (SIDE==-1) {
+			int numRobot = abstract_robot.getPlayerNumber(abstract_robot.getTime());
+			if (numRobot == 0) 
+			{
+				abstract_robot.setDisplayString("Casillas");
+				this.rol = new EnjutoRolPortero(this, this.abstract_robot);
+				ultimoRol = PORTERO;
+			}
+			else if (numRobot == 1)
+			{
+				abstract_robot.setDisplayString("Ramos");
+				this.rol = new EnjutoRolDefensaCierre(this, this.abstract_robot);
+				ultimoRol = DEFENSACIERRE;
+				/*this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
+				ultimoRol = DEFENSA;*/
+				//abstract_robot.setDisplayString("Raul");
+				//this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
+				//ultimoRol = DELANTERO;
+			}
+			else if (numRobot == 2) 
+			{
+				/*abstract_robot.setDisplayString("Pepe");
+				this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
+				ultimoRol = DEFENSA;*/
+				abstract_robot.setDisplayString("Raul");
+				this.rol = new EnjutoRolPalomero(this, this.abstract_robot);
+				ultimoRol = PALOMERO;
+				/*abstract_robot.setDisplayString("Raul");
+				this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
+				ultimoRol = DELANTERO;	*/	
+			}
+			else if (numRobot == 3)
+			{
+				abstract_robot.setDisplayString("Guti");
+				this.rol = new EnjutoRolCentrocampistaBloqueador(this, this.abstract_robot);
+				ultimoRol = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
+			}
+			else if (numRobot == 4) 
+			{
+				abstract_robot.setDisplayString("Raul");
+				this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
+				ultimoRol = DELANTERO;
+			}
+				
+			mensajesRecibidos = abstract_robot.getReceiveChannel();//COMMUNICATION
+			
+			//Gracias a este vector conozco que roles desempeñan mis compañeros.
+			roles = new int[5];
+	
+			roles[0] = PORTERO;
+			roles[1] = DEFENSACIERRE;
+			roles[2] = PALOMERO;
+			roles[3] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
+			roles[4] = DELANTERO;
+		
+		}
+		else { //SIDE=-1
+			int numRobot = abstract_robot.getPlayerNumber(abstract_robot.getTime());
+			if (numRobot == 0) 
+			{
+				abstract_robot.setDisplayString("Casillas");
+				this.rol = new EnjutoRolPortero(this, this.abstract_robot);
+				ultimoRol = PORTERO;
+			}
+			else if (numRobot == 1)
+			{
+				abstract_robot.setDisplayString("Ramos");
+				/*this.rol = new EnjutoRolDefensaCierre(this, this.abstract_robot);
+				ultimoRol = DEFENSACIERRE;*/
+				this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
+				ultimoRol = DEFENSA;
+				//abstract_robot.setDisplayString("Raul");
+				//this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
+				//ultimoRol = DELANTERO;
+			}
+			else if (numRobot == 2) 
+			{
+				abstract_robot.setDisplayString("Pepe");
+				this.rol = new EnjutoRolDefensa(this, this.abstract_robot);
+				ultimoRol = DEFENSA;
+				/*abstract_robot.setDisplayString("Raul");
+				this.rol = new EnjutoRolPalomero(this, this.abstract_robot);
+				ultimoRol = PALOMERO;*/
+				/*abstract_robot.setDisplayString("Raul");
+				this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
+				ultimoRol = DELANTERO;	*/	
+			}
+			else if (numRobot == 3)
+			{
+				abstract_robot.setDisplayString("Guti");
+				this.rol = new EnjutoRolCentrocampistaBloqueador(this, this.abstract_robot);
+				ultimoRol = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
+			}
+			else if (numRobot == 4) 
+			{
+				abstract_robot.setDisplayString("Raul");
+				this.rol = new EnjutoRolDelantero(this, this.abstract_robot);
+				ultimoRol = DELANTERO;
+			}
+				
+			mensajesRecibidos = abstract_robot.getReceiveChannel();//COMMUNICATION
+			
+			//Gracias a este vector conozco que roles desempeñan mis compañeros.
+			roles = new int[5];
 
-//		roles[0] = PORTERO;
-//		roles[1] = DEFENSACIERRE;
-//		roles[2] = DEFENSA;
-//		roles[3] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
-//		roles[4] = DELANTERO;
+			roles[0] = PORTERO;
+			roles[1] = DEFENSA;
+			roles[2] = DEFENSA;
+			roles[3] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
+			roles[4] = DELANTERO;
+			
+		}
 
-		roles[0] = PORTERO;
-		roles[1] = DEFENSACIERRE;
+/*		roles[0] = PORTERO;
+		roles[1] = DEFENSA;
 		roles[2] = PALOMERO;
 		roles[3] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
-		roles[4] = DELANTERO;
+		roles[4] = DELANTERO;*/
 		
 		oponentesAncho = new Vec2[5];
 		
@@ -151,10 +218,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		encasillado = false;
 		
 		curr_time = abstract_robot.getTime();
-		if( abstract_robot.getOurGoal(curr_time).x < 0)
-			SIDE = -1;
-		else
-			SIDE = 1;
 
 		
 		curr_time = abstract_robot.getTime();
@@ -245,14 +308,24 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	    theirRightPost = new Vec2(oponentGoal.x,oponentGoal.y-ANCHO_PORTERIA/2);
 	    int minumero = abstract_robot.getPlayerNumber(curr_time);
 
-	    //Modificando para que no haya objetos de más y para que se retarde.	    
-	    ourLeftPost.setx(ourGoal.x);
-	    ourLeftPost.sety(ourGoal.y+ANCHO_PORTERIA/2);
-	    ourRightPost.setx(ourGoal.x);
-	    ourRightPost.sety(ourGoal.y-ANCHO_PORTERIA/2);
-	    
-	    ourGoalCenterLeft = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/4);
-	    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);
+
+	    if (SIDE==-1) {
+		    //Modificando para que no haya objetos de mï¿½s y para que se retarde.	    
+		    ourLeftPost.setx(ourGoal.x);
+		    ourLeftPost.sety(ourGoal.y+ANCHO_PORTERIA/2);
+		    ourRightPost.setx(ourGoal.x);
+		    ourRightPost.sety(ourGoal.y-ANCHO_PORTERIA/2);
+		    ourGoalCenterLeft = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/4);
+		    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);
+	    }
+	    else {
+		    ourLeftPost.setx(ourGoal.x);
+		    ourLeftPost.sety(ourGoal.y-ANCHO_PORTERIA/2);
+		    ourRightPost.setx(ourGoal.x);
+		    ourRightPost.sety(ourGoal.y+ANCHO_PORTERIA/2);
+		    ourGoalCenterLeft = new Vec2(ourGoal.x,ourGoal.y-ANCHO_PORTERIA/4);
+		    ourGoalCenterRight = new Vec2(ourGoal.x,ourGoal.y+ANCHO_PORTERIA/4);	    	
+	    }
 		
 	    if (SIDE==-1) {
 	    	ourGoalAdelantado = new Vec2(ourGoal.x+0.10,ourGoal.y);
@@ -788,7 +861,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			return false;
 	}
 	
-	//Comprobar que funcione para este y oeste.
+	//Para este y oeste.
 	public boolean balonCercaAreaPropia() {
 		if (SIDE==-1) {
 			if (ballMenosOurGoal.x < 0.65) {
@@ -799,7 +872,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			}
 		}
 		else {
-			if (ballMenosOurGoal.x < -0.65) {
+			if (ballMenosOurGoal.x > -0.65) {
 				return true;
 			}
 			else {
@@ -991,14 +1064,14 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	public boolean tienesBalonPorDelanteYCerca() {
 		//Tanto para este como para oeste.
 		if (SIDE==-1) {
-			if (balon.x > -0.05 && balon.r < 0.22)
+			if (balon.x > -0.05 && balon.r < 0.25)
 				return true;
 			else
 				return false;
 		}
 		else {
 			//>0... o >-0.05 cuando estï¿½ casi.
-			if (balon.x < 0.05 && balon.r < 0.22)
+			if (balon.x < 0.05 && balon.r < 0.25)
 				return true;
 			else
 				return false;
