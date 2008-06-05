@@ -11,13 +11,13 @@ public class EnjutoRolUltimoDefensa extends EnjutoRol {
 	}
 	
 	public void actuarRol(int estadoAtaqueODefensa){
-		//!\ Ahora est√° configurado para que haga lo mismo tanto atacando como defendiendo.
+		//Ahora est· configurado para que haga lo mismo tanto atacando como defendiendo.
 		
-		if (estadoAtaqueODefensa == jugador.ATACAR){
+		if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.ATACAR){
 			actuarUltimoDefensa();
 		} else {
-			if (estadoAtaqueODefensa == jugador.DEFENDER){
-				//jugador.cubrir(jugador.calcularJugadorACubrir());
+			if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.DEFENDER){
+				jugador.cubrirPase(jugador.calcularJugadorACubrir());
 			}
 		}
 	}
@@ -26,31 +26,19 @@ public class EnjutoRolUltimoDefensa extends EnjutoRol {
 	public void actuarUltimoDefensa() {
 		
 		long curr_time = jugador.curr_time; 
-		Vec2 balon = jugador.balon;
-		int playerNumber = abstract_robot.getPlayerNumber(curr_time);
 		
 		if (jugador.oponentes.length == 5){
-			//abstract_robot.setSpeed(curr_time, 0);
 			
 			int enemigoMasPeligroso = jugador.calcularOponenteMasAdelantado(jugador.oponentes);
-			//int enemigoMasPeligroso = calcularOponenteMasOfensivo(this.oponentes);
 			
 			if((abstract_robot.getPosition(curr_time).x)*jugador.SIDE < 0) {
 				abstract_robot.setDisplayString("CAMPO ENEMIGO");
-				Vec2 cercaDeMiCampo = new Vec2(jugador.ourGoal.x + (-jugador.SIDE)*jugador.LONGITUD_CAMPO/8, jugador.ourGoal.y);
+				Vec2 cercaDeMiCampo = new Vec2(jugador.ourGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/8, jugador.ourGoal.y);
 				abstract_robot.setSteerHeading(curr_time, cercaDeMiCampo.t);
 			} else {
 				abstract_robot.setDisplayString("Mi CAMPO");
 				jugador.cubrirPase(enemigoMasPeligroso);
 			}
-			
-			
-			/*Vec2 cercaCentroDelCampoEste = new Vec2(ourGoal.x+(LONGITUD_CAMPO/2)+0.10,ourGoal.y);
-			Vec2 cercaCentroDelCampoOeste = new Vec2(ourGoal.x+(LONGITUD_CAMPO/2)-0.30,ourGoal.y);
-			
-			
-			abstract_robot.setSteerHeading(curr_time, cercaCentroDelCampoOeste.t);*/
-			
 		}
 	}
 }

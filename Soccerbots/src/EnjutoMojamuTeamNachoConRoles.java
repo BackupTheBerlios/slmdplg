@@ -1,11 +1,7 @@
-
-
-import java.util.Enumeration;
-import java.util.Random;
+ import java.util.Enumeration;
 
 import EDU.gatech.cc.is.abstractrobot.ControlSystemSS;
 import EDU.gatech.cc.is.abstractrobot.SocSmall;
-import EDU.gatech.cc.is.communication.CommunicationException;
 import EDU.gatech.cc.is.communication.Message;
 import EDU.gatech.cc.is.communication.StringMessage;
 import EDU.gatech.cc.is.util.Vec2;
@@ -17,7 +13,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  */
 
 
@@ -42,10 +38,10 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	  
 	  static final int CICLOSPARACAMBIAR = 75;
 
-	  // Dimensiones del campo y de las porterï¿½as (Del equipo PROFES1, comprobar, porque alguno utiliza otros valores porque tal vez interese)
+	  // Dimensiones del campo y de las porterías.
 	  static final double ANCHO_CAMPO = 1.525;
 	  static final double LONGITUD_CAMPO = 2.74;
-	  static final double ANCHO_PORTERIA = 0.48; //En teorï¿½a 0.5, peor tal vez nos interese esta distancia.
+	  static final double ANCHO_PORTERIA = 0.48; //En teoría 0.5, perp tal vez nos interese esta distancia.
 
 	  static int golesMarcados;
 	  static int golesEncajados;
@@ -83,9 +79,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	int ultimoEstado;
 	//Contador para que no se produzcan cambios de estado repentinos.
 	int contadorCambioEstado;
-	
-	//Prueba para defender.
-	public int numNiCaso;
 	
 	//Prueba de ataque.
 	
@@ -135,16 +128,14 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			
 		mensajesRecibidos = abstract_robot.getReceiveChannel();//COMMUNICATION
 		
-		numNiCaso = 0;
-		
-		//Gracias a este vector conozco que roles desempeÃ±an mis compaÃ±eros.
+		//Gracias a este vector conozco que roles desempeñan mis compañeros.
 		roles = new int[5];
 
-		roles[0] = PORTERO;
-		roles[1] = DEFENSACIERRE;
-		roles[2] = DEFENSA;
-		roles[3] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
-		roles[4] = DELANTERO;
+//		roles[0] = PORTERO;
+//		roles[1] = DEFENSACIERRE;
+//		roles[2] = DEFENSA;
+//		roles[3] = CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
+//		roles[4] = DELANTERO;
 
 		roles[0] = PORTERO;
 		roles[1] = DEFENSACIERRE;
@@ -217,7 +208,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				distanciaJugadorMasCercanoBalon = distanciaCompaneroBalon;
 		}
 		
-		boolean balonSuelto = (distanciaJugadorMasCercanoBalon < abstract_robot.RADIUS*4) && (calcularDistancia(oponentes[oponenteMasCercano], balon)<abstract_robot.RADIUS*3);
+		boolean balonSuelto = (distanciaJugadorMasCercanoBalon < SocSmall.RADIUS*4) && (calcularDistancia(oponentes[oponenteMasCercano], balon)<SocSmall.RADIUS*3);
 		if (distanciaJugadorMasCercanoBalon < distanciaOponenteMasCercanoBalon)
 			return true;
 		else
@@ -254,7 +245,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	    theirRightPost = new Vec2(oponentGoal.x,oponentGoal.y-ANCHO_PORTERIA/2);
 	    int minumero = abstract_robot.getPlayerNumber(curr_time);
 
-	    //Modificando para que no haya objetos de mï¿½s y para que se retarde.	    
+	    //Modificando para que no haya objetos de más y para que se retarde.	    
 	    ourLeftPost.setx(ourGoal.x);
 	    ourLeftPost.sety(ourGoal.y+ANCHO_PORTERIA/2);
 	    ourRightPost.setx(ourGoal.x);
@@ -274,10 +265,9 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			cercaCentroDelCampoOeste = new Vec2(ourGoal.x-(LONGITUD_CAMPO/2)-0.14,ourGoal.y);
 	    }
 	 
-	    //Partes que solo hay que calcular 1 vez (solo se calcularï¿½n para el jugador 0).
+	    //Partes que solo hay que calcular una vez (solo se calcularán para el jugador 0).
 	    if (this.rol.getIdentificadorRol() == PORTERO) {
-	    //if (minumero==0) {
-		      // Actualiza los goles a favor y en contra (si se ha marcado algï¿½n gol)
+		      // Actualiza los goles a favor y en contra (si se ha marcado algún gol)
 		    if (abstract_robot.getJustScored(curr_time) == 1) {
 		        golesMarcados++;
 		        actualizarResultadoPartido();
@@ -290,24 +280,19 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	    
 	    Vec2 evitaColision = null;
 
-		//cercaCentroDelCampoEste = new Vec2(ourGoal.x+(LONGITUD_CAMPO/2)+0.10,ourGoal.y);
-		//cercaCentroDelCampoOeste = new Vec2(ourGoal.x+(LONGITUD_CAMPO/2)-0.10,ourGoal.y);
-
 		
 		if (contadorCambioEstado > 0) {
 			contadorCambioEstado--;
 		}
 		
-		if (oponentes.length == 5) //Ya estï¿½n los 5 oponentes creados.
+		if (oponentes.length == 5) //Ya están los 5 oponentes creados.
 			ordenarOponentes();
 			
-		
-		//Realizamos los cÃ¡lculos de la posesiÃ³n
+		//Realizamos los cálculos de la posesión.
 		boolean pos = calcularPosesion();
 		
 		
-		
-		if ((!miPosesion && pos) || (miPosesion && !pos))	//Ha habido cambio de posesiï¿½n.	
+		if ((!miPosesion && pos) || (miPosesion && !pos))	//Ha habido cambio de posesión.	
 			miPosesion = pos;
 		
 		int estadoNuevo = -1;
@@ -319,16 +304,9 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		}
 		
 		if (estadoNuevo != ultimoEstado) {
-			
-			/*if (abstract_robot.getPlayerNumber(abstract_robot.getTime())==4){ 
-				//System.out.println("Debo cambiar??" + contadorCambioEstado);
-			}*/
 				
 			//Si permitimos realizar el cambio (el contador es 0).
 			if (contadorCambioEstado == 0) {
-				/*if (abstract_robot.getPlayerNumber(abstract_robot.getTime())==4){ 
-					System.out.println("CAMBIO DE ESTRATEGIA!!");
-				}*/
 				contadorCambioEstado = CICLOSPARACAMBIAR;
 				evitaColision = evitarColision(estadoNuevo);
 				encasillado = false;
@@ -345,12 +323,10 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			estadoAtaqueODefensa = ultimoEstado;
 		}
 
-		/*--- Comprobando si tengo mensajes sin leer de mis compaï¿½eros ---*/
+		/*--- Comprobando si tengo mensajes sin leer de mis compañeros ---*/
 		//COMMUNICATION
 		while (mensajesRecibidos.hasMoreElements()) {
 			StringMessage recvd = (StringMessage)mensajesRecibidos.nextElement();
-			System.out.println(minumero + " received:\n" + recvd);
-			//System.out.println(recvd.paramString());
 			if (recvd.val.equals("YO CENTROCAMPISTAAPROVECHADORDEBLOQUEOS")) {
 				roles[recvd.sender]=CENTROCAMPISTAAPROVECHADORDEBLOQUEOS;
 			}
@@ -405,7 +381,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		
 		rol.actuarRol(estadoAtaqueODefensa);
 
-		//Se hace despuï¿½s de actuar, si no no se evita la colisiï¿½n.
+		//Se hace después de actuar, si no no se evita la colisión.
 		if (evitaColision != null && roles[minumero]!=PORTERO)
 		{
 			if (estadoAtaqueODefensa!=DEFENDER) {
@@ -413,12 +389,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				abstract_robot.setSpeed(curr_time, evitaColision.r);
 			}
 		}
-		
-		/*if (evitaColision != null)
-		{
-			abstract_robot.setSteerHeading(curr_time, evitaColision.t);
-			abstract_robot.setSpeed(curr_time, evitaColision.r);
-		}*/
 			
 		abstract_robot.setDisplayString("R=" + roles[abstract_robot.getPlayerNumber(abstract_robot.getTime())]);	
 		
@@ -427,13 +397,12 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 		
 	private void actualizarResultadoPartido() {
 		resultadoActual= golesMarcados - golesEncajados;
-		System.out.println("Gol en el estadio!!! Resultado actual Tï¿½:" + golesMarcados + " - Rival:" + golesEncajados);
 	}
 
 
 	private Vec2 evitarColision(int estrategia){
 		if (estrategia == ATACAR){
-			return evitarColision(true); //Tambiï¿½n evitamos colisiones con los oponentes.
+			return evitarColision(true); //También evitamos colisiones con los oponentes.
 		}
 		else if (estrategia == DEFENDER){
 			return evitarColision(false); //No se evitan colisiones con oponentes.
@@ -443,7 +412,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 
 	/**
 	 * Ordena el vector de oponentes desde 
-	 * el mï¿½s lejano a nuestra porterï¿½a, al mï¿½s cercano.
+	 * el más lejano a nuestra portería, al más cercano.
 	 */
 	private void ordenarOponentes() 
 	{
@@ -473,111 +442,9 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 
 
-/*	private void actuarPortero() {
-	
-		if (ourGoal.y > 0.25 || ourGoal.y <-0.25 || ourGoal.x < -0.25)
-		{
-			// set heading towards it
-			abstract_robot.setSteerHeading(curr_time, ourGoal.t);
-	
-			// set speed at maximum
-			abstract_robot.setSpeed(curr_time, 1.0);
-		} 
-		else 
-			if (balon.x < 0.25)
-			{
-				//ToDo
-				//balon.normalize(1.0);
-				abstract_robot.setSteerHeading(curr_time, balon.t);
-				abstract_robot.setSpeed(curr_time, 0.75);					
-			}
-			else
-			{
-				abstract_robot.setSteerHeading(curr_time, ourGoal.t);
-				abstract_robot.setSpeed(curr_time, 0.5);
-			}
-	}*/
-
-
-//	private void defender() 
-//	{
-//		//System.out.println("defiendo");
-//		//Incluso comentando esto se ve mï¿½s grï¿½fico, con el portero cubriendo tambiï¿½n.
-//			//Variante: Solo cubrir a su jugador mï¿½s ofensivo.
-///*			if ( calcularOponenteMasOfensivo(oponentes) == abstract_robot.getPlayerNumber(curr_time)) {
-//				numNiCaso = abstract_robot.getPlayerNumber(curr_time);
-//				System.out.println("Orden recibida: Voy a por su jugador mï¿½s ofensivo: " + numNiCaso + ".");
-//				cubrir(abstract_robot.getPlayerNumber(curr_time));
-//			}
-//			else {
-//				if (numNiCaso!=abstract_robot.getPlayerNumber(curr_time)) {
-//					abstract_robot.setSteerHeading(curr_time, balon.t);
-//					abstract_robot.setSpeed(curr_time, 0.8);
-//				}
-//			}*/
-//
-//		int playerNumber = abstract_robot.getPlayerNumber(curr_time);
-//		int rol = roles[playerNumber];
-//		if (rol == DEFENSA) {
-//			
-//		}else if (rol == CENTRO)
-//		{
-//			
-//		}
-//		else if (rol == CENTROCAMPISTAAPROVECHADORDEBLOQUEOS)
-//		{
-//			//actuarCentrocampistaAprovechadorDeBloqueos();
-//		}
-//		else if (rol == DELANTERO)
-//		{
-//			/*abstract_robot.setDisplayString("Guti - Defiende");
-//			goToBall();*/
-//		}
-//	}
-
-
 	public int calcularJugadorACubrir() 
 	{	
-		/*int numDefensas = 0;
-		int masAltos = 0;
-		for (int i = 0; i < 5; i++)
-			if (roles[i] == DEFENSA)
-			{
-				numDefensas++;
-				if (i < 4 && companeros[i].y>0)
-					masAltos++;
-			}
-		Vec2[] candidatos = new Vec2[numDefensas];
-		int[] numerosVectorIni = new int[numDefensas];
-		int[] numerosVectorFin = new int[numDefensas];
-		for (int i = 0; i < numDefensas; i++)
-		{
-			candidatos[i] = oponentes[4-i]; //Candidatos queda ordenado por cercanï¿½a a la porterï¿½a.
-			numerosVectorIni[i] = 4-i;
-		}
-		Vec2[] porAltura = new Vec2[candidatos.length];
-		boolean[] asignados = new boolean[candidatos.length];
-		for (int i = 0; i < candidatos.length; i++)
-			asignados[i] = false;
-		for (int i = 0; i < candidatos.length; i++)
-		{
-			double minAncho = -9999.9;
-			int minID = -1;
-			for (int j=0; j<candidatos.length; j++)
-			{
-				if (!asignados[j] && candidatos[j].y > minAncho)
-				{
-					minAncho = candidatos[j].y;
-					minID = j;
-				}
-			}
-			asignados[minID] = true;
-			porAltura[i]=candidatos[minID];
-			numerosVectorFin[i]=numerosVectorIni[minID];
-		}
-		masAltos = 0;
-		return numerosVectorFin[masAltos];*/
-		int elegido = 4; //Inicialmente el mï¿½s ofensivo de los oponentes.
+		int elegido = 4; //Inicialmente el más ofensivo de los oponentes.
 		
 		int numJugador = abstract_robot.getPlayerNumber(curr_time);
 		for (int i = 0; i < numJugador; i++)
@@ -589,23 +456,19 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 
 	public void cubrirPase(int i)
 	{
-		//Nunca entendido, de hecho he puesto ahora >= para que cubra tambiï¿½n el jugador 4.
 		if (oponentes.length >= i)
 		{
 			abstract_robot.setDisplayString("CPase " + i);
 			Vec2 vOponenteBalon = (Vec2)balon.clone(); 
 			vOponenteBalon.sub(oponentes[i]);
-			//Hacemos que el vector sea unitario, porque se multiplicarï¿½ despuï¿½s por el 2*radio (Menuda diferencia!!).
+			
 			vOponenteBalon.normalize(1.0);
-
-			//Sï¿½, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciï¿½n.
 			double pX = (2*SocSmall.RADIUS)*vOponenteBalon.x;
 			double pY = (2*SocSmall.RADIUS)*vOponenteBalon.y;
 
 			//Entre la bola y el jugador:
 			Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
 
-			//Como siempre.
 			double distanciaJugPos = vJugadorPosicion.r;
 			if (distanciaJugPos > 0.5*SocSmall.RADIUS)
 			{
@@ -623,7 +486,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	public void cubrirContra(int i)
 	{
-		//Nunca entendido, de hecho he puesto ahora >= para que cubra tambiï¿½n el jugador 4.
 		if (oponentes.length >= i)
 		{
 			abstract_robot.setDisplayString("CContra " + i);
@@ -634,21 +496,17 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			boolean oponenteALaDerecha = oponentes[i].x > 0;
 			boolean estoyEntreOponentePorteria = ((SIDE == -1 && oponenteALaDerecha) || (SIDE == 1 && !oponenteALaDerecha));
 
-			if (estaLejosDePorteria || !estoyEntreOponentePorteria) //Recular al punto medio entre el oponente y la porterï¿½a.
+			if (estaLejosDePorteria || !estoyEntreOponentePorteria) //Recular al punto medio entre el oponente y la portería.
 			{
-//				abstract_robot.setDisplayString("DF " + estaLejosDePorteria + estoyEntreOponentePorteria);
-				//Hacemos que el vector sea unitario, porque se multiplicarï¿½ despuï¿½s por el 2*radio (Menuda diferencia!!).
 				double mitadDistancia = vOponentePorteria.r/2;
 				vOponentePorteria.normalize(1.0);
 
-				//Sï¿½, multiplicar, porque lo que quieres es una parte del vector, para hacer la correcciï¿½n.
 				double pX = mitadDistancia*vOponentePorteria.x;
 				double pY = mitadDistancia*vOponentePorteria.y;
 
 				//Entre la bola y el jugador:
 				Vec2 vJugadorPosicion = new Vec2((pX + oponentes[i].x),(pY + oponentes[i].y));
 
-				//Como siempre.
 				double distanciaJugPos = vJugadorPosicion.r;
 				if (distanciaJugPos > 0.5*SocSmall.RADIUS)
 				{
@@ -662,11 +520,11 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 					abstract_robot.setSpeed(curr_time, 0.0);
 				}
 			}
-			else //Estï¿½ cerca y yo entre ï¿½l y la porterï¿½a.
+			else //Está cerca, y yo entre él y la portería.
 			{
 				Vec2 vOponenteBalon = (Vec2)balon.clone();
 				vOponenteBalon.sub(oponentes[i]);
-				if (vOponenteBalon.r < 1.5*SocSmall.RADIUS) //Al que hay que cubrir, lleva el balï¿½n (o casi).
+				if (vOponenteBalon.r < 1.5*SocSmall.RADIUS) //Al que hay que cubrir, lleva el balón (o casi).
 				{
 					abstract_robot.setSpeed(curr_time, 0.2);
 					abstract_robot.setSteerHeading(curr_time, balon.t);
@@ -677,43 +535,8 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			}
 		}
 	}
-
-	
-//	private void atacar() 
-//	{
-//		//System.out.println("atacooo");
-//		
-//		
-//		//Todos menos el primer jugador
-//		if (abstract_robot.getPlayerNumber(curr_time) != 1)
-//		{
-//			
-//			
-//			
-//			int playerNumber = abstract_robot.getPlayerNumber(curr_time);
-//			int rol = roles[playerNumber];
-//			
-//			//If the player is "DELANTERO", he goes behind the ball and tries to score.
-//			if (rol == DELANTERO) {
-//			
-//				
-//				
-//			//If the player is not DELANTERO, he will support the attack
-//			} else {
-//				
-//								
-//			}
-//		}
-//		else
-//		{
-//			
-//			
-//		}
-//	}
 	
 	public void showDatos() {
-//		if (abstract_robot.getPlayerNumber(curr_time) == 0) {
-			long curr_timeAux = abstract_robot.getTime();
 			Vec2[] oponentesAux = abstract_robot.getOpponents(curr_time);
 			Vec2[] companerosAux = abstract_robot.getTeammates(curr_time);
 			Vec2 balonAux = abstract_robot.getBall(curr_time);
@@ -729,20 +552,15 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			System.out.println("Jugador mï¿½s defensivo del oponente: "+calcularOponenteMasDefensivo(oponentesAux));
 			System.out.println("Jugador mï¿½s ofensivo del oponente: "+calcularOponenteMasOfensivo(oponentesAux));
 			System.out.println("__________________________________________________________________________");
-
-//		}
 	}
 	
 	public void printVectorVec2(Vec2[] vector) {
-		for (int i=0; i< vector.length; i++)		
-		{
-			//System.out.println("Vector Op[" + i + "] --> (" +vector[i].x + "," + vector[i].y + "). R=" + vector[i].r + " . T=" + vector[i].t + ". ");
-		}
-		////System.out.println("__________________________________________________________________________");
+		for (int i=0; i< vector.length; i++)	
+			System.out.println("Vector Op[" + i + "] --> (" +vector[i].x + "," + vector[i].y + "). R=" + vector[i].r + " . T=" + vector[i].t + ". ");
 	}
 	
 	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s atrï¿½s en el campo (el que harï¿½a las veces de portero).
+	 * Devuelve el jugador de EnjutoMojamuteam que está más atrás en el campo (el que haría las veces de portero).
 	 */
 	public int calcularCompaneroMasDefensivo(Vec2[] vectorCompaneros) {
 		int masDefensivo=-1; //-1 se considera uno mismo.
@@ -757,7 +575,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s adelantado en el campo (el que harï¿½a las veces de delantero).
+	 * Devuelve el jugador de EnjutoMojamuteam que está más adelantado en el campo (el que haría las veces de delantero).
 	 */
 	public int calcularCompaneroMasOfensivo(Vec2[] vectorCompaneros) {
 		int masOfensivo=-1; //-1 se considera uno mismo.
@@ -772,7 +590,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s atrï¿½s en el campo (el que harï¿½a las veces de portero).
+	 * Devuelve el jugador del equipo rival que está más atrás en el campo (el que haría las veces de portero).
 	 */
 	public int calcularOponenteMasDefensivo(Vec2[] vectorOponentes) {
 		int masDefensivo=0; //Se inicia a 0 el mï¿½s defensivo, y se comapra respecto al resto.
@@ -790,7 +608,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 	
 	/**
-	 * Devuelve el jugador del equipo rival que estï¿½ mï¿½s adelantado en el campo (el que harï¿½a las veces de delantero).
+	 * Devuelve el jugador del equipo rival que está más adelantado en el campo (el que haría las veces de delantero).
 	 */
 	public int calcularOponenteMasOfensivo(Vec2[] vectorOponentes) {
 		int masOfensivo=0; //Se inicia a 0 el mï¿½s defensivo, y se comapra respecto al resto.
@@ -832,39 +650,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 
 	}
 	
-	/**
-	 * Devuelve el jugador de EnjutoMojamuteam que estï¿½ mï¿½s atrï¿½s en el campo (el que harï¿½a las veces de portero).
-	 */
-	/*public int calcularMasDefensivo(Vec2[] vector) {
-		int masDefensivo=-1; //-1 se considera uno mismo.
-		double valorMasDefensivo=0;
-		for (int i=0; i< vector.length; i++) {
-			if (vector[i].x < valorMasDefensivo) {
-				masDefensivo=i;
-				valorMasDefensivo = vector[i].x;
-			}
-		}
-		return masDefensivo;
-	}*/
-	
-	/**
-	 * Devuelve el jugador del equipo rival que estï¿½ mï¿½s adelantado en el campo (el que harï¿½a las veces de delantero).
-	 * @param evitarOponentes 
-	 */
-	/*public int calcularMasOfensivo(Vec2[] vector) {
-		int masOfensivo=-1; //-1 se considera uno mismo.
-		double valorMasOfensivo=0;
-		for (int i=0; i< vector.length; i++) {
-			if (vector[i].x > valorMasOfensivo) {
-				masOfensivo=i;
-				valorMasOfensivo = vector[i].x;
-			}
-		}
-		return masOfensivo;	
-	}*/
-	
 	public int devolverDefensaMasDefensivoNoBloqueado() {
-		//De momento beta, devuelve el primer defensa que encuentre.
 		//Si no hay cierre, que remedio, se cambia por un defensa.
 		for (int i=0;i<5;i++) {
 			if (roles[i] == DEFENSA) {
@@ -875,7 +661,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 
 	public int devolverDefensaCierreMasDefensivoNoBloqueado() {
-		//De momento beta, devuelve el primer delantero que encuentre.
 		//int deMomentoPlayer=-1;
 		//int deMomentoDistancia=1000;
 		for (int i=0;i<5;i++) {
@@ -888,7 +673,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	public Vec2 evitarColision(boolean evitarOponentes )
 	{
-		//Comprobamos cercanï¿½a a nuestros compaï¿½eros y actualizamos.
+		//Comprobamos cercanía a nuestros compañeros y actualizamos.
 		Vec2 yo = new Vec2(0,0);
 		Vec2 compiMasCercano = calcularMasCercano(yo, companeros);
 		if( compiMasCercano.r < SocSmall.RADIUS*1.1 )
@@ -900,7 +685,7 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			return nuevaDireccion;
 		}
 		else 
-			if (evitarOponentes) //Tambiï¿½n queremos evitar colisiones con los oponentes.
+			if (evitarOponentes) //También queremos evitar colisiones con los oponentes.
 			{
 				Vec2 oponenteMasCercano = calcularMasCercano(yo, oponentes);
 				if( oponenteMasCercano.r < SocSmall.RADIUS*1.1)
@@ -935,18 +720,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			}
 		}
 		return result;
-	}
-	
-	//Aï¿½adido por Nach
-	
-	public void tacticaAbsurda() {
-		//Go to corner.
-
-		// set heading towards it
-		abstract_robot.setSteerHeading(curr_time, oponentGoal.t+0.9);
-
-		// set speed at maximum
-		abstract_robot.setSpeed(curr_time, 1.0);
 	}
 	
 	public boolean lejosDeTuArea() {
@@ -1014,7 +787,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	//Comprobar que funcione para este y oeste.
 	public boolean balonCercaAreaPropia() {
 		if (SIDE==-1) {
-			// if (balon.x < 0.25) {
 			if (ballMenosOurGoal.x < 0.65) {
 				return true;
 			}
@@ -1023,7 +795,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			}
 		}
 		else {
-			// if (balon.x < -0.25) {
 			if (ballMenosOurGoal.x < -0.65) {
 				return true;
 			}
@@ -1036,7 +807,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	//Para este y oeste.
 	public boolean balonMuyCercaAreaPropia() {
 		if (SIDE==-1) {
-			// if (balon.x < 0.25) {
 			if (ballMenosOurGoal.x < 0.35) {
 				return true;
 			}
@@ -1045,7 +815,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			}
 		}
 		else {
-			// if (balon.x < -0.25) {
 			if (ballMenosOurGoal.x < -0.35) {
 				return true;
 			}
@@ -1057,7 +826,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 
 	public boolean balonDemasiadoLejosDeAreaPropia() {
 		if (SIDE==-1) {
-			// if (balon.x < 0.25) {
 			if (ballMenosOurGoal.x < 2.05) {
 				return false;
 			}
@@ -1066,7 +834,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			}
 		}
 		else {
-			// if (balon.x < -0.25) {
 			if (ballMenosOurGoal.x < -2.05) {
 				return false;
 			}
@@ -1077,7 +844,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 	
 	public boolean balonAvanzandoEscorado() {
-//		if (balon.y > 0.25 || balon.y < -0.25) {
 		if (ballMenosOurGoal.y > 0.25 || ballMenosOurGoal.y < -0.25) {
 			return true;
 		}
@@ -1087,7 +853,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	}
 	
 	public boolean balonAvanzandoEscoradoBandaAbajo() {
-//		if (balon.y < -0.25) {
 		if (SIDE==-1) {
 			if (ballMenosOurGoal.y < -0.25) {
 				return true;
@@ -1154,7 +919,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	public boolean estasBajoPalosEnX() {
 		if (SIDE==-1) {
-			//Cambiado
 			if (ourGoal.x > -0.15) {
 				return true;
 			}
@@ -1223,7 +987,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	public boolean tienesBalonPorDelanteYCerca() {
 		//Tanto para este como para oeste.
 		if (SIDE==-1) {
-			//>0... o >-0.05 cuando estï¿½ casi.
 			if (balon.x > -0.05 && balon.r < 0.22)
 				return true;
 			else
@@ -1240,11 +1003,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	
 	public int devolverDelanteroMenosOfensivo() {
-		/*for (int i=0;i<5;i++) {
-			
-		}*/
-		
-		//De momento beta, devuelve el primer delantero que encuentre.
 		for (int i=0;i<5;i++) {
 			if (roles[i] == DELANTERO)
 				return i;
@@ -1278,14 +1036,11 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 			this.rol = new EnjutoRolPalomero(this, this.abstract_robot);
 			break;
 		}
-		
-		System.out.println("Cambio de rol !!" );
 	}
 	
 	public void volverAlAnteriorRol(){
 		
 		if (ultimoRol == rol.identificadorRol) {
-			//System.out.println("Cambio de rol !! No hago na porque estoy encasillao en " + ultimoRol );
 		} else {
 
 			switch (ultimoRol) {
@@ -1318,17 +1073,11 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 				this.rol = new EnjutoRolPalomero(this, this.abstract_robot);
 				break;
 			}
-
-			System.out.println("Cambio de rol !! Vuelta al anterior" );
 		}
 		
 	}
 	
-
-
-	//Mï¿½s funciones Nacho/Portero
 	public boolean demasiadoAdelantado() {
-		//System.out.println(ourGoal.toString());
 		if (SIDE==-1) {
 			if (ourGoal.x<-0.15)
 				return true;
@@ -1345,7 +1094,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	
 	public void conducirBalon()
 	{    
-		System.out.println("Conduciendo: " + abstract_robot.getPlayerNumber(curr_time));
 	     Vec2 trayectoria;
 	     trayectoria = new Vec2(balon);
 	     trayectoria.sub(oponentGoal);
@@ -1358,8 +1106,6 @@ public class EnjutoMojamuTeamNachoConRoles extends ControlSystemSS
 	     if(!abstract_robot.canKick(curr_time))
 	     {
 	       Vec2 resultado = new Vec2();
-//	       resultado.sett(this.buscarCamino(posChute));
-//	       resultado.setr(1.0);
 	       Vec2 result = evitarColision(true);
 	       if (result != null)
 	    	   abstract_robot.setSteerHeading(curr_time,resultado.t);

@@ -11,14 +11,12 @@ public class EnjutoRolDefensaCierre extends EnjutoRol
 	}
 	
 	public void actuarRol(int estadoAtaqueODefensa){
-		if (estadoAtaqueODefensa == jugador.ATACAR){
+		if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.ATACAR){
 			jugador.cubrirContra(jugador.calcularJugadorACubrir());
-//			abstract_robot.setDisplayString("Defiendo!!");
 			
 		} else {
-			if (estadoAtaqueODefensa == jugador.DEFENDER){
+			if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.DEFENDER){
 				jugador.cubrirContra(jugador.calcularJugadorACubrir());
-//				abstract_robot.setDisplayString("Defiendo!!");
 			}
 		}
 	}

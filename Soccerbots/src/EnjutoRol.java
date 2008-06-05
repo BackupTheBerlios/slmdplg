@@ -12,7 +12,7 @@ public class EnjutoRol {
 	protected SocSmall abstract_robot;
 	
 	/**
-	 * MÃ©todo para que el rol realize una acciÃ³n. 
+	 * Método para que el rol realize una acción. 
 	 */
 	public void actuarRol(int estadoAtaqueODefensa){
 		

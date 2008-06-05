@@ -18,16 +18,15 @@ public class EnjutoRolPalomero extends EnjutoRol {
 	}
 	
 	public void actuarRol(int estadoAtaqueODefensa){
-		//!\ Ahora estÃ¡ configurado para que haga lo mismo tanto atacando como defendiendo.
+		//Ahora está configurado para que haga lo mismo tanto atacando como defendiendo.
 		
-		if (estadoAtaqueODefensa == jugador.ATACAR){
+		if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.ATACAR){
 			abstract_robot.setDisplayString("Palomero Ataca!");			
 			inicializaVariablesAtaque();
 			actuarPalomero();
 		} else {
-			if (estadoAtaqueODefensa == jugador.DEFENDER){
-				//jugador.cubrir(jugador.calcularJugadorACubrir());
-				this.jugador.cambiarRol(jugador.DEFENSA);
+			if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.DEFENDER){
+				this.jugador.cambiarRol(EnjutoMojamuTeamNachoConRoles.DEFENSA);
 			}
 		}
 	}
@@ -38,8 +37,6 @@ public class EnjutoRolPalomero extends EnjutoRol {
 		Vec2 balon = jugador.balon;
 		int playerNumber = abstract_robot.getPlayerNumber(curr_time);
 		
-		
-		Vec2 posicion = abstract_robot.getPosition(curr_time);
 		int banda = -1; //0 banda superior, 1 banda inferior.
 		
 		if (playerNumber%2 == 0){
@@ -53,14 +50,14 @@ public class EnjutoRolPalomero extends EnjutoRol {
 		boolean palomero = false;
 		double distanciaASuPorteria = jugador.oponentGoal.r;
 		//Puede estar en varios puntos del campo
-		if (distanciaASuPorteria >= jugador.LONGITUD_CAMPO/2) {
+		if (distanciaASuPorteria >= EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/2) {
 			//Ir a la banda.
 			Vec2 puntoBanda;
 			if (banda == 0){
-				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*jugador.LONGITUD_CAMPO/2, jugador.oponentGoal.y + jugador.ANCHO_CAMPO/2 + 0.2);
+				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/2, jugador.oponentGoal.y + EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/2 + 0.2);
 				abstract_robot.setDisplayString("Yendo Arriba");
 			} else {
-				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*jugador.LONGITUD_CAMPO/2, jugador.oponentGoal.y - jugador.ANCHO_CAMPO/2 + 0.2);
+				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/2, jugador.oponentGoal.y - EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/2 + 0.2);
 				abstract_robot.setDisplayString("Yendo Abajo");
 			}
 			
@@ -68,14 +65,14 @@ public class EnjutoRolPalomero extends EnjutoRol {
 			abstract_robot.setSteerHeading(curr_time, puntoBanda.t);
 			abstract_robot.setSpeed(curr_time, 1.0);
 		} else {
-			if (distanciaASuPorteria >= jugador.LONGITUD_CAMPO/5) {
+			if (distanciaASuPorteria >= EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/5) {
 				//Ir a la banda.
 				Vec2 puntoPalomero;
 				if (banda == 0){
-					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*jugador.LONGITUD_CAMPO/8, jugador.oponentGoal.y + jugador.ANCHO_CAMPO/4 - 0.2);
+					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/8, jugador.oponentGoal.y + EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/4 - 0.2);
 					abstract_robot.setDisplayString("Yendo Palom Arriba");
 				} else {
-					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*jugador.LONGITUD_CAMPO/8, jugador.oponentGoal.y - jugador.ANCHO_CAMPO/4 - 0.2 );
+					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/8, jugador.oponentGoal.y - EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/4 - 0.2 );
 					abstract_robot.setDisplayString("Yendo Palom Abajo");
 				}
 				
@@ -85,35 +82,31 @@ public class EnjutoRolPalomero extends EnjutoRol {
 				
 			} else {
 				
-				if (distanciaASuPorteria < jugador.LONGITUD_CAMPO/4.5){
-				//if ((posicion.y >= oponentGoal.y + 0.4) || (posicion.y <= oponentGoal.y - 0.4) ) {
+				if (distanciaASuPorteria < EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/4.5){
 					//Estoy en palomero
 					abstract_robot.setSpeed(curr_time, 0.0);
 					abstract_robot.setSteerHeading(curr_time, jugador.oponentGoal.t);
 					abstract_robot.setDisplayString("Estoy en palomero");
 					jugador.evitarColision(true);
 					palomero = true;
-				} else {
-					//Ir a palomero
-					
 				}
 			}
 		}
 		
-		//Modificador de la velocidad en base a la posiciÃ³n del balÃ³n en el eje X
+		//Modificador de la velocidad en base a la posición del balón en el eje X
 		Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
 		if ( (posicionJugador.x - balon.x)*jugador.SIDE > 0 ) {
 			
 		}
 		
 		
-		//Independiente a la colocaciÃ³n
+		//Independiente a la colocación
 		double robotApoyo;
 		
 		if (palomero) {
-			robotApoyo = 4*abstract_robot.RADIUS;
+			robotApoyo = 4*SocSmall.RADIUS;
 		} else {
-			robotApoyo = 3*abstract_robot.RADIUS;
+			robotApoyo = 3*SocSmall.RADIUS;
 		}
 		if (radio <= robotApoyo) {
 			
@@ -134,30 +127,29 @@ public class EnjutoRolPalomero extends EnjutoRol {
 			abstract_robot.setSpeed(curr_time, 0.7);
 			abstract_robot.kick(curr_time);
 			abstract_robot.setSpeed(curr_time, 1.0);
-			System.out.print("TIRA!!");
 		}
 	}
 	
 	private void inicializaVariablesAtaque(){
 		Vec2 balon = jugador.balon;
 		radio = jugador.balon.r;
-		robot = 1.2*abstract_robot.RADIUS;
+		robot = 1.2*SocSmall.RADIUS;
 		
 		posicionCentroPorteria = new Vec2(balon.x, balon.y);
 		posicionCentroPorteria.sub(jugador.oponentGoal);
-		posicionCentroPorteria.setr(abstract_robot.RADIUS);
+		posicionCentroPorteria.setr(SocSmall.RADIUS);
 		posicionCentroPorteria.add(balon);
 		
 		posicionArribaPorteria = new Vec2(balon.x, balon.y);
-		Vec2 parteArribaPorteria = new Vec2(jugador.oponentGoal.x,jugador.oponentGoal.y + abstract_robot.RADIUS*3);
+		Vec2 parteArribaPorteria = new Vec2(jugador.oponentGoal.x,jugador.oponentGoal.y + SocSmall.RADIUS*3);
 		posicionArribaPorteria.sub(parteArribaPorteria);
-		posicionArribaPorteria.setr(abstract_robot.RADIUS);
+		posicionArribaPorteria.setr(SocSmall.RADIUS);
 		posicionArribaPorteria.add(balon);
 		
 		posicionAbajoPorteria = new Vec2(balon.x, balon.y);
-		Vec2 parteAbajoPorteria = new Vec2(jugador.oponentGoal.x,jugador.oponentGoal.y - abstract_robot.RADIUS*3);			
+		Vec2 parteAbajoPorteria = new Vec2(jugador.oponentGoal.x,jugador.oponentGoal.y - SocSmall.RADIUS*3);			
 		posicionAbajoPorteria.sub(parteAbajoPorteria);
-		posicionAbajoPorteria.setr(abstract_robot.RADIUS);
+		posicionAbajoPorteria.setr(SocSmall.RADIUS);
 		posicionAbajoPorteria.add(balon);
 	}
 	

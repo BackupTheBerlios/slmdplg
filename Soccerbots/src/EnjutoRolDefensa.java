@@ -10,35 +10,29 @@ public class EnjutoRolDefensa extends EnjutoRol {
 		
 	}
 	
-	public void actuarRol(int estadoAtaqueODefensa){
+	public void actuarRol(int estadoAtaqueODefensa)
+	{
 		abstract_robot.setDisplayString("Defensa " + estadoAtaqueODefensa);
 
-		if (estadoAtaqueODefensa == jugador.ATACAR){
+		if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.ATACAR){
 
 			abstract_robot.setDisplayString("Defensa ataca!");
 			//Si anteriormente ya era defensa, pues no sigo defendiendo.
 			if (jugador.ultimoEstado == identificadorRol){
 				if (jugador.companeros.length >= 4) {
-					//jugador.cubrir(jugador.calcularJugadorACubrir());
+					jugador.cubrirPase(jugador.calcularJugadorACubrir());
 				}
 			} else {
-				//Si se cambió el rol para la defensa, como ahora atacamos vuelvo al rol que tenía antes.
 				jugador.volverAlAnteriorRol();
 			}
 			jugador.cubrirPase(jugador.calcularJugadorACubrir());
-//			abstract_robot.setDisplayString("Defiendo!!");
 
 			
 		} else {
-			if (estadoAtaqueODefensa == jugador.DEFENDER){
+			if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.DEFENDER){
 
 				abstract_robot.setDisplayString("Defensa defiende!");
-				//jugador.cubrir(jugador.calcularJugadorACubrir());
 				jugador.cubrirPase(jugador.calcularJugadorACubrir());
-//				abstract_robot.setDisplayString("Defiendo!!");
-
-				jugador.cubrirPase(jugador.calcularJugadorACubrir());
-//				abstract_robot.setDisplayString("Defiendo!!");
 			}
 		}
 	}
