@@ -58,7 +58,7 @@ time 1.0 // go 2x real time
 // is reached.  If no timeout statement is given, the default is no
 // termination.
 //
-timeout 100000 // a hundred seconds
+timeout 200000 // a hundred seconds
 
 
 //======
@@ -146,32 +146,32 @@ object EDU.gatech.cc.is.simulation.GolfBallNoiseSim 0 0 0 0.02
 
 //======WEST TEAM======
 westname WestTeam
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Enjuto.EnjutoMojamuTeam
 //------------your control system name goes here ^^^^^^^^
 	-1.2  0    0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Enjuto.EnjutoMojamuTeam
 //------------your control system name goes here ^^^^^^^^
 	-.5   0    0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Enjuto.EnjutoMojamuTeam
 //------------your control system name goes here ^^^^^^^^
 	-.15  .5   0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Enjuto.EnjutoMojamuTeam
 //------------your control system name goes here ^^^^^^^^
 	-.15  0    0 xEAEA00 xFFFFFF 1
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim EnjutoMojamuTeamNachoConRoles
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Enjuto.EnjutoMojamuTeam
 //------------your control system name goes here ^^^^^^^^
 	-.15  -.5  0 xEAEA00 xFFFFFF 1
 
 //======EAST TEAM======
 eastname EastTeam
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Profes1
 	 1.2  0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Profes1
 	 .5   0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Profes1
 	 .15  .5   0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Profes1
 	 .15  0    0 xFF0000 x0000FF 2
-robot EDU.gatech.cc.is.abstractrobot.SocSmallSim ISBCUnited
+robot EDU.gatech.cc.is.abstractrobot.SocSmallSim Profes1
 	 .15  -.5  0 xFF0000 x0000FF 2
 
