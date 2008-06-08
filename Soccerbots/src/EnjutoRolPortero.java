@@ -11,7 +11,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 	private int estadoPortero;
 	private int maxCiclosSeguirY;
 	
-	public EnjutoRolPortero(EnjutoMojamuTeamNachoConRoles jugador, SocSmall robot){
+	public EnjutoRolPortero(EnjutoMojamuTeam jugador, SocSmall robot){
 		this.jugador = jugador;
 		this.identificadorRol = 0;
 		this.abstract_robot = robot;
@@ -31,13 +31,13 @@ public class EnjutoRolPortero extends EnjutoRol {
 		Vec2 ourGoal = jugador.ourGoal;
 		int SIDE = jugador.SIDE;
 		
-		//Comprobar si está sufriendo un bloqueo.
+		//Comprobar si estï¿½ sufriendo un bloqueo.
 		
-			//Si es así intentar evitar colision, y posteriormente ir hacia la portería.
+			//Si es asï¿½ intentar evitar colision, y posteriormente ir hacia la porterï¿½a.
 		
-		//Permitirle salir del area, si el equipo rival está muy defensivo.
+		//Permitirle salir del area, si el equipo rival estï¿½ muy defensivo.
 		
-		//En mano a mano no ir directamente a la bola, sin ir a la bola sin perder de vista la portería.
+		//En mano a mano no ir directamente a la bola, sin ir a la bola sin perder de vista la porterï¿½a.
 		
 		if (jugador.curr_time<1000) {
 			if (estadoPortero != 0)
@@ -132,7 +132,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 			abstract_robot.setSpeed(curr_time, 0.9); //Antes 0.5
 			estadoPortero = 4;
 		}
-		//Añadido ultimamente el balonDemasiadoLejosDeAreaPropia
+		//Aï¿½adido ultimamente el balonDemasiadoLejosDeAreaPropia
 		else if (!jugador.balonCercaAreaPropia() && jugador.balonDemasiadoLejosDeAreaPropia() && !jugador.estasEnElCentroVerticalDelCampo()) {
 			if (estadoPortero!=4)
 				abstract_robot.setSpeed(curr_time, 0);
@@ -239,7 +239,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 			estadoPortero=924;
 		}
 		else if (jugador.estasBajoPalos() && !jugador.estasEnElCentroVerticalDelCampo()) {
-			//No hace falta seguir moviéndose hacia la portería y se puede tener el steerHeading mirando a la bola.
+			//No hace falta seguir moviï¿½ndose hacia la porterï¿½a y se puede tener el steerHeading mirando a la bola.
 			if (estadoPortero!=925)
 				abstract_robot.setSpeed(curr_time, 925);
 			abstract_robot.setSteerHeading(curr_time, ourGoal.t);
@@ -247,7 +247,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 			estadoPortero=925;
 		}
 		else if (jugador.estasBajoPalos() && jugador.estasEnElCentroVerticalDelCampo()) {
-			//No hace falta seguir moviéndose hacia la portería y se puede tener el steerHeading mirando a la bola.
+			//No hace falta seguir moviï¿½ndose hacia la porterï¿½a y se puede tener el steerHeading mirando a la bola.
 			if (estadoPortero!=926)
 				abstract_robot.setSpeed(curr_time, 0);
 			abstract_robot.setSteerHeading(curr_time, balon.t);
@@ -263,7 +263,7 @@ public class EnjutoRolPortero extends EnjutoRol {
 			abstract_robot.setSpeed(curr_time, 1.0);	
 			estadoPortero=10000;
 			
-			//No hace falta seguir moviéndose hacia la portería y se puede tener el steerHeading mirando a la bola.
+			//No hace falta seguir moviï¿½ndose hacia la porterï¿½a y se puede tener el steerHeading mirando a la bola.
 		}
 		
 		detectarPorteroBloqueadoPorRival();
@@ -292,20 +292,20 @@ public class EnjutoRolPortero extends EnjutoRol {
 						m1.sender = abstract_robot.getPlayerNumber(jugador.curr_time);
 						abstract_robot.broadcast(m1);
 						ids[0] = defensaCierre;
-						jugador.roles[abstract_robot.getPlayerNumber(jugador.curr_time)] = EnjutoMojamuTeamNachoConRoles.DEFENSACIERRE;
-						jugador.cambiarRol(EnjutoMojamuTeamNachoConRoles.DEFENSACIERRE);
+						jugador.roles[abstract_robot.getPlayerNumber(jugador.curr_time)] = EnjutoMojamuTeam.DEFENSACIERRE;
+						jugador.cambiarRol(EnjutoMojamuTeam.DEFENSACIERRE);
 					} else {
 						m1 = new StringMessage("YO DEFENSA");
 						m1.sender = abstract_robot.getPlayerNumber(jugador.curr_time);
 						abstract_robot.broadcast(m1);
 						ids[0] = defensa;
-						jugador.roles[abstract_robot.getPlayerNumber(jugador.curr_time)] = EnjutoMojamuTeamNachoConRoles.DEFENSA;
-						jugador.cambiarRol(EnjutoMojamuTeamNachoConRoles.DEFENSA);
+						jugador.roles[abstract_robot.getPlayerNumber(jugador.curr_time)] = EnjutoMojamuTeam.DEFENSA;
+						jugador.cambiarRol(EnjutoMojamuTeam.DEFENSA);
 					}
 					Message m2 = new StringMessage("TU PORTERO");
 					m2.sender = abstract_robot.getPlayerNumber(jugador.curr_time);
 					try {
-						//Se le manda únicamente al delantero que va a pasar a ser centrocampistaAprovechadorDeBloqueos, y ya será ese el que comunique al resto los cambios.
+						//Se le manda ï¿½nicamente al delantero que va a pasar a ser centrocampistaAprovechadorDeBloqueos, y ya serï¿½ ese el que comunique al resto los cambios.
 						abstract_robot.multicast(ids, m2);
 					} catch (CommunicationException e) {
 						e.printStackTrace();

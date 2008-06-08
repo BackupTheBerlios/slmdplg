@@ -7,12 +7,12 @@ import EDU.gatech.cc.is.abstractrobot.SocSmall;
  *
  */
 public class EnjutoRol {
-	protected EnjutoMojamuTeamNachoConRoles jugador;
+	protected EnjutoMojamuTeam jugador;
 	protected int identificadorRol;
 	protected SocSmall abstract_robot;
 	
 	/**
-	 * Método para que el rol realize una acción. 
+	 * Mï¿½todo para que el rol realize una acciï¿½n. 
 	 */
 	public void actuarRol(int estadoAtaqueODefensa){
 		

@@ -16,21 +16,21 @@ public class EnjutoRolDelantero extends EnjutoRol {
 	int encasillarAtaque;
 	
 	
-	public EnjutoRolDelantero(EnjutoMojamuTeamNachoConRoles jugador, SocSmall robot){
+	public EnjutoRolDelantero(EnjutoMojamuTeam jugador, SocSmall robot){
 		this.jugador = jugador;
 		this.identificadorRol = 3;
 		this.abstract_robot = robot;
 	}
 	
 	public void actuarRol(int estadoAtaqueODefensa){
-		//Ahora está configurado para que haga lo mismo tanto atacando como defendiendo.
+		//Ahora estï¿½ configurado para que haga lo mismo tanto atacando como defendiendo.
 		
-		if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.ATACAR){
+		if (estadoAtaqueODefensa == EnjutoMojamuTeam.ATACAR){
 			abstract_robot.setDisplayString("Delantero ataca");
 			inicializaVariablesAtaque();
 			actuarDelantero();
 		} else {
-			if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.DEFENDER){
+			if (estadoAtaqueODefensa == EnjutoMojamuTeam.DEFENDER){
 				abstract_robot.setDisplayString("Delantero defiende =");
 				inicializaVariablesAtaque();
 				actuarDelantero();

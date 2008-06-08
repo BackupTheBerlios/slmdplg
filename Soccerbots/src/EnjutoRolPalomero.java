@@ -11,22 +11,22 @@ public class EnjutoRolPalomero extends EnjutoRol {
 	Vec2 posicionArribaPorteria;
 	Vec2 posicionAbajoPorteria;
 	
-	public EnjutoRolPalomero(EnjutoMojamuTeamNachoConRoles jugador, SocSmall robot){
+	public EnjutoRolPalomero(EnjutoMojamuTeam jugador, SocSmall robot){
 		this.jugador = jugador;
 		this.identificadorRol = 6;
 		this.abstract_robot = robot;
 	}
 	
 	public void actuarRol(int estadoAtaqueODefensa){
-		//Ahora está configurado para que haga lo mismo tanto atacando como defendiendo.
+		//Ahora estï¿½ configurado para que haga lo mismo tanto atacando como defendiendo.
 		
-		if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.ATACAR){
+		if (estadoAtaqueODefensa == EnjutoMojamuTeam.ATACAR){
 			abstract_robot.setDisplayString("Palomero Ataca!");			
 			inicializaVariablesAtaque();
 			actuarPalomero();
 		} else {
-			if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.DEFENDER){
-				this.jugador.cambiarRol(EnjutoMojamuTeamNachoConRoles.DEFENSA);
+			if (estadoAtaqueODefensa == EnjutoMojamuTeam.DEFENDER){
+				this.jugador.cambiarRol(EnjutoMojamuTeam.DEFENSA);
 			}
 		}
 	}
@@ -50,14 +50,14 @@ public class EnjutoRolPalomero extends EnjutoRol {
 		boolean palomero = false;
 		double distanciaASuPorteria = jugador.oponentGoal.r;
 		//Puede estar en varios puntos del campo
-		if (distanciaASuPorteria >= EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/2) {
+		if (distanciaASuPorteria >= EnjutoMojamuTeam.LONGITUD_CAMPO/2) {
 			//Ir a la banda.
 			Vec2 puntoBanda;
 			if (banda == 0){
-				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/2, jugador.oponentGoal.y + EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/2 + 0.2);
+				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeam.LONGITUD_CAMPO/2, jugador.oponentGoal.y + EnjutoMojamuTeam.ANCHO_CAMPO/2 + 0.2);
 				abstract_robot.setDisplayString("Yendo Arriba");
 			} else {
-				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/2, jugador.oponentGoal.y - EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/2 + 0.2);
+				puntoBanda = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeam.LONGITUD_CAMPO/2, jugador.oponentGoal.y - EnjutoMojamuTeam.ANCHO_CAMPO/2 + 0.2);
 				abstract_robot.setDisplayString("Yendo Abajo");
 			}
 			
@@ -65,14 +65,14 @@ public class EnjutoRolPalomero extends EnjutoRol {
 			abstract_robot.setSteerHeading(curr_time, puntoBanda.t);
 			abstract_robot.setSpeed(curr_time, 1.0);
 		} else {
-			if (distanciaASuPorteria >= EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/5) {
+			if (distanciaASuPorteria >= EnjutoMojamuTeam.LONGITUD_CAMPO/5) {
 				//Ir a la banda.
 				Vec2 puntoPalomero;
 				if (banda == 0){
-					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/8, jugador.oponentGoal.y + EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/4 - 0.2);
+					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeam.LONGITUD_CAMPO/8, jugador.oponentGoal.y + EnjutoMojamuTeam.ANCHO_CAMPO/4 - 0.2);
 					abstract_robot.setDisplayString("Yendo Palom Arriba");
 				} else {
-					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/8, jugador.oponentGoal.y - EnjutoMojamuTeamNachoConRoles.ANCHO_CAMPO/4 - 0.2 );
+					puntoPalomero = new Vec2(jugador.oponentGoal.x + (-jugador.SIDE)*EnjutoMojamuTeam.LONGITUD_CAMPO/8, jugador.oponentGoal.y - EnjutoMojamuTeam.ANCHO_CAMPO/4 - 0.2 );
 					abstract_robot.setDisplayString("Yendo Palom Abajo");
 				}
 				
@@ -82,7 +82,7 @@ public class EnjutoRolPalomero extends EnjutoRol {
 				
 			} else {
 				
-				if (distanciaASuPorteria < EnjutoMojamuTeamNachoConRoles.LONGITUD_CAMPO/4.5){
+				if (distanciaASuPorteria < EnjutoMojamuTeam.LONGITUD_CAMPO/4.5){
 					//Estoy en palomero
 					abstract_robot.setSpeed(curr_time, 0.0);
 					abstract_robot.setSteerHeading(curr_time, jugador.oponentGoal.t);
@@ -93,14 +93,14 @@ public class EnjutoRolPalomero extends EnjutoRol {
 			}
 		}
 		
-		//Modificador de la velocidad en base a la posición del balón en el eje X
+		//Modificador de la velocidad en base a la posiciï¿½n del balï¿½n en el eje X
 		Vec2 posicionJugador = abstract_robot.getPosition(curr_time);
 		if ( (posicionJugador.x - balon.x)*jugador.SIDE > 0 ) {
 			
 		}
 		
 		
-		//Independiente a la colocación
+		//Independiente a la colocaciï¿½n
 		double robotApoyo;
 		
 		if (palomero) {

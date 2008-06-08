@@ -6,7 +6,7 @@ import EDU.gatech.cc.is.communication.StringMessage;
 
 public class EnjutoRolCentrocampistaBloqueador extends EnjutoRol {
 
-	public EnjutoRolCentrocampistaBloqueador(EnjutoMojamuTeamNachoConRoles jugador, SocSmall robot) {
+	public EnjutoRolCentrocampistaBloqueador(EnjutoMojamuTeam jugador, SocSmall robot) {
 		this.abstract_robot = robot;
 		this.jugador = jugador;
 		this.identificadorRol = 4;

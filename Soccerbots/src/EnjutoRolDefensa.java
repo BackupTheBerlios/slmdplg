@@ -3,7 +3,7 @@ import EDU.gatech.cc.is.abstractrobot.SocSmall;
 
 public class EnjutoRolDefensa extends EnjutoRol {
 	
-	public EnjutoRolDefensa(EnjutoMojamuTeamNachoConRoles jugador, SocSmall robot){
+	public EnjutoRolDefensa(EnjutoMojamuTeam jugador, SocSmall robot){
 		this.jugador = jugador;
 		this.identificadorRol = 1;
 		this.abstract_robot = robot;
@@ -14,7 +14,7 @@ public class EnjutoRolDefensa extends EnjutoRol {
 	{
 		abstract_robot.setDisplayString("Defensa " + estadoAtaqueODefensa);
 
-		if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.ATACAR){
+		if (estadoAtaqueODefensa == EnjutoMojamuTeam.ATACAR){
 
 			abstract_robot.setDisplayString("Defensa ataca!");
 			//Si anteriormente ya era defensa, pues no sigo defendiendo.
@@ -29,7 +29,7 @@ public class EnjutoRolDefensa extends EnjutoRol {
 
 			
 		} else {
-			if (estadoAtaqueODefensa == EnjutoMojamuTeamNachoConRoles.DEFENDER){
+			if (estadoAtaqueODefensa == EnjutoMojamuTeam.DEFENDER){
 
 				abstract_robot.setDisplayString("Defensa defiende!");
 				jugador.cubrirPase(jugador.calcularJugadorACubrir());
