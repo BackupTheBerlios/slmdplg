@@ -1,3 +1,4 @@
+package Enjuto;
 import java.util.Random;
 
 import EDU.gatech.cc.is.abstractrobot.SocSmall;

@@ -1,3 +1,4 @@
+package Enjuto;
 import EDU.gatech.cc.is.abstractrobot.SocSmall;
 
 
@@ -7,9 +8,9 @@ import EDU.gatech.cc.is.abstractrobot.SocSmall;
  *
  */
 public class EnjutoRol {
-	protected EnjutoMojamuTeam jugador;
+	public EnjutoMojamuTeam jugador;
 	protected int identificadorRol;
-	protected SocSmall abstract_robot;
+	public SocSmall abstract_robot;
 	
 	/**
 	 * M�todo para que el rol realize una acci�n. 

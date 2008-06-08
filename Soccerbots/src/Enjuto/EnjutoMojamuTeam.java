@@ -1,3 +1,5 @@
+package Enjuto;
+
  import java.util.Enumeration;
 
 import EDU.gatech.cc.is.abstractrobot.ControlSystemSS;
@@ -5,6 +7,13 @@ import EDU.gatech.cc.is.abstractrobot.SocSmall;
 import EDU.gatech.cc.is.communication.Message;
 import EDU.gatech.cc.is.communication.StringMessage;
 import EDU.gatech.cc.is.util.Vec2;
+import Enjuto.EnjutoRol;
+import Enjuto.EnjutoRolCentrocampistaBloqueador;
+import Enjuto.EnjutoRolDefensa;
+import Enjuto.EnjutoRolDefensaCierre;
+import Enjuto.EnjutoRolDelantero;
+import Enjuto.EnjutoRolPalomero;
+import Enjuto.EnjutoRolPortero;
 
 /**
  * This is about the simplest possible soccer strategy, just go to the ball.
@@ -13,7 +22,7 @@ import EDU.gatech.cc.is.util.Vec2;
  * (c)1997 Georgia Tech Research Corporation
  *
  * @author Tucker Balch
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.1 $
  */
 
 
